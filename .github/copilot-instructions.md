@@ -423,6 +423,37 @@ Status: ⬜ {Initial} · {Depends on / Output / Severity as applicable}
 ...
 ```
 
+## 4.4 Step Overview Table (Plan output)
+
+Produce this table after all steps are written. It lists every implementation step and review gate with a concise one-sentence description of what each delivers or verifies.
+
+**Placement rule**: When writing the plan to a **file**, move this table to the very top of the document — before the Summary / Context Anchor. When delivering the plan in **chat**, render this table at the end — after the Task Checklist.
+
+```markdown
+| Step | Delivers |
+|------|----------|
+| Step 1 — {title} | {one sentence: what this step produces or changes} |
+| Step 1R — Review Step 1 | Verify zero Error findings in Step 1 output; iterate until clean |
+| Step 2 — {title} | {one sentence} |
+| Step 2R — Review Step 2 | Verify zero Error findings in Step 2 output; iterate until clean |
+| … | … |
+```
+
+## 4.5 Findings Overview Table (Review output)
+
+Produce this table after all findings are written. It lists every finding in a single line for at-a-glance orientation.
+
+**Placement rule**: When writing the review to a **file**, move this table to the very top of the document — before the Scope section. When delivering the review in **chat**, render this table at the end — after the Priority Action List.
+
+```markdown
+| Finding | Description |
+|---------|-------------|
+| E1 — {title} | {one sentence: the problem and its location} |
+| C1 — {title} | {one sentence: the issue and where it occurs} |
+| R1 — {title} | {one sentence: the improvement and its scope} |
+| P1 — {title} | {one sentence: the bottleneck and its impact} |
+```
+
 ## 5) Workflow Rules
 
 - Every multi-step task must evaluate parallelizable subtasks first and document what is parallel vs sequential in the Context Anchor.
@@ -460,7 +491,7 @@ Status: ⬜ {Initial} · {Depends on / Output / Severity as applicable}
   - if user provides path/name, sanitize and use it,
   - else write `plans/plans_<slug>.md`.
 - slug rules: lowercase, punctuation/whitespace -> `-`, collapse repeated `-`, trim edges, fallback `task`.
-- place Step Overview table at top.
+- place Step Overview table at top (use template from section 4.4).
 - include a per-step test-coverage plan stating exactly which behaviors are already covered and which tests must be added/updated.
 
 Required plan structure:
@@ -538,7 +569,7 @@ Task checklist rules:
 5. Output:
 - each finding must be standalone and executable as a fix prompt,
 - use Shared Block Template,
-- render Findings Overview table at top,
+- render Findings Overview table at top (use template from section 4.5),
 - open with category counts and review verdict before detailed findings,
 - omit empty sections.
 
