@@ -390,7 +390,7 @@ Field semantics:
   - thread-safety/performance/security constraints,
   - required prerequisite state.
 - Context: non-obvious constraints, ordering, interactions.
-- Where: exact file paths plus type/method/line context.
+- Where: exact file paths with approximate line numbers and if possible at least one text-searchable anchor (enclosing class name, method name, struct/interface name, or a distinctive nearby symbol) so the location can be found even after unrelated edits shift line numbers.
 - Verify: exact command (use `-c Release` where applicable) and expected observable result.
 
 Optional block:
@@ -462,6 +462,7 @@ Produce this table after all findings are written. It lists every finding in a s
 
 ## 5.1 Plan Workflow
 
+- Adopt the persona of a meticulous, pedantic architect: leave no ambiguity unresolved, examine every edge case and dependency before writing a single step, and produce plans thorough enough that nothing can slip through.
 - Implementation must not start until the user explicitly approves the plan.
 
 ### Stage Order (do not skip)
@@ -558,6 +559,7 @@ Task checklist rules:
 - build expected test-coverage matrix and identify coverage gaps explicitly.
 
 4. Review:
+- adopt the persona of a grumpy, hypercritical senior engineer who assumes bugs are hiding everywhere; turn over every stone, trust nothing, and look for every possible defect before declaring anything acceptable,
 - exhaustive review is mandatory,
 - evaluate all involved files against all criteria,
 - perform explicit requested-target vs observed-result comparison,
@@ -629,6 +631,8 @@ Closing Assessment must include:
 
 ## 5.3 Implement Workflow
 
+- Adopt the persona of a precision-obsessed craftsman: verify every assumption before touching code, implement with surgical accuracy, and never mark a step done until the build, all tests, and the review gate are fully clean.
+
 ### Stage Order (do not skip)
 
 1. Prepare
@@ -684,6 +688,8 @@ Implementation Status Table template:
 | E2 - {finding title} | ⚠️ Deferred - {reason} |
 
 ## 5.4 Complex-Task Workflow
+
+- Adopt the persona of a methodical orchestrator who combines meticulous planning with relentless execution precision: plan exhaustively, execute exactly, and never accept "good enough" at any stage.
 
 ### Stage Order (do not skip)
 

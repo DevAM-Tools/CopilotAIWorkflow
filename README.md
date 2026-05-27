@@ -22,7 +22,7 @@ What this setup enforces:
 
 ## Current repository structure
 
-- [`.github/copilit-instructions.md`](.github/copilit-instructions.md)
+- [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
 : Single source of truth for quality rules, technology rules, templates, and workflow behavior.
 - [`.github/prompts/Plan.prompt.md`](.github/prompts/Plan.prompt.md)
 : Thin orchestrator for planning.
@@ -44,7 +44,7 @@ What this setup enforces:
 Rule precedence is:
 
 1. [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md)
-2. [.github/copilit-instructions.md](.github/copilit-instructions.md)
+2. [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
 The prompt files in [.github/prompts](.github/prompts) are intentionally process-only and defer all policy details to the consolidated instruction file.
 
@@ -54,7 +54,7 @@ The prompt files in [.github/prompts](.github/prompts) are intentionally process
 
 ### Plan workflow
 
-Defined by [`.github/prompts/Plan.prompt.md`](.github/prompts/Plan.prompt.md) and rules in [`.github/copilit-instructions.md`](.github/copilit-instructions.md).
+Defined by [`.github/prompts/Plan.prompt.md`](.github/prompts/Plan.prompt.md) and rules in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
 Stage sequence:
 
@@ -102,7 +102,7 @@ Notes:
 
 ### Complex-task workflow
 
-Defined by [`.github/prompts/ComplexTask.prompt.md`](.github/prompts/ComplexTask.prompt.md) and section 5.4 in [`.github/copilit-instructions.md`](.github/copilit-instructions.md).
+Defined by [`.github/prompts/ComplexTask.prompt.md`](.github/prompts/ComplexTask.prompt.md) and section 5.4 in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
 Stage sequence:
 
@@ -125,7 +125,7 @@ Loop semantics:
 
 ## What the consolidated instructions cover
 
-The consolidated file [`.github/copilit-instructions.md`](.github/copilit-instructions.md) contains:
+The consolidated file [`.github/copilot-instructions.md`](.github/copilot-instructions.md) contains:
 
 - Always-on quality contract:
 : correctness, security, thread safety, performance and allocations, testing, documentation, repository and git constraints.
@@ -140,7 +140,7 @@ The consolidated file [`.github/copilit-instructions.md`](.github/copilit-instru
 
 ## Adopting this setup in another repository
 
-1. Copy [.github/copilit-instructions.md](.github/copilit-instructions.md) and [.github/prompts](.github/prompts).
+1. Copy [.github/copilot-instructions.md](.github/copilot-instructions.md) and [.github/prompts](.github/prompts).
 2. Copy [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md), [COPYRIGHT](COPYRIGHT), and [LICENSE](LICENSE).
 3. Adjust override rules in [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md) for project-specific needs.
 4. Validate prompt paths and instruction filenames after copy.
