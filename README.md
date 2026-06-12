@@ -1,153 +1,124 @@
-<!-- Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root. -->
-
 # CopilotAIWorkflow
 
-A structured GitHub Copilot workflow that enforces planning, implementation, and review discipline through one consolidated instruction source and thin process prompts.
+Structured AI agent workflow for **GitHub Copilot** and **Cursor**: planning, implementation, and review with layered instructions and on-demand skills.
 
 ---
 
 ## Why this repository exists
 
-Default chat behavior is fast but often inconsistent across sessions. This repository provides a stable execution model that keeps agent behavior deterministic and auditable.
-
-What this setup enforces:
+Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
 - No implementation before plan approval.
-- Explicit workflow phases for plan, implement, review, and complex-task orchestration.
-- Review loops that continue until Error findings are zero (or become explicitly blocked).
-- Build and test discipline with warnings treated as defects.
-- Cross-file consistency, boundary validation, and release-readiness verdicts.
+- Explicit phases: plan, implement, review, complex-task.
+- Review loops until zero Error findings (or explicit block).
+- Warnings treated as defects.
+- Token-efficient chat; high-quality plan and review artifacts.
 
 ---
 
-## Current repository structure
+## Repository structure
 
-- [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
-: Single source of truth for quality rules, technology rules, templates, and workflow behavior.
-- [`.github/prompts/Plan.prompt.md`](.github/prompts/Plan.prompt.md)
-: Thin orchestrator for planning.
-- [`.github/prompts/Implement.prompt.md`](.github/prompts/Implement.prompt.md)
-: Thin orchestrator for implementation.
-- [`.github/prompts/Review.prompt.md`](.github/prompts/Review.prompt.md)
-: Thin orchestrator for review.
-- [`.github/prompts/ComplexTask.prompt.md`](.github/prompts/ComplexTask.prompt.md)
-: Thin orchestrator for end-to-end plan plus implement plus review loops.
-- [`CUSTOM_INSTRUCTIONS.md`](CUSTOM_INSTRUCTIONS.md)
-: Repository-specific overrides that take priority.
-- [`COPYRIGHT`](COPYRIGHT), [`LICENSE`](LICENSE)
-: Legal and licensing artifacts.
+| Path | Role |
+|------|------|
+| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | **SSOT** — always-on policy, quality contract, tech-load protocol, terse communication |
+| [`.github/skills/workflow-*.md`](.github/skills/) | **SSOT** — workflow stages (loaded on `/plan`, `/implement`, etc.) |
+| [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
+| [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
+| [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/complex-task`) |
+| [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
+| [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
+| [`tests/instruction-validation/PROPOSAL.md`](tests/instruction-validation/PROPOSAL.md) | A/B and metrics proposal (not yet implemented) |
+| [`analysis.md`](analysis.md) | Design analysis and rationale |
+
+---
+
+## SSOT layering
+
+Each concern has exactly one authoritative file under `.github/`. Copilot prompts and Cursor rules/commands/skills reference by path; they do not copy rules.
+
+| Concern | SSOT |
+|---------|------|
+| Quality, C#, templates, terse, tech triggers | `.github/copilot-instructions.md` |
+| Workflow stages and gates | `.github/skills/workflow-*.md` |
+| Build, CPM, dependencies | `.github/skills/tech-solution.md` |
+| TUnit / Blazor / SourceGen | respective `.github/skills/tech-*.md` |
+| Copilot user entry | `.github/prompts/` |
+| Cursor user entry | `.cursor/commands/`, `.cursor/skills/` |
+
+Entry points read `copilot-instructions.md` plus one workflow skill. No partial checklists.
 
 ---
 
 ## Configuration precedence
 
-Rule precedence is:
+1. [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+2. Skills loaded per Tech Load Protocol (Section 3) and workflow triggers (Section 6)
 
-1. [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md)
-2. [.github/copilot-instructions.md](.github/copilot-instructions.md)
+Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) is a bootstrap only — it does not override SSOT content.
 
-The prompt files in [.github/prompts](.github/prompts) are intentionally process-only and defer all policy details to the consolidated instruction file.
+---
+
+## On-Demand skills
+
+| Skill | Load when |
+|-------|-----------|
+| `tech-tunit.md` | Test files or test projects in scope |
+| `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` in scope |
+| `tech-sourcegen.md` | Generator code in scope |
+| `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
+| `workflow-plan.md` | `/plan` |
+| `workflow-implement.md` | `/implement` |
+| `workflow-review.md` | `/review` |
+| `workflow-complex-task.md` | `/complex-task` |
+
+Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
 
 ---
 
 ## Workflow overview
 
-### Plan workflow
+Stages live in workflow skills only. Prompts do not repeat them.
 
-Defined by [`.github/prompts/Plan.prompt.md`](.github/prompts/Plan.prompt.md) and rules in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+- **Plan:** `workflow-plan.md` — gather context, Grill Me, write artifact
+- **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, verify
+- **Review:** `workflow-review.md` — scope, load, review, output
+- **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop
 
-Stage sequence:
-
-1. Gather Context
-2. Grill Me
-3. Write Plan Artifact
-
-Notes:
-
-- Scope phase is intentionally removed.
-- Compatibility and breaking-change questions are handled inside Grill Me.
-- Plan output is artifact-first and includes review gates.
-
-### Implement workflow
-
-Defined by [`.github/prompts/Implement.prompt.md`](.github/prompts/Implement.prompt.md).
-
-Stage sequence:
-
-1. Prepare
-2. Execute Steps
-3. Final Verification
-
-Notes:
-
-- Uses review gates and remediation loops.
-- Supports resume based on checklist status.
-
-### Review workflow
-
-Defined by [`.github/prompts/Review.prompt.md`](.github/prompts/Review.prompt.md).
-
-Stage sequence:
-
-1. Define Scope
-2. Load Applicable Rules
-3. Gather Context
-4. Review
-5. Output
-
-Notes:
-
-- Output supports chat mode and file mode.
-- Exhaustive coverage is expected before finalizing findings.
-
-### Complex-task workflow
-
-Defined by [`.github/prompts/ComplexTask.prompt.md`](.github/prompts/ComplexTask.prompt.md) and section 5.4 in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
-
-Stage sequence:
-
-1. Plan
-2. Checkpoint
-3. Implement/Review Loop
-4. Stop Conditions
-5. Resume
-6. Final Report
-
-Loop semantics:
-
-- Each remediation iteration must execute review.
-- Each review iteration is persisted.
-- Success requires zero Error findings in the latest review iteration.
-- Cosmetic, Refactoring, and Performance findings may be deferred.
-- Blocked state triggers when the same Error-class root cause persists after two remediation attempts in the same step scope.
+Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
 
 ---
 
-## What the consolidated instructions cover
+## Cursor usage
 
-The consolidated file [`.github/copilot-instructions.md`](.github/copilot-instructions.md) contains:
+Cursor picks up the workflow automatically when this repo (or a copy) is open:
 
-- Always-on quality contract:
-: correctness, security, thread safety, performance and allocations, testing, documentation, repository and git constraints.
-- Technology rules:
-: C# standards, TUnit testing rules, Blazor/Razor rules, and source generator rules.
-- Shared output templates:
-: structured question blocks and shared plan/review block format.
-- Workflow contracts:
-: detailed requirements for plan, review, implement, and complex-task orchestration.
+| Mechanism | How to use |
+|-----------|------------|
+| Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
+| Slash commands | Type `/plan`, `/implement`, `/review`, or `/complex-task` in chat |
+| Agent skills | Skills auto-discover via descriptions; each points to `.github/skills/` SSOT |
+| `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
+
+Natural-language triggers (`plan this feature`, `review the PR`) work the same as slash commands per `copilot-instructions.md` Section 6.
 
 ---
 
-## Adopting this setup in another repository
+## GitHub Copilot usage
 
-1. Copy [.github/copilot-instructions.md](.github/copilot-instructions.md) and [.github/prompts](.github/prompts).
-2. Copy [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md), [COPYRIGHT](COPYRIGHT), and [LICENSE](LICENSE).
-3. Adjust override rules in [CUSTOM_INSTRUCTIONS.md](CUSTOM_INSTRUCTIONS.md) for project-specific needs.
-4. Validate prompt paths and instruction filenames after copy.
+Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/commands/`](.cursor/commands/) — same three-line body, different tool format.
+
+---
+
+## Adopting in another repository
+
+1. Copy [`.github/`](.github/) (instructions, skills, prompts).
+2. Copy [`.cursor/`](.cursor/) and [`AGENTS.md`](AGENTS.md) for Cursor support.
+3. Copy [`COPYRIGHT`](COPYRIGHT) and [`LICENSE`](LICENSE).
+4. Validate paths after copy (`.github/` and `.cursor/` references are relative to repo root).
 
 ---
 
 ## License
 
-Copyright © 2026 DevAM. Licensed under MIT.
-See [LICENSE](LICENSE).
+Copyright © 2026 DevAM. Licensed under MIT. See [LICENSE](LICENSE).
