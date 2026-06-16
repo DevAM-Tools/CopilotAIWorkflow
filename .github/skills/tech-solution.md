@@ -76,6 +76,12 @@ When publishing or packaging is in scope, ask user for: `VersionPrefix`, `Versio
 | `AssemblyName` | per project |
 | Duplicate `Directory.Build.props` properties | omit |
 
+## CSharpStyleValidator
+
+- Add `CSharpStyleValidator` NuGet to every `net10.0` project.
+- No further analyzer configuration required; do not reference `ExitPoints` separately (bundled in the package).
+- Exempt: `CSharpStyleValidator`, `ExitPoints`, `ExitPoints.Tests`, `CSharpStyleValidator.Tests`; set `ApplyCSharpStyleValidator=false` only for explicit opt-out.
+
 ## New Dependency Protocol
 
 - Never add `PackageReference`, `PackageVersion`, or `ProjectReference` without user approval.

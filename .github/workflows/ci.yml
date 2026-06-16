@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  CI: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet build CopilotAIWorkflow.slnx -c Release
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
+          - os: windows-latest
+          - os: windows-11-arm
+          - os: macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet test CopilotAIWorkflow.slnx -c Release -- --coverage --coverage-output-format cobertura
+      - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/CSharpStyleValidator/CSharpStyleValidator.csproj --search-root src --repo-root . --no-build
+      - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/ExitPoints/ExitPoints.csproj --search-root src --repo-root . --no-build
+      - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/CoverageGapAnalysis/CoverageGapAnalysis.csproj --search-root src --repo-root . --no-build
+      - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/CoverageGap.Tool/CoverageGap.Tool.csproj --search-root src --repo-root . --no-build

@@ -16,6 +16,7 @@ Load on `/plan`. Apply `copilot-instructions.md` Sections 2–4.
 - Read definition and docs for every involved member or type.
 - Identify interface candidates and expected hot paths.
 - Build test-coverage matrix: behavior × tests (errors, boundaries, concurrency, security).
+- When `.razor` is in scope: plan exhaustive bUnit coverage per `tech-blazor.md`.
 - Summarize findings tersely per Section 2.
 
 ## Stage 2 — Grill Me
@@ -31,7 +32,9 @@ Cover every topic below before finalizing plan scope:
 - compatibility, migration, and breaking-change strategy,
 - new dependencies per `tech-solution.md` New Dependency Protocol,
 - testing strategy and definition of done,
-- architecture boundaries and shared cross-cutting patterns.
+- architecture boundaries and shared cross-cutting patterns,
+- API misuse and abuse vectors (how can the solution be used wrongly or exploited),
+- automation when the same change pattern affects more than ten call sites (script or codemod in plan).
 
 ```markdown
 ## Q{n} — {topic}
@@ -88,13 +91,19 @@ Status: ⬜ {Initial} · {Depends on / Severity}
 
 1. Step Overview (top)
 2. Summary / Context Anchor
-3. Phases (optional; use when >10 steps or multiple areas)
-4. Vertical Slices
-5. Steps (Shared Block as above)
-6. Edge Cases and Risks
-7. Open Questions
-8. Closing Summary
-9. Task Checklist (alternating Step N and Step NR)
+3. Target Solution (Vision)
+4. Phases (optional; use when >10 steps or multiple areas)
+5. Vertical Slices
+6. Steps (Shared Block as above)
+7. Edge Cases and Risks
+8. Open Questions
+9. Closing Summary
+10. Task Checklist (alternating Step N and Step NR)
+
+## Target Solution (Vision)
+
+- Describe the target solution in a structured, comprehensive, detailed, illustrated way not implementation steps.
+- Plan steps may put references to Target Solution (Vision in `Context` so the agent can re-read end-state on demand.
 
 ## Vertical Slices
 

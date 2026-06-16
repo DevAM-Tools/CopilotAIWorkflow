@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>CSharpStyleValidator.Demo</RootNamespace>
+    <AssemblyName>CSharpStyleValidator.Demo</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <IncludeViolations Condition="'$(IncludeViolations)' == ''">false</IncludeViolations>
+    <ApplyCSharpStyleValidator>false</ApplyCSharpStyleValidator>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\..\src\CSharpStyleValidator\CSharpStyleValidator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Import Project="..\..\src\CSharpStyleValidator\build\CSharpStyleValidator.Local.targets" />
+  <ItemGroup Condition="'$(IncludeViolations)' != 'true'">
+    <Compile Remove="Violations\**\*.cs" />
+  </ItemGroup>
+</Project>

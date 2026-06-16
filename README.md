@@ -28,8 +28,6 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/complex-task`) |
 | [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
-| [`tests/instruction-validation/PROPOSAL.md`](tests/instruction-validation/PROPOSAL.md) | A/B and metrics proposal (not yet implemented) |
-| [`analysis.md`](analysis.md) | Design analysis and rationale |
 
 ---
 
@@ -64,7 +62,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | Skill | Load when |
 |-------|-----------|
 | `tech-tunit.md` | Test files or test projects in scope |
-| `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` in scope |
+| `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` in scope — exhaustive **bUnit** component tests |
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
 | `workflow-plan.md` | `/plan` |
@@ -119,6 +117,80 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 
 ---
 
+## Solution components
+
+| Project | Role |
+|---------|------|
+| [`CSharpStyleValidator`](src/CSharpStyleValidator/) | Roslyn analyzer NuGet (CSV001–CSV007) |
+| [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection for coverage workflows |
+| [`CoverageGapAnalysis`](src/CoverageGapAnalysis/) | Cobertura parsing and exit/branch gap reporting library |
+| [`CoverageGap.Tool`](src/CoverageGap.Tool/) | CLI — `report project` and `manifest project` |
+| [`samples/CSharpStyleValidator.Demo`](samples/CSharpStyleValidator.Demo/) | Local analyzer demo with violation fixtures |
+
+**CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Release build; test matrix on Linux, Windows, and macOS (x64 and ARM); exit-gap report (`exitGapCount == 0`) on every production project. Release builds auto-pack NuGet packages to `artifacts/`.
+
+---
+
+## CSharpStyleValidator
+
+Roslyn analyzer package enforcing CopilotAIWorkflow C# style as **compiler errors** (CSV001–CSV007).
+
+| ID | Rule |
+|----|------|
+| CSV001 | Line length ≤ 160 (strings/comments masked) |
+| CSV002 | No `var` |
+| CSV003 | Private `_PascalCase` |
+| CSV004 | No `.Result` / `.Wait()` on `Task` |
+| CSV005 | `using` only in `GlobalUsings.cs` |
+| CSV006 | At most one exit point per source line per callable |
+| CSV007 | Volatile fields via `Volatile` or `Interlocked` only |
+
+XML documentation on public APIs is enforced by built-in **CS1591** in production projects (`GenerateDocumentationFile` + `TreatWarningsAsErrors`).
+
+**Consumer setup:**
+
+```xml
+<PackageReference Include="CSharpStyleValidator" Version="1.0.0">
+  <PrivateAssets>all</PrivateAssets>
+  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+</PackageReference>
+```
+
+Optional: `dotnet_diagnostic.IDE0008.severity = none` to avoid duplicate `var` IDE warnings.
+
+Optional line length override (CSV001): set `build_property.csv_max_line_length = N` in `.editorconfig` (requires `CompilerVisibleProperty` in the analyzer package).
+
+**Demo:** [`samples/CSharpStyleValidator.Demo/README.md`](samples/CSharpStyleValidator.Demo/README.md) — try rules locally; use `-p:IncludeViolations=true` to see diagnostics.
+
+Build and test (Release build writes `.nupkg` files to `artifacts/` for packable projects):
+
+```bash
+dotnet build CopilotAIWorkflow.slnx -c Release
+dotnet test CopilotAIWorkflow.slnx -c Release -- --coverage --coverage-output-format cobertura
+dotnet run --project src/CoverageGap.Tool -c Release -- report project path/YourProject.csproj --search-root src --repo-root .
+```
+
+Coverage gap report (`coveragegap report`): exit-point gaps first, then branch gaps (informational only). Formats: `--format agent` (JSON) or `compact` (minimal tokens). Optional `--include-snippet`. Release gate: `exitGapCount == 0` (`copilot-instructions.md` §4.5); workflow and commands in `tech-tunit.md`.
+
+Optional exit manifest export:
+
+```bash
+dotnet run --project src/CoverageGap.Tool -c Release -- manifest project path/YourProject.csproj -o exits.json
+```
+
+Install globally after NuGet publish:
+
+```bash
+dotnet tool install -g CoverageGap.Tool
+coveragegap report project path/YourProject.csproj --search-root src --repo-root .
+```
+
+---
+
 ## License
 
 Copyright © 2026 DevAM. Licensed under MIT. See [LICENSE](LICENSE).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.

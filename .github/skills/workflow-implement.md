@@ -26,6 +26,7 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Do not substitute, simplify, or extend beyond scope without user approval.
 - Run `Verify` from plan step or finding; require pass.
 - **Alignment check:** compare plan/finding target vs actual result; confirm goal met and no deviation.
+- Confirm misuse/abuse checklist from plan is satisfied when new public APIs are in scope.
 - Run `/review` at each Step NR; zero Errors before next step.
 - Persist review file in complex-task mode per `workflow-complex-task.md`.
 - Stop with blocker after two failed remediation attempts for same Error root cause.

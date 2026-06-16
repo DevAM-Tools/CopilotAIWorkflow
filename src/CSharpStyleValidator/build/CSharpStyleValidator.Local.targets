@@ -1,0 +1,17 @@
+<Project>
+  <!-- Transitive analyzer DLL for CSV006; consumers reference CSharpStyleValidator only. -->
+  <PropertyGroup>
+    <CSharpStyleValidatorProjectPath>$(MSBuildThisFileDirectory)..\CSharpStyleValidator.csproj</CSharpStyleValidatorProjectPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer
+      Include="$(MSBuildThisFileDirectory)..\..\ExitPoints\bin\$(Configuration)\netstandard2.0\ExitPoints.dll"
+      Condition="Exists('$(MSBuildThisFileDirectory)..\..\ExitPoints\bin\$(Configuration)\netstandard2.0\ExitPoints.dll')" />
+  </ItemGroup>
+  <Target Name="EnsureCSharpStyleValidatorBuilt" BeforeTargets="CoreCompile" Condition="'$(IsPacking)' != 'true'">
+    <MSBuild
+      Projects="$(CSharpStyleValidatorProjectPath)"
+      Targets="Build"
+      Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />
+  </Target>
+</Project>

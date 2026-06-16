@@ -48,3 +48,9 @@ Load when `.razor`, `.razor.cs`, or `.razor.css` files are in scope. Extends Sec
 - Apply `[Authorize]` / `<AuthorizeRouteView>` where required.
 - Never trust `[Parameter]` data without validation.
 - Validate user input server-side.
+
+## Testing
+
+- ❗ Test Razor and Blazor pages and components extensively with bUnit.
+- Cover render states, parameters, user events, auth visibility, and error boundaries.
+- Use TUnit for code-behind, view-models, and services; exit-point gate per `tech-tunit.md`.

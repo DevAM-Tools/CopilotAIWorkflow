@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>CoverageGap.Tool.Tests</RootNamespace>
+    <AssemblyName>CoverageGap.Tool.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CoverageGap.Tool\CoverageGap.Tool.csproj" />
+    <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+  </ItemGroup>
+</Project>

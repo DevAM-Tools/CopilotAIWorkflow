@@ -27,7 +27,8 @@ Load on `/review`. Apply `copilot-instructions.md` Sections 2–4.
 - Read definition and docs for involved members and types.
 - Build coverage checklist: file × criterion.
 - Build test-coverage matrix; list gaps explicitly.
-- C# in scope: run `python .github/scripts/check-csharp-conventions.py <scope> --coverage`; confirm hits manually (heuristic; gaps ≠ pass). Optional: `--run-coverage <TestProject>.csproj`.
+- Record exit-gap count from CoverageGap.Tool when production code is in scope.
+- C# in scope: run `dotnet build` on the solution.
 
 ## Stage 4 — Review
 
@@ -35,7 +36,8 @@ Load on `/review`. Apply `copilot-instructions.md` Sections 2–4.
 - Evaluate all in-scope files against `copilot-instructions.md` Section 4 criteria plus loaded tech-skill rules.
 - Compare requested target vs observed result.
 - Evaluate test coverage for behaviors, errors, boundaries.
-- Require 100% branch coverage on public/internal APIs; verify with Coverlet branch threshold per `tech-tunit.md` when tests are in scope.
+- Require 100% exit-point coverage.
+- Flag missing misuse/abuse analysis in plan as Error when new public APIs are introduced.
 - Evaluate interface vs hot-path concrete decisions.
 - For hot paths, evaluate `[ThreadStatic]` vs pooling per Section 4.4.
 - Never stop after first N findings.

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CoverageGapAnalysis.Tests/CoverageGapAnalysis.Tests.csproj" />
+    <Project Path="src/CoverageGapAnalysis/CoverageGapAnalysis.csproj" />
+    <Project Path="src/CoverageGap.Tool/CoverageGap.Tool.csproj" />
+    <Project Path="src/CoverageGap.Tool.Tests/CoverageGap.Tool.Tests.csproj" />
+    <Project Path="src/CSharpStyleValidator.Tests/CSharpStyleValidator.Tests.csproj" />
+    <Project Path="src/CSharpStyleValidator/CSharpStyleValidator.csproj" />
+    <Project Path="src/ExitPoints.Tests/ExitPoints.Tests.csproj" />
+    <Project Path="src/ExitPoints/ExitPoints.csproj" />
+  </Folder>
+</Solution>

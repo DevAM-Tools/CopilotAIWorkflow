@@ -17,6 +17,7 @@ Load when `*.cs` files are in scope. Extends Section 4 in `copilot-instructions.
 
 ## Style
 - Always brace control-flow blocks.
+- At most one callable exit point per source line
 - Expression-bodied members for simple single expressions.
 - `get; init;` on interface read-only properties.
 - Never `.Result` or `.Wait()` — `async`/`await` only.
@@ -26,6 +27,11 @@ Load when `*.cs` files are in scope. Extends Section 4 in `copilot-instructions.
 - `sealed` on non-inheritable classes.
 - `readonly` fields/properties where possible.
 - `#region` only to structure large files.
+
+## Integer arithmetic
+- ❗Assess every integer op for overflow/underflow; use `checked`, widen, or validate when wrap-around would be wrong.
+- Document proven-safe ranges; use `unchecked` in hot paths only then.
+- Prove bounds at boundaries; no redundant overflow checks in inner loops.
 
 ## Formatting
 - 4-space indent; no tabs.

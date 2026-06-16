@@ -70,9 +70,10 @@ Goal: save tokens in chat without losing technical substance.
 - Document omitted parameter validation in XML doc with reason and caller guarantees.
 - Provide `Try*` APIs at public boundaries for expected failure paths.
 - Preserve preconditions, postconditions, and interface consistency.
-- Mark incomplete work with `// TODO:` and concrete reason. Never ship incomplete without documented reason.
+- Never ship incomplete implementations. Mark incomplete work with `// TODO:` and concrete reason.
 - Never put plan IDs, issue IDs, or tracking IDs in code, comments, or commits.
 - Guard against off-by-one errors, invalid transitions, and logic regressions.
+- ❗Assess integer ops for overflow/underflow; guard or `checked` when wrap-around would break correctness, security, or invariants.
 
 ### 4.2 Security
 
@@ -85,7 +86,9 @@ Goal: save tokens in chat without losing technical substance.
 
 ### 4.3 Thread Safety
 
-- ❗ Use `Volatile.Read`, `Volatile.Write`, or `Interlocked` for volatile fields; plain access is Error-class.
+- ❗ Cross-thread shared fields must be declared with the `volatile` keyword.
+- ❗ Access `volatile` fields only through `Volatile.Read`, `Volatile.Write`, or `Interlocked` APIs; plain read, write, compound assignment, and increment/decrement are Error-class.
+- Use `Volatile.Read` / `Volatile.Write` for whole-field visibility; use `Interlocked` when atomic read-modify-write or compare-exchange is required.
 - ❗ Identify race, TOCTOU, async interleaving, lock inversion, and partial-state risks in design.
 - After shared-state changes, verify no new concurrency defects.
 - Document chosen lock primitive and rationale when locking is required.
@@ -110,15 +113,8 @@ Goal: save tokens in chat without losing technical substance.
 
 ### 4.5 Testing
 
-- ❗ Require 100% branch coverage on every public or internal API before release.
-- Never use `Thread.Sleep` in tests.
-- ❗ Cover happy path, errors, edges, boundaries, corners.
-- Cover `null`, empty, min/max, off-by-one, max-length strings, collections 0/1/2, concurrency, branch-straddling values.
-- Use data-driven tests.
-- Keep tests deterministic, independent, order-insensitive.
-- Run tests on Windows/Linux/macOS and x64/ARM64.
-- Mock only external or non-deterministic dependencies.
-- Assert one logical outcome per test.
+- ❗ Require 100% exit-point coverage on every public or internal API before release; release gate: `exitGapCount == 0`. Branch coverage is not a release gate.
+- Enforcement workflow, CoverageGap.Tool commands, TUnit structure, and test authoring: `tech-tunit.md`.
 
 ### 4.6 Documentation
 
@@ -163,7 +159,15 @@ Goal: save tokens in chat without losing technical substance.
 - Run `git status` before destructive commands; warn on uncommitted changes.
 - Detect and resolve concurrent edit conflicts before commit.
 
-### 4.12 Rule Priority
+### 4.12 API Misuse Prevention
+
+- Design APIs so incorrect use is compile-time impossible or obviously wrong at call sites.
+- Prefer types and states that encode invariants instead of primitive flags or ambiguous combinations.
+- Provide `Try*` APIs or result types at public boundaries for expected failure paths.
+- Enumerate misuse and abuse vectors in planning (how can the solution be used wrongly or exploited).
+- Prefer making invalid states unrepresentable over runtime validation alone when cost is reasonable.
+
+### 4.13 Rule Priority
 
 - On conflict apply: Security > Correctness > API contract > Performance > Style.
 
