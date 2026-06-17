@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Discovers latest Cobertura files per test project.</summary>
+/// <summary>Discovers latest Cobertura files per test project.
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class CoberturaDiscovery
 {
     private const int _MaxParentHops = 32;

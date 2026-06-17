@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Reads Cobertura XML into <see cref="Models.CoberturaDocument"/>.</summary>
+/// <summary>Reads Cobertura XML into <see cref="Models.CoberturaDocument"/>. 
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class CoberturaReader
 {
     private const long _MaxFileSizeBytes = 50L * 1024L * 1024L;

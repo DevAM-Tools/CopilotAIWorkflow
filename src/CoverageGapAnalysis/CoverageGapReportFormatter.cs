@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Formats coverage gap reports for agents and humans.</summary>
+/// <summary>Formats coverage gap reports for agents and humans. 
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class CoverageGapReportFormatter
 {
     private static readonly JsonSerializerOptions _JsonOptions = new()

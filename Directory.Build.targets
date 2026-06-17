@@ -1,6 +1,9 @@
 <Project>
   <PropertyGroup>
-    <ApplyCSharpStyleValidator Condition="'$(ApplyCSharpStyleValidator)' == '' and '$(TargetFramework)' == 'net10.0' and '$(IsRoslynComponent)' != 'true' and '$(MSBuildProjectName)' != 'CSharpStyleValidator.Tests' and '$(MSBuildProjectName)' != 'ExitPoints' and '$(MSBuildProjectName)' != 'ExitPoints.Tests'">true</ApplyCSharpStyleValidator>
+    <!-- netstandard2.0+ and .NET Core App consumers (incl. source generators). -->
+    <_CsvConsumerTargetFramework Condition="'$(_CsvConsumerTargetFramework)' == '' and '$(TargetFrameworkIdentifier)' == '.NETStandard' and $([MSBuild]::VersionGreaterThanOrEquals($([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')), '2.0'))">true</_CsvConsumerTargetFramework>
+    <_CsvConsumerTargetFramework Condition="'$(_CsvConsumerTargetFramework)' == '' and '$(TargetFrameworkIdentifier)' == '.NETCoreApp'">true</_CsvConsumerTargetFramework>
+    <ApplyCSharpStyleValidator Condition="'$(ApplyCSharpStyleValidator)' == '' and '$(_CsvConsumerTargetFramework)' == 'true' and '$(MSBuildProjectName)' != 'CSharpStyleValidator' and '$(MSBuildProjectName)' != 'CSharpStyleValidator.Tests' and '$(MSBuildProjectName)' != 'ExitPoints' and '$(MSBuildProjectName)' != 'ExitPoints.Tests'">true</ApplyCSharpStyleValidator>
     <CSharpStyleValidatorProjectPath>$(MSBuildThisFileDirectory)src\CSharpStyleValidator\CSharpStyleValidator.csproj</CSharpStyleValidatorProjectPath>
   </PropertyGroup>
   <ItemGroup Condition="'$(ApplyCSharpStyleValidator)' == 'true'">
@@ -14,12 +17,12 @@
     Condition="'$(ApplyCSharpStyleValidator)' == 'true'" />
   <PropertyGroup Condition="'$(PackageId)' != ''">
     <IsPackable>true</IsPackable>
+    <DebugType Condition="'$(PackageId)' == 'CoverageGapAnalysis'">portable</DebugType>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <PackageOutputPath Condition="'$(Configuration)' == 'Release'">$(MSBuildThisFileDirectory)artifacts\</PackageOutputPath>
     <PackageReadmeFile>PACKAGE_README.md</PackageReadmeFile>
-    <IncludeSymbols Condition="'$(DebugType)' == 'embedded'">false</IncludeSymbols>
-    <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
-    <SymbolPackageFormat Condition="'$(IncludeSymbols)' == 'true'">snupkg</SymbolPackageFormat>
+    <IncludeSymbols Condition="'$(PackageId)' == 'CoverageGapAnalysis'">true</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(PackageId)' == 'CoverageGapAnalysis'">snupkg</SymbolPackageFormat>
     <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/DevAM/CopilotAIWorkflow</PackageProjectUrl>
     <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/DevAM/CopilotAIWorkflow</RepositoryUrl>
   </PropertyGroup>

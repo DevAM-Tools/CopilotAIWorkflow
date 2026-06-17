@@ -17,6 +17,13 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet build CopilotAIWorkflow.slnx -c Release
+      - run: dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release -p:UseNuGetPackage=true
+      - name: Verify packed analyzer reports violations
+        run: |
+          if dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release -p:UseNuGetPackage=true -p:IncludeViolations=true; then
+            echo "Expected build to fail with analyzer errors."
+            exit 1
+          fi
       - run: dotnet test CopilotAIWorkflow.slnx -c Release -- --coverage --coverage-output-format cobertura
       - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/CSharpStyleValidator/CSharpStyleValidator.csproj --search-root src --repo-root . --no-build
       - run: dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project src/ExitPoints/ExitPoints.csproj --search-root src --repo-root . --no-build
@@ -25,7 +32,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
-          path: artifacts/*.nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
 
   publish:
     needs: verify-and-pack
@@ -39,3 +48,4 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet nuget push artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+      - run: dotnet nuget push artifacts/*.snupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

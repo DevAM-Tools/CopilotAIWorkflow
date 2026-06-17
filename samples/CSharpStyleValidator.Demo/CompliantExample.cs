@@ -2,7 +2,7 @@
 
 namespace CSharpStyleValidator.Demo;
 
-/// <summary>Example code that satisfies CSV001–CSV006.</summary>
+/// <summary>Example code that satisfies CSV001–CSV007.</summary>
 internal static class CompliantExample
 {
     private static int _Seed = 1;

@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Compares exit points against Cobertura line hits.</summary>
+/// <summary>Compares exit points against Cobertura line hits. 
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class ExitCoverageComparer
 {
     private const int _ExitPriority = 1;

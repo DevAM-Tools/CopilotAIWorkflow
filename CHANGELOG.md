@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.1.0
+
+### CSharpStyleValidator
+
+- Repo clone: auto-apply via root `Directory.Build.targets` for `netstandard2.0`+ and .NET Core App projects (including Roslyn source generators)
+- NuGet: analyzers load from `analyzers/dotnet/cs` (bundled `ExitPoints.dll`); no MSBuild targets in the package
+- Sample: `samples/CSharpStyleValidator.Demo/` — CSV001–CSV007 violations, source generator, packed NuGet verification (CI)
+
+### Documentation
+
+- README Quickstart with NuGet shields, consumer TFM matrix, and minimum SDK (Roslyn 4.14 / SDK 9.0.300+)
+- `PACKAGE_README.md` requirements per package
+- CoverageGap.Tool usage in `tech-tunit.md`
+- Central package version in `Directory.Build.props` (`VersionPrefix`)
+
+### Packaging
+
+- Symbol package (`.snupkg`) for `CoverageGapAnalysis`
+
 ## 1.0.0
 
 Initial public release.
@@ -37,4 +56,4 @@ Cobertura parsing, branch-gap analysis, and exit-point comparison for agent-orie
 ### Requirements
 
 - .NET SDK 10.0 (`global.json` pins 10.0.100)
-- Target framework `net10.0` for applications; analyzers target `netstandard2.0`
+- Target framework `net10.0` for applications in this repository; analyzer packages target `netstandard2.0` and apply to consumers from `netstandard2.0` / `net5.0`+

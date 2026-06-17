@@ -13,7 +13,6 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <PackageId>CSharpStyleValidator</PackageId>
-    <VersionPrefix>1.0.0</VersionPrefix>
     <Description>Roslyn analyzers enforcing CopilotAIWorkflow C# style conventions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/DevAM/CopilotAIWorkflow</PackageProjectUrl>

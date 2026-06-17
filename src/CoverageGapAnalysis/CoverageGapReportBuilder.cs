@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Builds unified coverage gap reports.</summary>
+/// <summary>Builds unified coverage gap reports.
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class CoverageGapReportBuilder
 {
     /// <summary>Builds a report from exit points and scoped Cobertura documents.</summary>

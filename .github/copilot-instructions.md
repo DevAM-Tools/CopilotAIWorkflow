@@ -114,7 +114,7 @@ Goal: save tokens in chat without losing technical substance.
 ### 4.5 Testing
 
 - ❗ Require 100% exit-point coverage on every public or internal API before release; release gate: `exitGapCount == 0`. Branch coverage is not a release gate.
-- Enforcement workflow, CoverageGap.Tool commands, TUnit structure, and test authoring: `tech-tunit.md`.
+- Enforcement workflow, CoverageGap.Tool usage, TUnit structure, and test authoring: `tech-tunit.md`.
 
 ### 4.6 Documentation
 

@@ -22,25 +22,22 @@ Load when test files or test projects are in scope. Implements Section 4.5 enfor
 - Run tests on Windows/Linux/macOS and x64/ARM64.
 - Assert one logical outcome per test.
 
-## Exit-Point Coverage
+## CoverageGap.Tool
 
-- After `dotnet test` with Cobertura output, run CoverageGap.Tool `report project` on each production project in scope.
-- Pass when report `exitGapCount == 0`. Branch metrics (`branchGapCount`, `branchRate`, `branchGatePassed`) are informational only.
-- Use `--no-fail` on `report` when verifying exit coverage only; still require `exitGapCount == 0`.
-- Workflow: test → report → add or update test for each exit gap → repeat until `exitGapCount == 0`.
+SSOT for exit-point coverage workflow. Release gate: `summary.exitGapCount == 0`. Branch fields in the report are informational only.
+
+**Run** (each production `.csproj` in scope):
 
 ```bash
 dotnet test <Solution> -c Release -- --coverage --coverage-output-format cobertura
-dotnet run --project <CoverageGapToolProject> -c Release -- report project <ProductionProject> --search-root <SearchRoot> --repo-root <RepoRoot> --no-fail
+dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project <Prod.csproj> --search-root src --repo-root . --format agent --no-fail
 ```
 
-- Use `manifest project` to list exit-point IDs when planning tests:
+Consumer repo: `coveragegap report project <Prod.csproj> --search-root <src> --repo-root . --format agent --no-fail` (after `dotnet tool install -g CoverageGap.Tool`).
 
-```bash
-dotnet run --project <CoverageGapToolProject> -c Release -- manifest project <ProductionProject> -o exits.json
-```
+**Work results:** read JSON `summary.exitGapCount` / `summary.gatePassed`; fix every item in `exitGaps[]` (file, line, `exitPointId`, `kind`) with a test; add `--include-snippet` when needed. Loop test → report until `exitGapCount == 0`. Do not block release on `branchGapCount` or `branchGatePassed`.
 
-- Use `--format agent` for structured gap JSON; `--include-snippet` when source context helps.
+**Plan tests:** `manifest project <Prod.csproj> -o exits.json` (same `dotnet run` / global `coveragegap` prefix as `report`).
 
 ## Structure
 

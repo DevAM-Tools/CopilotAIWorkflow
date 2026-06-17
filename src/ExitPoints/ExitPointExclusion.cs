@@ -7,7 +7,9 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ExitPoints;
 
-/// <summary>Detects Roslyn syntax excluded from code coverage.</summary>
+/// <summary>Detects Roslyn syntax excluded from code coverage. 
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class ExitPointExclusion
 {
     /// <summary>Returns whether an exit at the given position is excluded by attribute.</summary>

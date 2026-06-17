@@ -2,6 +2,7 @@
   <Folder Name="/samples/">
     <Project Path="samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj" />
   </Folder>
+
   <Folder Name="/src/">
     <Project Path="src/CoverageGapAnalysis.Tests/CoverageGapAnalysis.Tests.csproj" />
     <Project Path="src/CoverageGapAnalysis/CoverageGapAnalysis.csproj" />

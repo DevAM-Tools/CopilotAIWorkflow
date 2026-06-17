@@ -18,6 +18,13 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet build CopilotAIWorkflow.slnx -c Release
+      - run: dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release -p:UseNuGetPackage=true
+      - name: Verify packed analyzer reports violations
+        run: |
+          if dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release -p:UseNuGetPackage=true -p:IncludeViolations=true; then
+            echo "Expected build to fail with analyzer errors."
+            exit 1
+          fi
 
   test:
     strategy:

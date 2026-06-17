@@ -6,7 +6,6 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>coveragegap</ToolCommandName>
     <PackageId>CoverageGap.Tool</PackageId>
-    <VersionPrefix>1.0.0</VersionPrefix>
     <Description>Agent-oriented coverage gap reports for branch and exit-point coverage.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

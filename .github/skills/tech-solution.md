@@ -48,13 +48,15 @@ Generator projects only:
 | Property | Value |
 |----------|-------|
 | `Deterministic` | `true` |
+| `VersionPrefix` | central in `Directory.Build.props` (e.g. `1.1.0`) |
 | `ContinuousIntegrationBuild` | `true` when `CI` is set |
 | `DebugType` | `embedded` or `portable` (consistent) |
 | `RestoreUseStaticGraphEvaluation` | `true` |
 
 ### Versioning & Metadata (on-request)
 
-When publishing or packaging is in scope, ask user for: `VersionPrefix`, `VersionSuffix`, `Company`, `Authors`, `Copyright`, `Description`, `PackageLicenseExpression`, `PackageProjectUrl`, `RepositoryUrl`. Apply `PublishRepositoryUrl=true` with SourceLink.
+Central release version: `VersionPrefix` in `Directory.Build.props` (applies to all packable projects with `PackageId`). Per-project `VersionPrefix` overrides only when a package must diverge.
+When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Company`, `Authors`, `Copyright`, `Description`, `PackageLicenseExpression`, `PackageProjectUrl`, `RepositoryUrl`.
 
 ## Directory.Packages.props
 
@@ -78,9 +80,9 @@ When publishing or packaging is in scope, ask user for: `VersionPrefix`, `Versio
 
 ## CSharpStyleValidator
 
-- Add `CSharpStyleValidator` NuGet to every `net10.0` project.
-- No further analyzer configuration required; do not reference `ExitPoints` separately (bundled in the package).
-- Exempt: `CSharpStyleValidator`, `ExitPoints`, `ExitPoints.Tests`, `CSharpStyleValidator.Tests`; set `ApplyCSharpStyleValidator=false` only for explicit opt-out.
+- Add `CSharpStyleValidator` NuGet to every consumer from `netstandard2.0` or .NET Core App (`net5.0`+), including Roslyn source generators.
+- Auto-apply via `Directory.Build.targets`
+- Set `ApplyCSharpStyleValidator=false` only for explicit opt-out.
 
 ## New Dependency Protocol
 

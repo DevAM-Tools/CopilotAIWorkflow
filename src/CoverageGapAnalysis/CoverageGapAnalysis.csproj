@@ -3,7 +3,6 @@
     <RootNamespace>CoverageGapAnalysis</RootNamespace>
     <AssemblyName>CoverageGapAnalysis</AssemblyName>
     <PackageId>CoverageGapAnalysis</PackageId>
-    <VersionPrefix>1.0.0</VersionPrefix>
     <Description>Cobertura parsing and coverage gap analysis for agent-oriented reports.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

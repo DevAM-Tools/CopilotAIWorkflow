@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Normalizes file paths for cross-tool comparison.</summary>
+/// <summary>Normalizes file paths for cross-tool comparison.
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class PathNormalizer
 {
     /// <summary>Converts an absolute path to a repository-relative path with forward slashes.</summary>

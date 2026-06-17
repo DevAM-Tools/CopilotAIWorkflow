@@ -12,7 +12,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ExitPoints;
 
-/// <summary>Collects callable exit points from a Roslyn compilation.</summary>
+/// <summary>Collects callable exit points from a Roslyn compilation. 
+/// Thread-safe; caches per <see cref="Compilation"/> with concurrent lookups.
+/// </summary>
 public static class ExitPointCollector
 {
     private static readonly ConditionalWeakTable<Compilation, CachedCompilationResults> ResultsByCompilation = new();

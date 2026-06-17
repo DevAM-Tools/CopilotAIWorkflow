@@ -2,7 +2,9 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Finds uncovered branch conditions in Cobertura documents.</summary>
+/// <summary>Finds uncovered branch conditions in Cobertura documents. 
+/// Thread-safe; all members are stateless.
+/// </summary>
 public static class BranchGapAnalyzer
 {
     private const int _BranchPriority = 2;
