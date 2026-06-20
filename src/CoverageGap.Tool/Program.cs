@@ -8,49 +8,70 @@ public static class Program
     /// <summary>Runs the coverage gap tool.</summary>
     /// <param name="args">Command-line arguments.</param>
     /// <returns>Process exit code.</returns>
-    public static async Task<int> Main(string[] args)
+    public static Task<int> Main(string[] args)
+    {
+        return _MainAsync(args);
+    }
+
+    private static async Task<int> _MainAsync(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
 
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
-        if (args.Length == 0)
+        using CancellationTokenSource cancellationSource = new CancellationTokenSource();
+        List<IDisposable> signalRegistrations = new List<IDisposable>();
+
+        void Cancel()
         {
-            await _WriteUsageAsync().ConfigureAwait(false);
-            return 1;
+            cancellationSource.Cancel();
         }
 
-        string command = args[0];
-        string[] commandArgs = args.Skip(1).ToArray();
-
-        if (string.Equals(command, "report", StringComparison.OrdinalIgnoreCase))
+        Console.CancelKeyPress += (_, eventArgs) =>
         {
-            return await ReportCommand.RunAsync(commandArgs).ConfigureAwait(false);
+            eventArgs.Cancel = true;
+            Cancel();
+        };
+
+        if (!OperatingSystem.IsWindows())
+        {
+            signalRegistrations.Add(PosixSignalRegistration.Create(PosixSignal.SIGINT, _ => Cancel()));
+            signalRegistrations.Add(PosixSignalRegistration.Create(PosixSignal.SIGTERM, _ => Cancel()));
         }
 
-        if (string.Equals(command, "manifest", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            return await ManifestCommand.RunAsync(commandArgs).ConfigureAwait(false);
+            if (args.Length == 0)
+            {
+                return await RunCommand.RunAsync(args, cancellationSource.Token).ConfigureAwait(false);
+            }
+
+            string command = args[0];
+            string[] commandArgs = args.Skip(1).ToArray();
+
+            if (string.Equals(command, CliConstants.RunCommand, StringComparison.OrdinalIgnoreCase))
+            {
+                return await RunCommand.RunAsync(commandArgs, cancellationSource.Token).ConfigureAwait(false);
+            }
+
+            if (string.Equals(command, CliConstants.PlanCommand, StringComparison.OrdinalIgnoreCase))
+            {
+                return await PlanCommand.RunAsync(commandArgs, cancellationSource.Token).ConfigureAwait(false);
+            }
+
+            return await RunCommand.RunAsync(args, cancellationSource.Token).ConfigureAwait(false);
         }
-
-        await _WriteUsageAsync().ConfigureAwait(false);
-        return 1;
-    }
-
-    /// <remarks>Usage text only; invoked from <see cref="Main"/> error paths covered by CLI tests.</remarks>
-    [ExcludeFromCodeCoverage]
-    private static async Task _WriteUsageAsync()
-    {
-        await Console.Error.WriteLineAsync(
-            """
-            Usage:
-              coveragegap report project <path.csproj> [options]
-              coveragegap manifest project <path.csproj> [-o <file>] [--format agent|text]
-
-            Report options:
-              --search-root <path> --cobertura <file> --repo-root <path> --scope <suffix>
-              -o <file> --format agent|compact|text --include-snippet --no-fail --no-build
-            """).ConfigureAwait(false);
+        catch (OperationCanceledException)
+        {
+            return CliConstants.ExitGateOrToolFailure;
+        }
+        finally
+        {
+            for (int registrationIndex = 0; registrationIndex < signalRegistrations.Count; registrationIndex++)
+            {
+                signalRegistrations[registrationIndex].Dispose();
+            }
+        }
     }
 }

@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.0.0
+
+### CoverageGap.Tool
+
+- **Single-call gate:** `dotnet tool run coveragegap` / `… run` runs tests, collects Cobertura, and reports exit gaps
+- **Zero-arg default:** from repo root, gates all production projects in the auto-discovered solution
+- **Scoped targets:** `run project <csproj>...`, `run solution [path]`, `plan project <csproj>`
+- **Parallel-safe:** unique `--work-dir` per invocation; relative `-o` under work dir; default stdout
+- **Solution gate:** projects run sequentially; parallel per-project runs planned for a future release
+- **Gate scope:** `run` gates class-library production projects; executable hosts (`OutputType` `Exe`) are excluded (including the tool itself)
+- **Cancellation:** Ctrl+C and Unix SIGINT/SIGTERM cancel in-flight `dotnet` subprocesses
+- **Isolated Cobertura:** results read only from the invocation work directory, not a global `TestResults/` scan
+
+### Documentation
+
+- README, `PACKAGE_README.md`, and `tech-tunit.md` document the CLI workflow
+- CI/release verify via `dotnet tool run coveragegap run --repo-root .`
+
 ## 1.1.0
 
 ### CSharpStyleValidator
@@ -41,8 +59,8 @@ Roslyn analyzer package enforcing CopilotAIWorkflow C# style as compiler errors:
 
 ### CoverageGap.Tool (global tool)
 
-- `coveragegap report project <path.csproj>` — exit-point gap report (release gate); branch metrics informational
-- `coveragegap manifest project <path.csproj>` — export filtered exit-point manifest
+- `coveragegap run` — test, collect Cobertura, and gate exit-point coverage
+- `coveragegap plan` — export exit-point manifest without running tests
 
 ### CoverageGapAnalysis (library)
 

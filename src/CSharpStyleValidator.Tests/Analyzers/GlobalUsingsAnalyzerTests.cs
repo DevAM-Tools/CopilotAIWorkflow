@@ -43,6 +43,42 @@ public sealed class GlobalUsingsAnalyzerTests
     }
 
     [Test]
+    public async Task TypeAlias_InNonGlobalFile_NoDiagnostic()
+    {
+        const string source = """
+            using ListInt = System.Collections.Generic.List<int>;
+            namespace N;
+            public class C
+            {
+                public int M()
+                {
+                    ListInt values = new ListInt { 1 };
+                    return values.Count;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<GlobalUsingsAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task NamespaceUsing_InNonGlobalFile_StillReportsCsv005_WhenTypeAliasPresent()
+    {
+        const string source = """
+            {|#0:using System;|}
+            using ListInt = System.Collections.Generic.List<int>;
+            namespace N;
+            public class C
+            {
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<GlobalUsingsAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.GlobalUsingsOnly).WithLocation(0));
+    }
+
+    [Test]
     public async Task GlobalUsings_InObjGeneratedPath_NoDiagnostic()
     {
         const string source = """

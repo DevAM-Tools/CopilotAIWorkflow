@@ -9,36 +9,36 @@ Roslyn analyzer enforcing C# style as **compiler errors** (CSV001–CSV007). Add
 ```xml
 <PackageReference Include="CSharpStyleValidator" Version="1.*" />
 ```
-Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). No separate `ExitPoints` package or MSBuild targets are required.
-See the repository [README.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylevalidator) for rule details and demo usage.
+
+Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). See [README.md — CSharpStyleValidator](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylevalidator).
 
 ## CoverageGapAnalysis
 
-Library for Cobertura parsing, branch metrics, and exit-point gap reports. Used by agents and CI to enforce `exitGapCount == 0`.
-**Consumer target:** `net10.0` or later (`lib/net10.0` only — not referenceable from `netstandard2.0` class libraries).
+Library for Cobertura parsing, branch metrics, and exit-point gap reports. Consumer: `net10.0`+.
 
 ## CoverageGap.Tool
 
-Global .NET tool (`coveragegap`):
+Local dotnet tool — register once per repo, run via `dotnet tool run coveragegap`:
 
 ```bash
-dotnet tool install -g CoverageGap.Tool
-coveragegap report project path/YourProject.csproj --search-root src --repo-root .
-coveragegap manifest project path/YourProject.csproj -o exits.json
+dotnet new tool-manifest
+dotnet tool install CoverageGap.Tool
+dotnet tool run coveragegap --repo-root .
+dotnet tool run coveragegap run solution path/File.slnx --repo-root . --configuration Release --format agent
 ```
 
-Analyzes any restored SDK-style project (including `netstandard2.0` source generators). Requires .NET 10 runtime.
+Requires .NET SDK 10.0, MTP + TUnit in test projects. Workflow SSOT: [tech-tunit.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-tunit.md). User quickstart: [README.md §2](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#2--exit-point-coverage-gate-cli).
 
 ## Requirements
 
 | Package | Consumer / host | Notes |
 |---------|-----------------|-------|
-| CSharpStyleValidator | SDK-style `netstandard2.0`+ or .NET Core App | Minimum **.NET SDK 9.0.300** or **VS 2022 17.14+** (Roslyn 4.14) |
-| CoverageGapAnalysis | `net10.0`+ library or app | Cannot be referenced from `netstandard2.0` projects |
-| CoverageGap.Tool | .NET 10 runtime | Global CLI; not a project reference |
-| This repository | .NET SDK 10.0 | `global.json` pins 10.0.100; app projects target `net10.0` |
+| CSharpStyleValidator | SDK-style `netstandard2.0`+ or .NET Core App | .NET SDK 9.0.300+ or VS 2022 17.14+ (Roslyn 4.14) |
+| CoverageGapAnalysis | `net10.0`+ | Not referenceable from `netstandard2.0` class libraries |
+| CoverageGap.Tool | .NET SDK 10.0 | Local tool manifest; not a project reference |
+| This repository | .NET SDK 10.0 | `global.json` pins 10.0.100 |
 
-**Repo clone only:** root `Directory.Build.targets` auto-applies `CSharpStyleValidator` to eligible projects. NuGet consumers use `PackageReference` instead.
+**Repo clone:** `Directory.Build.targets` auto-applies `CSharpStyleValidator`. NuGet consumers use `PackageReference`.
 
 ## License
 

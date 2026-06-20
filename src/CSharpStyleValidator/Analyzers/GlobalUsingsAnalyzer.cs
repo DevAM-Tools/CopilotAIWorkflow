@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace CSharpStyleValidator.Analyzers;
 
-/// <summary>Requires using directives to appear only in GlobalUsings.cs.</summary>
+/// <summary>Requires namespace using directives to appear only in GlobalUsings.cs; file-local type aliases are allowed.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GlobalUsingsAnalyzer : DiagnosticAnalyzer
 {
@@ -33,6 +33,11 @@ public sealed class GlobalUsingsAnalyzer : DiagnosticAnalyzer
 
         string path = context.Node.SyntaxTree.FilePath;
         if (string.IsNullOrEmpty(path) || ShouldSkipPath(path))
+        {
+            return;
+        }
+
+        if (usingDirective.Alias is not null)
         {
             return;
         }

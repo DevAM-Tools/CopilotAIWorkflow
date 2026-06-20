@@ -13,13 +13,14 @@ Read `.github/copilot-instructions.md` and apply fully.
 
 ## Workflow triggers
 
-Natural-language equivalents of `/plan`, `/implement`, `/review`, `/complex-task` use the same workflow.
+Natural-language equivalents of `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task` use the same workflow.
 
 | Trigger | SSOT skill |
 |---------|------------|
 | `/plan` | `.github/skills/workflow-plan.md` |
 | `/implement` | `.github/skills/workflow-implement.md` |
 | `/review` | `.github/skills/workflow-review.md` |
+| `/review-loop` | `.github/skills/workflow-review-loop.md` |
 | `/complex-task` | `.github/skills/workflow-complex-task.md` |
 
 On workflow start: read `copilot-instructions.md` plus the matching workflow skill. Run Tech Load Protocol (Section 3) before edits.

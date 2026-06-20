@@ -11,7 +11,7 @@ Structured AI agent workflow for **GitHub Copilot** and **Cursor**, plus NuGet p
 
 ## Quickstart
 
-Three packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). No extra wiring: add a package or install the tool — `ExitPoints` ships inside **CSharpStyleValidator**; no second analyzer reference.
+Three packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). No extra wiring: add a package or register **CoverageGap.Tool** as a local dotnet tool — `ExitPoints` ships inside **CSharpStyleValidator**; no second analyzer reference.
 
 **Requires:**
 
@@ -19,7 +19,7 @@ Three packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). N
 |-----------|---------|
 | **CSharpStyleValidator** (analyzer) | [.NET SDK 9.0.300+](https://dotnet.microsoft.com/download) or Visual Studio 2022 17.14+ (Roslyn 4.14; see `Directory.Packages.props`) |
 | **CoverageGapAnalysis** (library) | `net10.0` consumer project |
-| **CoverageGap.Tool** (CLI) | .NET 10 runtime (global tool) |
+| **CoverageGap.Tool** (CLI) | .NET SDK 10.0 (local tool manifest) |
 | **This repository** | .NET SDK 10.0 (`global.json`) |
 
 **NuGet vs. repo clone:** Adding `CSharpStyleValidator` via NuGet loads analyzers from `analyzers/dotnet/cs` (including bundled `ExitPoints.dll`) — no MSBuild targets in the package. Cloning this repo applies the analyzer automatically via root [`Directory.Build.targets`](Directory.Build.targets).
@@ -44,19 +44,32 @@ Rebuild. Violations surface as compiler errors (CSV001–CSV007). No `PrivateAss
 
 ### 2 — Exit-point coverage gate (CLI)
 
-```bash
-dotnet tool install -g CoverageGap.Tool
-dotnet test -- --coverage --coverage-output-format cobertura
-coveragegap report project path/YourProject.csproj --search-root src --repo-root .
-```
+Tests + Cobertura + exit-gap JSON in one call. **Gate:** `summary.exitGapCount == 0` (branch gaps informational). **SSOT:** [`.github/skills/tech-tunit.md`](.github/skills/tech-tunit.md) (agents and full workflow).
 
-Release gate: `exitGapCount == 0` in the report. Branch gaps are informational.
-
-Optional manifest export:
+**Setup** (repo root):
 
 ```bash
-coveragegap manifest project path/YourProject.csproj -o exits.json
+dotnet new tool-manifest
+dotnet tool install CoverageGap.Tool
+dotnet tool restore   # CI / fresh clone
 ```
+
+Add MTP to repo-root `global.json` and TUnit to `{Project}.Tests` — see [tech-tunit.md](.github/skills/tech-tunit.md#framework).
+
+| Task | Command |
+|------|---------|
+| Gate repo (auto-discover solution) | `dotnet tool run coveragegap --repo-root .` |
+| Gate named solution | `dotnet tool run coveragegap run solution path/File.slnx --repo-root . --configuration Release --format agent` |
+| Gate project | `dotnet tool run coveragegap run project path/Proj.csproj --repo-root .` |
+| Plan exits (no test run) | `dotnet tool run coveragegap plan project path/Proj.csproj -o exits.json --repo-root .` |
+
+Fix every item in `exitGaps[]`; re-run until `exitGapCount == 0`. Exit codes: `0` pass · `1` gap/failure · `2` usage.
+
+**CI:** `dotnet tool restore` then `dotnet tool run coveragegap run --repo-root .`
+
+**This repo (contributors):** `dotnet run --project src/CoverageGap.Tool -c Release -- run --repo-root .`
+
+CLI options: [CoverageGap.Tool](#coveragegaptool).
 
 ### 3 — Coverage library (agents / CI embedding)
 
@@ -64,7 +77,7 @@ coveragegap manifest project path/YourProject.csproj -o exits.json
 dotnet add package CoverageGapAnalysis
 ```
 
-Use when you build Cobertura-based gap reports in your own tooling instead of the `coveragegap` CLI. Same analysis as the global tool.
+Use when you build Cobertura-based gap reports in your own tooling instead of the `coveragegap` CLI. Same analysis as **CoverageGap.Tool**.
 
 ---
 
@@ -74,7 +87,7 @@ Use when you build Cobertura-based gap reports in your own tooling instead of th
 |---------|--------------|-------|------|
 | [CSharpStyleValidator](https://www.nuget.org/packages/CSharpStyleValidator/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSV001–CSV007); bundles `ExitPoints` |
 | [CoverageGapAnalysis](https://www.nuget.org/packages/CoverageGapAnalysis/) | `net10.0`+ | `PackageReference` | Cobertura parsing and gap-report library |
-| [CoverageGap.Tool](https://www.nuget.org/packages/CoverageGap.Tool/) | N/A (CLI) | `dotnet tool install -g` | `coveragegap report` / `manifest`; analyzes any restored SDK-style project |
+| [CoverageGap.Tool](https://www.nuget.org/packages/CoverageGap.Tool/) | N/A (CLI) | Local `dotnet tool install` | `dotnet tool run coveragegap` — single-call solution gate |
 
 `ExitPoints` is not published separately; it is included in **CSharpStyleValidator**.
 
@@ -85,7 +98,7 @@ Use when you build Cobertura-based gap reports in your own tooling instead of th
 Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
 - No implementation before plan approval.
-- Explicit phases: plan, implement, review, complex-task.
+- Explicit phases: plan, implement, review, review-loop, complex-task.
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
 - Token-efficient chat; high-quality plan and review artifacts.
@@ -101,7 +114,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/complex-task`) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`) |
 | [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
 
@@ -144,6 +157,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `workflow-plan.md` | `/plan` |
 | `workflow-implement.md` | `/implement` |
 | `workflow-review.md` | `/review` |
+| `workflow-review-loop.md` | `/review-loop` |
 | `workflow-complex-task.md` | `/complex-task` |
 
 Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
@@ -157,6 +171,7 @@ Stages live in workflow skills only. Prompts do not repeat them.
 - **Plan:** `workflow-plan.md` — gather context, Grill Me, write artifact
 - **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, verify
 - **Review:** `workflow-review.md` — scope, load, review, output
+- **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
 - **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop
 
 Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
@@ -170,7 +185,7 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/plan`, `/implement`, `/review`, or `/complex-task` in chat |
+| Slash commands | Type `/plan`, `/implement`, `/review`, `/review-loop`, or `/complex-task` in chat |
 | Agent skills | Skills auto-discover via descriptions; each points to `.github/skills/` SSOT |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
@@ -200,7 +215,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 | [`CSharpStyleValidator`](src/CSharpStyleValidator/) | Roslyn analyzer NuGet (CSV001–CSV007) |
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
 | [`CoverageGapAnalysis`](src/CoverageGapAnalysis/) | Cobertura parsing and exit/branch gap reporting library |
-| [`CoverageGap.Tool`](src/CoverageGap.Tool/) | CLI — `report project` and `manifest project` |
+| [`CoverageGap.Tool`](src/CoverageGap.Tool/) | CLI — `dotnet tool run coveragegap` (`run` / `plan`; single-call solution gate) |
 | [`samples/CSharpStyleValidator.Demo`](samples/CSharpStyleValidator.Demo/) | `netstandard2.0` analyzer demo (CSV001–CSV007), source generator, NuGet consumer (CI) |
 
 **CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Release build; test matrix on Linux, Windows, and macOS (x64 and ARM); exit-gap report (`exitGapCount == 0`) on every production project. Tag pushes publish NuGet packages ([`.github/workflows/release.yml`](.github/workflows/release.yml)).
@@ -241,23 +256,22 @@ Release build writes `.nupkg` files to `artifacts/` for packable projects.
 
 ## CoverageGap.Tool
 
-CLI for agent-oriented coverage gap reports.
+CLI options (commands and workflow: [§2](#2--exit-point-coverage-gate-cli) · [tech-tunit.md](.github/skills/tech-tunit.md)).
 
-| Command | Purpose |
-|---------|---------|
-| `coveragegap report project <path.csproj>` | Exit-point gaps (release gate) plus branch metrics (informational) |
-| `coveragegap manifest project <path.csproj> -o exits.json` | Export filtered exit-point manifest |
-
-Report formats: `--format agent` (JSON) or `compact` (minimal tokens). Optional `--include-snippet`.
-
-Workflow and release-gate details: `copilot-instructions.md` §4.5 and `tech-tunit.md`.
-
-**Build and test from source**
-
-```bash
-dotnet test CopilotAIWorkflow.slnx -c Release -- --coverage --coverage-output-format cobertura
-dotnet run --project src/CoverageGap.Tool -c Release -- report project path/YourProject.csproj --search-root src --repo-root .
-```
+| Option | Purpose |
+|--------|---------|
+| `--repo-root <path>` | Repository root (default: current directory) |
+| `--configuration <cfg>` | Build/test configuration (default: `Release`) |
+| `--format agent\|compact\|text` | Report shape (`plan` supports `agent` / `text`) |
+| `-o <path>` | Output file or directory (relative paths under `--work-dir`) |
+| `--work-dir <path>` | Isolated run directory (default: unique temp folder per invocation) |
+| `--test-project <path>` | Override paired test project (single `project` target only) |
+| `--cobertura <file>` | Skip test run; use existing Cobertura (`run` only) |
+| `--include-snippet` | Add source snippets to gap entries |
+| `--no-build` | Skip `dotnet build` before test/compile |
+| `--skip-no-tests` | On `run` only: skip production projects without a paired test project |
+| `--no-fail` | Exit `0` even when the gate fails |
+| `--keep-work-dir` | Retain work directory after completion |
 
 ---
 

@@ -91,12 +91,10 @@ public sealed class CoberturaReaderEdgeCaseTests
     }
 
     [Test]
-    public async Task CoberturaDiscovery_MissingRoot_ReturnsEmpty()
+    public async Task FindNewestCoberturaInDirectory_ReturnsNullForMissingRoot()
     {
-        IReadOnlyList<string> files = CoberturaDiscovery.FindLatestFiles(
-            ["missing-root-folder"],
-            CoberturaDiscovery.DefaultTestProjectPackages);
+        string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory("missing-root-folder");
 
-        await Assert.That(files.Count).IsEqualTo(0);
+        await Assert.That(path).IsNull();
     }
 }

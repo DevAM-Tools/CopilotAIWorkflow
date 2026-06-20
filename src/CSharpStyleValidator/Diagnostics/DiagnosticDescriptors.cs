@@ -52,11 +52,11 @@ public static class DiagnosticDescriptors
     public static readonly DiagnosticDescriptor GlobalUsingsOnly = new(
         DiagnosticIds.GlobalUsingsOnly,
         "Using directive outside GlobalUsings.cs",
-        "Place using directives in GlobalUsings.cs only",
+        "Place namespace using directives in GlobalUsings.cs only; type aliases may remain in the file",
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Using directives must appear only in GlobalUsings.cs.");
+        description: "Namespace using directives must appear only in GlobalUsings.cs. File-local type aliases are allowed.");
 
     /// <summary>CSV006 multiple exits per line.</summary>
     public static readonly DiagnosticDescriptor MultipleExitsPerLine = new(

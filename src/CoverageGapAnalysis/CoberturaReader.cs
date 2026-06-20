@@ -124,7 +124,11 @@ public static class CoberturaReader
                     int hits = _ReadInt(reader, "hits");
                     bool isBranch = string.Equals(reader.GetAttribute("branch"), "True", StringComparison.OrdinalIgnoreCase);
                     List<double> conditions = _ReadConditions(reader);
-                    lineMap[lineNumber] = new Models.CoberturaLineInfo(hits, isBranch, conditions, currentMethod);
+                    if (!lineMap.TryGetValue(lineNumber, out Models.CoberturaLineInfo? existing) || hits > existing.Hits)
+                    {
+                        lineMap[lineNumber] = new Models.CoberturaLineInfo(hits, isBranch, conditions, currentMethod);
+                    }
+
                     break;
             }
         }

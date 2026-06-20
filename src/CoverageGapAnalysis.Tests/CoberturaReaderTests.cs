@@ -49,4 +49,40 @@ public sealed class CoberturaReaderTests
         await Assert.That(document).IsNull();
         await Assert.That(error).IsNotNull();
     }
+
+    [Test]
+    public async Task TryRead_DuplicateLineEntries_KeepsHighestHitCount()
+    {
+        const string xml = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <coverage branch-rate="1">
+              <packages>
+                <package name="Sample" branch-rate="1">
+                  <classes>
+                    <class name="Sample.Type" filename="/src/Sample.cs">
+                      <methods>
+                        <method name="M" signature="()">
+                          <lines>
+                            <line number="10" hits="1" branch="False" />
+                          </lines>
+                        </method>
+                      </methods>
+                      <lines>
+                        <line number="10" hits="0" branch="False" />
+                      </lines>
+                    </class>
+                  </classes>
+                </package>
+              </packages>
+            </coverage>
+            """;
+
+        string path = CoberturaFixtures.WriteTemporaryFile(xml);
+
+        bool success = CoberturaReader.TryRead(path, out CoberturaDocument? document, out string? error);
+
+        await Assert.That(success).IsTrue();
+        await Assert.That(error).IsNull();
+        await Assert.That(document!.Lines["/src/Sample.cs"][10].Hits).IsEqualTo(1);
+    }
 }

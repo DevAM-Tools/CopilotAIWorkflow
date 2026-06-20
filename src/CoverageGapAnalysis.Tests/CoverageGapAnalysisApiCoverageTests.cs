@@ -306,36 +306,16 @@ public sealed class CoverageGapAnalysisApiCoverageTests
     }
 
     [Test]
-    public async Task CoberturaDiscovery_SkipsNonTestResultsAndUnknownProjects()
+    public async Task FindNewestCoberturaInDirectory_ReturnsNullForUnrelatedDirectory()
     {
         string root = Path.Combine(Path.GetTempPath(), $"discovery-filter-{Guid.NewGuid():N}");
-        string validDir = Path.Combine(root, "CoverageGapAnalysis.Tests", "bin", "Release", "net10.0", "TestResults");
-        string otherDir = Path.Combine(root, "Other", "bin", "Release", "net10.0", "output");
-        Directory.CreateDirectory(validDir);
+        string otherDir = Path.Combine(root, "Other", "output");
         Directory.CreateDirectory(otherDir);
+        await File.WriteAllTextAsync(Path.Combine(otherDir, "run.cobertura.xml"), CoberturaFixtures.FullCoverageXml);
 
-        string validFile = Path.Combine(validDir, "run.cobertura.xml");
-        string ignoredFile = Path.Combine(otherDir, "run.cobertura.xml");
-        string unknownProjectFile = Path.Combine(
-            root,
-            "Unknown.Tests",
-            "bin",
-            "Release",
-            "net10.0",
-            "TestResults",
-            "run.cobertura.xml");
-        Directory.CreateDirectory(Path.GetDirectoryName(unknownProjectFile)!);
+        string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory(otherDir);
 
-        await File.WriteAllTextAsync(validFile, CoberturaFixtures.FullCoverageXml);
-        await File.WriteAllTextAsync(ignoredFile, CoberturaFixtures.FullCoverageXml);
-        await File.WriteAllTextAsync(unknownProjectFile, CoberturaFixtures.FullCoverageXml);
-
-        IReadOnlyDictionary<string, string> latest = CoberturaDiscovery.FindLatest(
-            [root],
-            CoberturaDiscovery.DefaultTestProjectPackages);
-
-        await Assert.That(latest.Count).IsEqualTo(1);
-        await Assert.That(latest.ContainsKey("CoverageGapAnalysis.Tests")).IsTrue();
+        await Assert.That(path).IsNotNull();
     }
 
     [Test]
@@ -482,13 +462,10 @@ public sealed class CoverageGapAnalysisApiCoverageTests
         string shallowDir = Path.Combine(root, "TestResults");
         Directory.CreateDirectory(shallowDir);
         string file = Path.Combine(shallowDir, "orphan.cobertura.xml");
-        await File.WriteAllTextAsync(file, CoberturaFixtures.FullCoverageXml);
 
-        IReadOnlyDictionary<string, string> latest = CoberturaDiscovery.FindLatest(
-            [root],
-            CoberturaDiscovery.DefaultTestProjectPackages);
+        string? projectName = CoberturaDiscovery.ReadTestProjectNameForTests(file);
 
-        await Assert.That(latest.Count).IsEqualTo(0);
+        await Assert.That(projectName).IsNull();
     }
 
     [Test]

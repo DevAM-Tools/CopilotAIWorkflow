@@ -481,7 +481,7 @@ public sealed class CoverageGapAnalysisRemainingBranchTests
     }
 
     [Test]
-    public async Task CoberturaDiscovery_ShallowTestResults_ReturnsEmpty()
+    public async Task CoberturaDiscovery_ShallowTestResults_FindsCoberturaInDirectory()
     {
         string root = Path.Combine(Path.GetTempPath(), $"drive-root-{Guid.NewGuid():N}");
         string testResults = Path.Combine(root, "TestResults");
@@ -489,26 +489,9 @@ public sealed class CoverageGapAnalysisRemainingBranchTests
         string file = Path.Combine(testResults, "drive.cobertura.xml");
         await File.WriteAllTextAsync(file, CoberturaFixtures.FullCoverageXml);
 
-        IReadOnlyDictionary<string, string> latest = CoberturaDiscovery.FindLatest(
-            [root],
-            CoberturaDiscovery.DefaultTestProjectPackages);
+        string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory(testResults);
 
-        await Assert.That(latest.Count).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task CoberturaDiscovery_FindsAllRepositoryTestProjects()
-    {
-        string repositoryRoot = Path.GetFullPath(
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-
-        IReadOnlyDictionary<string, string> latest = CoberturaDiscovery.FindLatest(
-            [Path.Combine(repositoryRoot, "src")],
-            CoberturaDiscovery.DefaultTestProjectPackages);
-
-        await Assert.That(latest.ContainsKey("CoverageGapAnalysis.Tests")).IsTrue();
-        await Assert.That(latest.ContainsKey("CSharpStyleValidator.Tests")).IsTrue();
-        await Assert.That(latest.ContainsKey("ExitPoints.Tests")).IsTrue();
+        await Assert.That(path).IsEqualTo(file);
     }
 
     [Test]

@@ -12,7 +12,7 @@ Load when `*.cs` files are in scope. Extends Section 4 in `copilot-instructions.
 
 ## Files & Usings
 - File-scoped namespaces.
-- Global usings in `GlobalUsings.cs` only; no per-file namespace usings.
+- Global usings in `GlobalUsings.cs` only; no per-file namespace usings. File-local type aliases (`using Alias = ...`) are allowed in source files.
 - Sort: `System.*` → `Microsoft.*` → third-party → internal.
 
 ## Style

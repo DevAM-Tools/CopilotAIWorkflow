@@ -2,124 +2,27 @@
 
 namespace CoverageGapAnalysis;
 
-/// <summary>Discovers latest Cobertura files per test project.
+/// <summary>Discovers Cobertura files within explicit directories.
 /// Thread-safe; all members are stateless.
 /// </summary>
 public static class CoberturaDiscovery
 {
     private const int _MaxParentHops = 32;
 
-    /// <summary>
-    /// Default test-project to package mapping for this repository.
-    /// Pass an explicit mapping to <see cref="FindLatest"/> in other solutions.
-    /// </summary>
-    public static IReadOnlyDictionary<string, string[]> DefaultTestProjectPackages { get; } =
-        new Dictionary<string, string[]>(StringComparer.Ordinal)
-        {
-            ["CSharpStyleValidator.Tests"] = ["CSharpStyleValidator"],
-            ["ExitPoints.Tests"] = ["ExitPoints"],
-            ["CoverageGapAnalysis.Tests"] = ["CoverageGapAnalysis"],
-            ["CoverageGap.Tool.Tests"] = ["CoverageGap.Tool"],
-        };
-
-    /// <summary>Finds the newest Cobertura file per known test project under search roots.</summary>
-    /// <param name="searchRoots">Directories to search recursively.</param>
-    /// <param name="testProjectPackages">Test project name to allowed package suffixes.</param>
-    /// <returns>Test project name to Cobertura path.</returns>
-    public static IReadOnlyDictionary<string, string> FindLatest(
-        IEnumerable<string> searchRoots,
-        IReadOnlyDictionary<string, string[]> testProjectPackages)
+    /// <summary>Finds the newest Cobertura file under a single results directory.</summary>
+    /// <param name="resultsDirectory">Directory that contains Cobertura output.</param>
+    /// <returns>Newest <c>*.cobertura.xml</c> path, or <see langword="null"/> when none exist.</returns>
+    public static string? FindNewestCoberturaInDirectory(string resultsDirectory)
     {
-        ArgumentNullException.ThrowIfNull(searchRoots);
-        ArgumentNullException.ThrowIfNull(testProjectPackages);
-
-        Dictionary<string, (DateTime Modified, string Path)> latest =
-            new Dictionary<string, (DateTime, string)>(StringComparer.Ordinal);
-
-        foreach (string root in searchRoots)
+        ArgumentException.ThrowIfNullOrEmpty(resultsDirectory);
+        if (!Directory.Exists(resultsDirectory))
         {
-            if (!Directory.Exists(root))
-            {
-                continue;
-            }
-
-            foreach (string testResultsDir in Directory.EnumerateDirectories(root, "TestResults", SearchOption.AllDirectories))
-            {
-                foreach (string file in Directory.EnumerateFiles(testResultsDir, "*.cobertura.xml", SearchOption.TopDirectoryOnly))
-                {
-                    _TryRecordLatest(file, testProjectPackages, latest);
-                }
-            }
+            return null;
         }
 
-        return latest.ToDictionary(static pair => pair.Key, static pair => pair.Value.Path, StringComparer.Ordinal);
-    }
-
-    /// <summary>Finds newest Cobertura files for test projects covering <paramref name="targetPackage"/>.</summary>
-    /// <param name="searchRoots">Directories to search recursively.</param>
-    /// <param name="testProjectPackages">Test project name to allowed package suffixes.</param>
-    /// <param name="targetPackage">Production project or package name under report.</param>
-    /// <returns>Matching test project name to Cobertura path.</returns>
-    public static IReadOnlyDictionary<string, string> FindLatestForTargetPackage(
-        IEnumerable<string> searchRoots,
-        IReadOnlyDictionary<string, string[]> testProjectPackages,
-        string targetPackage)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(targetPackage);
-
-        IReadOnlyDictionary<string, string> allLatest = FindLatest(searchRoots, testProjectPackages);
-        Dictionary<string, string> filtered = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        foreach (KeyValuePair<string, string> entry in allLatest)
-        {
-            if (!testProjectPackages.TryGetValue(entry.Key, out string[]? packageSuffixes))
-            {
-                continue;
-            }
-
-            for (int suffixIndex = 0; suffixIndex < packageSuffixes.Length; suffixIndex++)
-            {
-                if (string.Equals(packageSuffixes[suffixIndex], targetPackage, StringComparison.Ordinal))
-                {
-                    filtered[entry.Key] = entry.Value;
-                    break;
-                }
-            }
-        }
-
-        return filtered;
-    }
-
-    private static void _TryRecordLatest(
-        string file,
-        IReadOnlyDictionary<string, string[]> testProjectPackages,
-        Dictionary<string, (DateTime Modified, string Path)> latest)
-    {
-        string? projectKey = _ReadTestProjectName(file);
-        if (projectKey is null || !testProjectPackages.ContainsKey(projectKey))
-        {
-            return;
-        }
-
-        DateTime modified = File.GetLastWriteTimeUtc(file);
-        if (!latest.TryGetValue(projectKey, out (DateTime Modified, string Path) existing) || modified > existing.Modified)
-        {
-            latest[projectKey] = (modified, file);
-        }
-    }
-
-    /// <summary>Collects unique Cobertura paths from the latest discovery result.</summary>
-    /// <param name="searchRoots">Directories to search.</param>
-    /// <param name="testProjectPackages">Mapping of test projects.</param>
-    /// <returns>Distinct Cobertura file paths.</returns>
-    public static IReadOnlyList<string> FindLatestFiles(
-        IEnumerable<string> searchRoots,
-        IReadOnlyDictionary<string, string[]> testProjectPackages)
-    {
-        return FindLatest(searchRoots, testProjectPackages)
-            .Values
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        return Directory.EnumerateFiles(resultsDirectory, "*.cobertura.xml", SearchOption.AllDirectories)
+            .OrderByDescending(static path => File.GetLastWriteTimeUtc(path))
+            .FirstOrDefault();
     }
 
     /// <summary>Test seam for resolving a Cobertura path to a test project name.</summary>
@@ -130,6 +33,7 @@ public static class CoberturaDiscovery
         return _ReadTestProjectName(coberturaPath);
     }
 
+    [ExcludeFromCodeCoverage(Justification = "Directory is always present for absolute Cobertura paths supplied by the tool.")]
     private static string? _ReadTestProjectName(string coberturaPath)
     {
         DirectoryInfo? directory = new FileInfo(coberturaPath).Directory;

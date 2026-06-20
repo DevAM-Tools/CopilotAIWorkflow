@@ -4,74 +4,96 @@ namespace CoverageGap.Tool;
 
 internal static class ProjectCompilationLoader
 {
-    public static Task<Compilation?> CreateAsync(
+    public static async Task<Compilation?> CreateAsync(
         string projectPath,
         bool skipBuild,
         CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
-        return CreateAsync(projectPath, skipBuild, _ResolveConfiguration(null));
+        (Compilation? compilation, string? _) = await TryCreateAsync(
+            projectPath,
+            skipBuild,
+            _ResolveConfiguration(null),
+            cancellationToken).ConfigureAwait(false);
+        return compilation;
     }
 
-    public static Task<Compilation?> CreateAsync(
-        string projectPath,
-        bool skipBuild,
-        string configuration)
-    {
-        TryCreate(projectPath, skipBuild, configuration, out Compilation? compilation, out string? _);
-        return Task.FromResult(compilation);
-    }
-
-    public static bool TryCreate(
+    public static async Task<Compilation?> CreateAsync(
         string projectPath,
         bool skipBuild,
         string configuration,
-        out Compilation? compilation,
-        out string? error)
+        CancellationToken cancellationToken = default)
     {
-        compilation = null;
-        error = null;
+        (Compilation? compilation, string? _) = await TryCreateAsync(
+            projectPath,
+            skipBuild,
+            configuration,
+            cancellationToken).ConfigureAwait(false);
+        return compilation;
+    }
 
+    public static async Task<(Compilation? Compilation, string? Error)> TryCreateAsync(
+        string projectPath,
+        bool skipBuild,
+        string configuration,
+        CancellationToken cancellationToken = default)
+    {
         string fullProjectPath = Path.GetFullPath(projectPath);
         string projectDirectory = Path.GetDirectoryName(fullProjectPath) ?? ".";
         string projectName = Path.GetFileNameWithoutExtension(fullProjectPath);
 
         if (!skipBuild
-            && !_EnsureBuilt(fullProjectPath, projectDirectory, configuration, out error))
+            && !await _EnsureBuiltAsync(fullProjectPath, projectDirectory, configuration, cancellationToken).ConfigureAwait(false))
         {
-            return false;
+            return (null, "dotnet restore or build failed.");
         }
 
         string assetsPath = Path.Combine(projectDirectory, "obj", "project.assets.json");
         if (!File.Exists(assetsPath))
         {
-            error = "Run 'dotnet restore' first (missing project.assets.json).";
-            return false;
+            return (null, "Run 'dotnet restore' first (missing project.assets.json).");
         }
 
         string? targetFramework = _ReadTargetFramework(fullProjectPath, assetsPath, out string? tfmError);
         if (!string.IsNullOrEmpty(tfmError))
         {
-            error = tfmError;
-            return false;
+            return (null, tfmError);
         }
 
         if (string.IsNullOrEmpty(targetFramework))
         {
-            error = "Target framework not found in project.";
-            return false;
+            return (null, "Target framework not found in project.");
         }
 
         List<MetadataReference> references = _ResolveReferences(assetsPath, targetFramework, projectDirectory, configuration);
         SyntaxTree[] trees = _LoadSyntaxTrees(fullProjectPath, projectDirectory);
         if (trees.Length == 0)
         {
-            error = "No C# source files found for project.";
+            return (null, "No C# source files found for project.");
+        }
+
+        return (CSharpCompilation.Create(projectName, trees, references), null);
+    }
+
+    private static async Task<bool> _EnsureBuiltAsync(
+        string fullProjectPath,
+        string projectDirectory,
+        string configuration,
+        CancellationToken cancellationToken)
+    {
+        DotNetProcessResult restoreResult = await DotNetProcess.RunAsync(
+            $"restore \"{fullProjectPath}\"",
+            projectDirectory,
+            cancellationToken).ConfigureAwait(false);
+        if (restoreResult.ExitCode != 0)
+        {
             return false;
         }
 
-        compilation = CSharpCompilation.Create(projectName, trees, references);
-        return true;
+        DotNetProcessResult buildResult = await DotNetProcess.RunAsync(
+            $"build \"{fullProjectPath}\" -c {configuration} --no-restore -v:q",
+            projectDirectory,
+            cancellationToken).ConfigureAwait(false);
+        return buildResult.ExitCode == 0;
     }
 
     public static string ResolveConfiguration(string? configuration)
@@ -97,62 +119,6 @@ internal static class ProjectCompilationLoader
 
     /// <remarks>Spawns <c>dotnet</c> subprocesses; success path exercised by loader integration tests.</remarks>
     [ExcludeFromCodeCoverage]
-    private static bool _EnsureBuilt(
-        string fullProjectPath,
-        string projectDirectory,
-        string configuration,
-        out string? error)
-    {
-        error = null;
-        int restoreCode = _RunDotNet($"restore \"{fullProjectPath}\"", projectDirectory, out string? restoreError);
-        if (restoreCode != 0)
-        {
-            error = restoreError ?? "dotnet restore failed.";
-            return false;
-        }
-
-        int buildCode = _RunDotNet(
-            $"build \"{fullProjectPath}\" -c {configuration} --no-restore -v:q",
-            projectDirectory,
-            out string? buildError);
-        if (buildCode != 0)
-        {
-            error = buildError ?? "dotnet build failed.";
-            return false;
-        }
-
-        return true;
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static int _RunDotNet(string arguments, string workingDirectory, out string? error)
-    {
-        error = null;
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = arguments,
-            WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
-
-        using Process process = Process.Start(startInfo)!;
-        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
-        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
-        process.WaitForExit();
-        string stderr = stderrTask.GetAwaiter().GetResult();
-        stdoutTask.GetAwaiter().GetResult();
-        if (process.ExitCode != 0 && !string.IsNullOrWhiteSpace(stderr))
-        {
-            error = stderr.Trim();
-        }
-
-        return process.ExitCode;
-    }
-
-    [ExcludeFromCodeCoverage]
     private static string? _ReadTargetFramework(string projectPath, string assetsPath, out string? error)
     {
         error = null;
@@ -175,36 +141,24 @@ internal static class ProjectCompilationLoader
     private static string? _TryReadTargetFrameworkFromProject(string projectPath, out string? error)
     {
         error = null;
-        try
+        if (!ProjectXmlLoader.TryLoadDocument(projectPath, out XDocument? document, out error))
         {
-            XmlReaderSettings settings = new XmlReaderSettings
-            {
-                DtdProcessing = DtdProcessing.Prohibit,
-                XmlResolver = null,
-            };
-
-            using FileStream stream = File.OpenRead(projectPath);
-            using XmlReader reader = XmlReader.Create(stream, settings);
-            XDocument document = XDocument.Load(reader);
-            XElement? tfm = document.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFramework");
-            if (tfm is not null && !string.IsNullOrWhiteSpace(tfm.Value))
-            {
-                return tfm.Value;
-            }
-
-            XElement? tfms = document.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFrameworks");
-            if (tfms is not null && !string.IsNullOrWhiteSpace(tfms.Value))
-            {
-                return tfms.Value.Split(';', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-            }
-
             return null;
         }
-        catch (Exception ex) when (ex is XmlException or IOException)
+
+        XElement? tfm = document!.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFramework");
+        if (tfm is not null && !string.IsNullOrWhiteSpace(tfm.Value))
         {
-            error = $"Failed to read project file: {ex.Message}";
-            return null;
+            return tfm.Value;
         }
+
+        XElement? tfms = document.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFrameworks");
+        if (tfms is not null && !string.IsNullOrWhiteSpace(tfms.Value))
+        {
+            return tfms.Value.Split(';', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        }
+
+        return null;
     }
 
     [ExcludeFromCodeCoverage]
@@ -329,48 +283,34 @@ internal static class ProjectCompilationLoader
     [ExcludeFromCodeCoverage]
     private static void _AddCompileItemsFromProject(string projectPath, string projectDirectory, HashSet<string> sourcePaths)
     {
-        try
+        if (!ProjectXmlLoader.TryLoadDocument(projectPath, out XDocument? document, out _))
         {
-            XmlReaderSettings settings = new XmlReaderSettings
+            return;
+        }
+
+        foreach (XElement element in document!.Descendants())
+        {
+            if (!string.Equals(element.Name.LocalName, "Compile", StringComparison.Ordinal))
             {
-                DtdProcessing = DtdProcessing.Prohibit,
-                XmlResolver = null,
-            };
-
-            using FileStream stream = File.OpenRead(projectPath);
-            using XmlReader reader = XmlReader.Create(stream, settings);
-            XDocument document = XDocument.Load(reader);
-
-            foreach (XElement element in document.Descendants())
-            {
-                if (!string.Equals(element.Name.LocalName, "Compile", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                XAttribute? include = element.Attribute("Include");
-                if (include is null || string.IsNullOrWhiteSpace(include.Value))
-                {
-                    continue;
-                }
-
-                if (element.Attribute("Remove") is not null)
-                {
-                    continue;
-                }
-
-                string fullPath = Path.GetFullPath(Path.Combine(projectDirectory, include.Value));
-                if (File.Exists(fullPath))
-                {
-                    sourcePaths.Add(fullPath);
-                }
+                continue;
             }
-        }
-        catch (XmlException)
-        {
-        }
-        catch (IOException)
-        {
+
+            XAttribute? include = element.Attribute("Include");
+            if (include is null || string.IsNullOrWhiteSpace(include.Value))
+            {
+                continue;
+            }
+
+            if (element.Attribute("Remove") is not null)
+            {
+                continue;
+            }
+
+            string fullPath = Path.GetFullPath(Path.Combine(projectDirectory, include.Value));
+            if (File.Exists(fullPath))
+            {
+                sourcePaths.Add(fullPath);
+            }
         }
     }
 

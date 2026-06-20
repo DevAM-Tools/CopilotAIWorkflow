@@ -13,14 +13,11 @@ public sealed class ProjectCompilationLoaderTests
         string projectPath = Path.Combine(root, "Empty.csproj");
         await File.WriteAllTextAsync(projectPath, _MinimalProjectXml);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? error) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: true,
-            "Release",
-            out Compilation? compilation,
-            out string? error);
+            "Release");
 
-        await Assert.That(success).IsFalse();
         await Assert.That(compilation).IsNull();
         await Assert.That(error).Contains("restore");
     }
@@ -43,14 +40,11 @@ public sealed class ProjectCompilationLoaderTests
             }
             """);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? error) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: true,
-            "Release",
-            out Compilation? compilation,
-            out string? error);
+            "Release");
 
-        await Assert.That(success).IsFalse();
         await Assert.That(compilation).IsNull();
         await Assert.That(error).Contains("source");
     }
@@ -82,14 +76,11 @@ public sealed class ProjectCompilationLoaderTests
             }
             """);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? _) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: true,
-            "Release",
-            out Compilation? compilation,
-            out string? _);
+            "Release");
 
-        await Assert.That(success).IsTrue();
         await Assert.That(compilation).IsNotNull();
         await Assert.That(compilation!.SyntaxTrees.Count()).IsGreaterThan(0);
     }
@@ -131,19 +122,17 @@ public sealed class ProjectCompilationLoaderTests
             }
             """);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? error) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: true,
-            "Release",
-            out Compilation? compilation,
-            out string? error);
+            "Release");
 
-        await Assert.That(success).IsFalse();
         await Assert.That(compilation).IsNull();
         await Assert.That(error).Contains("framework");
     }
 
     [Test]
+    [NotInParallel]
     public async Task TryCreate_WithBuild_SucceedsForTempProject()
     {
         string root = Path.Combine(Path.GetTempPath(), $"pcl-build-{Guid.NewGuid():N}");
@@ -161,14 +150,11 @@ public sealed class ProjectCompilationLoaderTests
             }
             """);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? _) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: false,
-            "Release",
-            out Compilation? compilation,
-            out string? _);
+            "Release");
 
-        await Assert.That(success).IsTrue();
         await Assert.That(compilation).IsNotNull();
     }
 
@@ -206,19 +192,17 @@ public sealed class ProjectCompilationLoaderTests
             }
             """);
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? error) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: true,
-            "Release",
-            out Compilation? compilation,
-            out string? error);
+            "Release");
 
-        await Assert.That(success).IsFalse();
         await Assert.That(compilation).IsNull();
-        await Assert.That(error).Contains("project file");
+        await Assert.That(error).Contains("XML");
     }
 
     [Test]
+    [NotInParallel]
     public async Task TryCreate_BuildFailure_ReturnsError()
     {
         string root = Path.Combine(Path.GetTempPath(), $"pcl-build-fail-{Guid.NewGuid():N}");
@@ -238,14 +222,11 @@ public sealed class ProjectCompilationLoaderTests
             Path.Combine(root, "Broken.cs"),
             "namespace Broken; public class Type { invalid syntax here }");
 
-        bool success = ProjectCompilationLoader.TryCreate(
+        (Compilation? compilation, string? error) = await ProjectCompilationLoader.TryCreateAsync(
             projectPath,
             skipBuild: false,
-            "Release",
-            out Compilation? compilation,
-            out string? error);
+            "Release");
 
-        await Assert.That(success).IsFalse();
         await Assert.That(compilation).IsNull();
         await Assert.That(error).IsNotNull();
     }

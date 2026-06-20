@@ -6,24 +6,20 @@ namespace CoverageGapAnalysis.Tests;
 public sealed class CoberturaDiscoveryTests
 {
     [Test]
-    public async Task FindLatestFiles_PicksNewestCoberturaPerProject()
+    public async Task FindNewestCoberturaInDirectory_PicksNewestFile()
     {
         string root = Path.Combine(Path.GetTempPath(), $"discovery-{Guid.NewGuid():N}");
-        string testProjectRoot = Path.Combine(root, "CoverageGapAnalysis.Tests", "bin", "Release", "net10.0", "TestResults");
-        Directory.CreateDirectory(testProjectRoot);
+        Directory.CreateDirectory(root);
 
-        string older = Path.Combine(testProjectRoot, "older.cobertura.xml");
-        string newer = Path.Combine(testProjectRoot, "newer.cobertura.xml");
+        string older = Path.Combine(root, "older.cobertura.xml");
+        string newer = Path.Combine(root, "newer.cobertura.xml");
         await File.WriteAllTextAsync(older, "<coverage branch-rate=\"1\" line-rate=\"1\" version=\"1.9\"><packages></packages></coverage>");
-        await Task.Delay(20);
         await File.WriteAllTextAsync(newer, "<coverage branch-rate=\"1\" line-rate=\"1\" version=\"1.9\"><packages></packages></coverage>");
+        File.SetLastWriteTimeUtc(older, DateTime.UtcNow.AddMinutes(-5));
 
-        IReadOnlyList<string> files = CoberturaDiscovery.FindLatestFiles(
-            [root],
-            CoberturaDiscovery.DefaultTestProjectPackages);
+        string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory(root);
 
-        await Assert.That(files.Count).IsEqualTo(1);
-        await Assert.That(files[0]).IsEqualTo(newer);
+        await Assert.That(path).IsEqualTo(newer);
     }
 
     [Test]
@@ -52,46 +48,24 @@ public sealed class CoberturaDiscoveryTests
     }
 
     [Test]
-    public async Task ReadTestProjectName_ReturnsNullWhenDirectoryUnavailable()
+    public async Task ReadTestProjectName_ReturnsTestsFolderFromCoberturaPath()
     {
-        string? projectName = CoberturaDiscovery.ReadTestProjectNameForTests(@"C:\");
+        string root = Path.Combine(Path.GetTempPath(), $"tests-name-{Guid.NewGuid():N}");
+        string coberturaPath = Path.Combine(root, "CoverageGapAnalysis.Tests", "TestResults", "x.cobertura.xml");
+        Directory.CreateDirectory(Path.GetDirectoryName(coberturaPath)!);
+        await File.WriteAllTextAsync(coberturaPath, "<coverage/>");
 
-        await Assert.That(projectName).IsNull();
+        string? projectName = CoberturaDiscovery.ReadTestProjectNameForTests(coberturaPath);
+
+        await Assert.That(projectName).IsEqualTo("CoverageGapAnalysis.Tests");
     }
 
     [Test]
-    public async Task FindLatestForTargetPackage_ReturnsOnlyMatchingTestProject()
+    public async Task FindNewestCoberturaInDirectory_ReturnsNullForMissingDirectory()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"target-filter-{Guid.NewGuid():N}");
-        string validatorResults = Path.Combine(root, "CSharpStyleValidator.Tests", "bin", "Release", "net10.0", "TestResults");
-        string toolResults = Path.Combine(root, "CoverageGap.Tool.Tests", "bin", "Release", "net10.0", "TestResults");
-        Directory.CreateDirectory(validatorResults);
-        Directory.CreateDirectory(toolResults);
+        string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory(
+            Path.Combine(Path.GetTempPath(), $"missing-{Guid.NewGuid():N}"));
 
-        string validatorCobertura = Path.Combine(validatorResults, "validator.cobertura.xml");
-        string toolCobertura = Path.Combine(toolResults, "tool.cobertura.xml");
-        await File.WriteAllTextAsync(validatorCobertura, "<coverage branch-rate=\"1\" line-rate=\"1\" version=\"1.9\"><packages></packages></coverage>");
-        await File.WriteAllTextAsync(toolCobertura, "<coverage branch-rate=\"1\" line-rate=\"1\" version=\"1.9\"><packages></packages></coverage>");
-
-        IReadOnlyDictionary<string, string> filtered = CoberturaDiscovery.FindLatestForTargetPackage(
-            [root],
-            CoberturaDiscovery.DefaultTestProjectPackages,
-            "CSharpStyleValidator");
-
-        await Assert.That(filtered.Count).IsEqualTo(1);
-        await Assert.That(filtered.ContainsKey("CSharpStyleValidator.Tests")).IsTrue();
-        await Assert.That(filtered["CSharpStyleValidator.Tests"]).IsEqualTo(validatorCobertura);
-    }
-
-    [Test]
-    public async Task FindLatest_SkipsMissingParentDirectory()
-    {
-        string path = Path.Combine(Path.GetTempPath(), $"missing-dir-{Guid.NewGuid():N}", "run.cobertura.xml");
-
-        IReadOnlyList<string> files = CoberturaDiscovery.FindLatestFiles(
-            [Path.GetDirectoryName(path)!],
-            CoberturaDiscovery.DefaultTestProjectPackages);
-
-        await Assert.That(files.Count).IsEqualTo(0);
+        await Assert.That(path).IsNull();
     }
 }

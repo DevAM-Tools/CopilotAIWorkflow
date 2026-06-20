@@ -11,6 +11,17 @@ Load when test files or test projects are in scope. Implements Section 4.5 enfor
 - Use TUnit
 - Make every test method `async Task`.
 - Use NSubstitute for doubles.
+- Enable Microsoft Testing Platform (MTP) in repo-root `global.json` — required for `dotnet test` with TUnit on .NET SDK 10+:
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+- No extra coverage NuGet package: MTP + TUnit on .NET SDK 10+; `dotnet tool run coveragegap run` passes `--coverage --coverage-output-format cobertura` to `dotnet test`. Do not add `coverlet.collector` (VSTest-only; incompatible with MTP).
 
 ## Test Quality
 
@@ -24,20 +35,33 @@ Load when test files or test projects are in scope. Implements Section 4.5 enfor
 
 ## CoverageGap.Tool
 
-SSOT for exit-point coverage workflow. Release gate: `summary.exitGapCount == 0`. Branch fields in the report are informational only.
+SSOT for exit-point coverage. **Gate:** `summary.exitGapCount == 0`. Branch fields informational. **`run`** gates class-library projects only (`OutputType` `Exe` excluded).
 
-**Run** (each production `.csproj` in scope):
+**Setup** (once per repo, from repo root):
 
 ```bash
-dotnet test <Solution> -c Release -- --coverage --coverage-output-format cobertura
-dotnet run --project src/CoverageGap.Tool/CoverageGap.Tool.csproj -c Release -- report project <Prod.csproj> --search-root src --repo-root . --format agent --no-fail
+dotnet new tool-manifest
+dotnet tool install CoverageGap.Tool
 ```
 
-Consumer repo: `coveragegap report project <Prod.csproj> --search-root <src> --repo-root . --format agent --no-fail` (after `dotnet tool install -g CoverageGap.Tool`).
+CI / fresh clone: `dotnet tool restore` before first run.
 
-**Work results:** read JSON `summary.exitGapCount` / `summary.gatePassed`; fix every item in `exitGaps[]` (file, line, `exitPointId`, `kind`) with a test; add `--include-snippet` when needed. Loop test → report until `exitGapCount == 0`. Do not block release on `branchGapCount` or `branchGatePassed`.
+**Invoke:** `dotnet tool run coveragegap …` — omit `run` to auto-discover `.slnx`/`.sln` and gate all paired libraries.
 
-**Plan tests:** `manifest project <Prod.csproj> -o exits.json` (same `dotnet run` / global `coveragegap` prefix as `report`).
+| Task | Command |
+|------|---------|
+| Gate repo | `dotnet tool run coveragegap --repo-root .` |
+| Gate solution | `dotnet tool run coveragegap run solution path/File.slnx --repo-root . --configuration Release --format agent` |
+| Gate project(s) | `dotnet tool run coveragegap run project path/Proj.csproj --repo-root .` |
+| Plan exits (no tests) | `dotnet tool run coveragegap plan project path/Proj.csproj -o exits.json --repo-root .` |
+
+Read `summary.exitGapCount` and `exitGaps[]` (`file`, `line`, `exitPointId`, `kind`); fix and re-run until `exitGapCount == 0`. No tests yet: `plan` → add tests → `run`.
+
+Pairing: `{Project}.Tests` sibling, else `--test-project`. Parallel-safe: unique temp `--work-dir`; relative `-o` resolves under work dir (not repo root).
+
+Useful flags: `--skip-no-tests` (run only), `--no-build`, `--cobertura <file>`, `--include-snippet`, `--keep-work-dir`.
+
+**This repository (build from source):** `dotnet run --project src/CoverageGap.Tool -c Release -- run --repo-root .`
 
 ## Structure
 

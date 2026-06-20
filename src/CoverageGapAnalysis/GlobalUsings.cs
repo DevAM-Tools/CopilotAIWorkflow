@@ -1,6 +1,6 @@
 // Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.
 
-global using System;
+global using System.Diagnostics.CodeAnalysis;
 global using System.Collections.Generic;
 global using System.Globalization;
 global using System.IO;

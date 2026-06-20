@@ -3,7 +3,7 @@
 ## 1) Scope and Precedence
 
 - Apply these instructions to every change, technology, and workflow phase.
-- Treat natural-language equivalents of `/plan`, `/implement`, `/review`, `/complex-task` as the same workflow trigger.
+- Treat natural-language equivalents of `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task` as the same workflow trigger.
 - End every workflow with: status table, release or goal verdict, top risks (≤5 bullets), artifact paths.
 - Do not recap artifact contents in chat.
 
@@ -190,6 +190,7 @@ Goal: save tokens in chat without losing technical substance.
 | `/plan` | `workflow-plan.md` |
 | `/implement` | `workflow-implement.md` |
 | `/review` | `workflow-review.md` |
+| `/review-loop` | `workflow-review-loop.md` |
 | `/complex-task` | `workflow-complex-task.md` |
 
 - Do not start implementation before explicit plan approval.
