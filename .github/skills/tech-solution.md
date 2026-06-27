@@ -51,7 +51,6 @@ Generator projects only:
 | `VersionPrefix` | central in `Directory.Build.props` (e.g. `1.1.0`) |
 | `ContinuousIntegrationBuild` | `true` when `CI` is set |
 | `DebugType` | `embedded` or `portable` (consistent) |
-| `RestoreUseStaticGraphEvaluation` | `true` |
 
 ### Versioning & Metadata (on-request)
 
@@ -80,9 +79,17 @@ When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Compan
 
 ## CSharpStyleValidator
 
-- Add `CSharpStyleValidator` NuGet to every consumer from `netstandard2.0` or .NET Core App (`net5.0`+), including Roslyn source generators.
-- Auto-apply via `Directory.Build.targets`
-- Set `ApplyCSharpStyleValidator=false` only for explicit opt-out.
+❗ Mandatory NuGet **`2.*`** on every SDK-style consumer (`netstandard2.0` or `net5.0`+), including Roslyn source generators.
+
+| Step | Action |
+|------|--------|
+| CPM | `Directory.Packages.props`: `<PackageVersion Include="CSharpStyleValidator" Version="2.*" />` |
+| Project | `<PackageReference Include="CSharpStyleValidator" />` — omit `Version` when CPM enabled |
+| No CPM | `<PackageReference Include="CSharpStyleValidator" Version="2.*" />` in `.csproj` |
+
+- Analyzers load from `analyzers/dotnet/cs`; **`ExitPoints` bundled** — no second package, no `PrivateAssets` / `IncludeAssets`.
+- Violations = compiler errors (CSV*). Rebuild after add.
+- Set `ApplyCSharpStyleValidator=false` only to opt out.
 
 ## New Dependency Protocol
 
@@ -97,9 +104,3 @@ When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Compan
 |-----------|-------|
 | `.cs`, `.razor.cs`, `.css` | `// {copyright}` — exact text from `COPYRIGHT` |
 | `.md`, `.html`, `.razor` | `<!-- {copyright} -->` — exact text from `COPYRIGHT` |
-
-## Skeleton
-
-`Directory.Build.props`: `<TargetFramework>net10.0</TargetFramework>`, `<LangVersion>14</LangVersion>`, `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<EnableNETAnalyzers>true</EnableNETAnalyzers>`, `<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>`, `<AnalysisLevel>latest</AnalysisLevel>`, `<AnalysisMode>AllEnabledByDefault</AnalysisMode>`, `<GenerateDocumentationFile>true</GenerateDocumentationFile>`, `<Deterministic>true</Deterministic>`.
-
-`Directory.Packages.props`: `<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>`, `<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>` + `<PackageVersion Include="..." Version="..." />` per package.

@@ -35,7 +35,7 @@ dotnet add package CSharpStyleValidator
 Or in `.csproj`:
 
 ```xml
-<PackageReference Include="CSharpStyleValidator" Version="1.*" />
+<PackageReference Include="CSharpStyleValidator" Version="2.*" />
 ```
 
 Rebuild. Violations surface as compiler errors (CSV001–CSV007). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
@@ -50,8 +50,8 @@ Tests + Cobertura + exit-gap JSON in one call. **Gate:** `summary.exitGapCount =
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install CoverageGap.Tool
-dotnet tool restore   # CI / fresh clone
+dotnet tool install CoverageGap.Tool --version 2.*
+dotnet tool restore   # fresh clone / new machine
 ```
 
 Add MTP to repo-root `global.json` and TUnit to `{Project}.Tests` — see [tech-tunit.md](.github/skills/tech-tunit.md#framework).
@@ -65,13 +65,11 @@ Add MTP to repo-root `global.json` and TUnit to `{Project}.Tests` — see [tech-
 
 Fix every item in `exitGaps[]`; re-run until `exitGapCount == 0`. Exit codes: `0` pass · `1` gap/failure · `2` usage.
 
-**CI:** `dotnet tool restore` then `dotnet tool run coveragegap run --repo-root .`
-
 **This repo (contributors):** `dotnet run --project src/CoverageGap.Tool -c Release -- run --repo-root .`
 
 CLI options: [CoverageGap.Tool](#coveragegaptool).
 
-### 3 — Coverage library (agents / CI embedding)
+### 3 — Coverage library (agents / custom tooling)
 
 ```bash
 dotnet add package CoverageGapAnalysis
@@ -168,9 +166,9 @@ Agents must `Read` matching skills before edits. Missing skill when trigger matc
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Plan:** `workflow-plan.md` — gather context, Grill Me, write artifact
+- **Plan:** `workflow-plan.md` — gather context, Grill Me, align & prefer, write artifact
 - **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, verify
-- **Review:** `workflow-review.md` — scope, load, review, output
+- **Review:** `workflow-review.md` — scope, load, cross-file consistency, output
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
 - **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop
 
@@ -216,9 +214,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
 | [`CoverageGapAnalysis`](src/CoverageGapAnalysis/) | Cobertura parsing and exit/branch gap reporting library |
 | [`CoverageGap.Tool`](src/CoverageGap.Tool/) | CLI — `dotnet tool run coveragegap` (`run` / `plan`; single-call solution gate) |
-| [`samples/CSharpStyleValidator.Demo`](samples/CSharpStyleValidator.Demo/) | `netstandard2.0` analyzer demo (CSV001–CSV007), source generator, NuGet consumer (CI) |
-
-**CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Release build; test matrix on Linux, Windows, and macOS (x64 and ARM); exit-gap report (`exitGapCount == 0`) on every production project. Tag pushes publish NuGet packages ([`.github/workflows/release.yml`](.github/workflows/release.yml)).
+| [`samples/CSharpStyleValidator.Demo`](samples/CSharpStyleValidator.Demo/) | `netstandard2.0` analyzer demo (CSV;#*), source generator, packed NuGet verification |
 
 ---
 

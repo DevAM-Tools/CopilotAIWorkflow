@@ -18,7 +18,6 @@ All notable changes to this project are documented in this file.
 ### Documentation
 
 - README, `PACKAGE_README.md`, and `tech-tunit.md` document the CLI workflow
-- CI/release verify via `dotnet tool run coveragegap run --repo-root .`
 
 ## 1.1.0
 
@@ -26,7 +25,7 @@ All notable changes to this project are documented in this file.
 
 - Repo clone: auto-apply via root `Directory.Build.targets` for `netstandard2.0`+ and .NET Core App projects (including Roslyn source generators)
 - NuGet: analyzers load from `analyzers/dotnet/cs` (bundled `ExitPoints.dll`); no MSBuild targets in the package
-- Sample: `samples/CSharpStyleValidator.Demo/` — CSV001–CSV007 violations, source generator, packed NuGet verification (CI)
+- Sample: `samples/CSharpStyleValidator.Demo/` — CSV* violations, source generator, packed NuGet verification
 
 ### Documentation
 

@@ -1,6 +1,6 @@
 # CSharpStyleValidator Demo
 
-Single `netstandard2.0` sample covering **CSharpStyleValidator** (CSV001–CSV007), a Roslyn source generator, repo wiring, and packed NuGet consumption (CI).
+Single `netstandard2.0` sample covering **CSharpStyleValidator** (CSV*oooooooooo), a Roslyn source generator, repo wiring, and packed NuGet consumption.
 
 ## Compliant build (default)
 
@@ -39,7 +39,7 @@ To test a single rule, temporarily remove the other `.cs` files from `Violations
 Add the analyzer package explicitly:
 
 ```xml
-<PackageReference Include="CSharpStyleValidator" Version="1.*" />
+<PackageReference Include="CSharpStyleValidator" Version="2.*" />
 ```
 
 Requires SDK-style `netstandard2.0` (or .NET Core App) and **.NET SDK 9.0.300+** (Roslyn 4.14). See the root [README.md](../../README.md#csharpstylevalidator).

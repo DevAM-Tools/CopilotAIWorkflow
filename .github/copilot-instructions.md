@@ -114,7 +114,8 @@ Goal: save tokens in chat without losing technical substance.
 ### 4.5 Testing
 
 - ❗ Require 100% exit-point coverage on every public or internal API before release; release gate: `exitGapCount == 0`. Branch coverage is not a release gate.
-- Enforcement workflow, CoverageGap.Tool usage, TUnit structure, and test authoring: `tech-tunit.md`.
+- ❗ Require **CoverageGap.Tool** NuGet local tool at version **`2.*`** on every repo with test projects; gate via `dotnet tool run coveragegap --repo-root .` until `summary.exitGapCount == 0`. Setup and commands: `tech-tunit.md`.
+- TUnit structure and test authoring: `tech-tunit.md`.
 
 ### 4.6 Documentation
 
@@ -131,6 +132,7 @@ Goal: save tokens in chat without losing technical substance.
 - Do not put dates in code or commits; copyright year is allowed.
 - Add per-file copyright from `COPYRIGHT` when creating source files.
 - Use only MIT, Apache-2.0, or BSD-like dependencies.
+- ❗ Require **CSharpStyleValidator** NuGet at version **`2.*`** on every SDK-style C# consumer (`netstandard2.0` or `net5.0`+), including source generators; `ExitPoints` is bundled — no separate analyzer reference. Install and CPM wiring: `tech-solution.md`.
 - Follow New Dependency Protocol in `tech-solution.md` when packages are in scope.
 - Use Mermaid (`TD`, tall layout) instead of ASCII art.
 
@@ -153,7 +155,7 @@ Goal: save tokens in chat without losing technical substance.
 ### 4.11 Git
 
 - ❗ Require explicit user approval for destructive git commands.
-- Commit after every file-editing request on `dev` with detailed message.
+- Commit after every file-editing request with detailed message.
 - Commit only files in current request scope.
 - Allow `git add` and `git commit` without extra confirmation.
 - Run `git status` before destructive commands; warn on uncommitted changes.

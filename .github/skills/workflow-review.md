@@ -33,6 +33,9 @@ Load on `/review`. Apply `copilot-instructions.md` Sections 2–4.
 
 ## Stage 4 — Review
 
+- **Consistency first:** cross-check plan, request, code, tests, docs, and XML/comments for mismatches (e.g. documented behavior ≠ implementation, `Verify` ≠ reality, API contract ≠ call sites).
+- Fix cross-file drift in finding `How` when source-of-truth is clear; cite `C{n}` when plan already chose. Undocumented mismatch → Error.
+- Competing goals without recorded preference → Error; require user decision before release verdict.
 - Review exhaustively and adversarially.
 - Evaluate all in-scope files against `copilot-instructions.md` Section 4 criteria plus loaded tech-skill rules.
 - Compare requested target vs observed result.

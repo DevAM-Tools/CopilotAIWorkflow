@@ -35,33 +35,38 @@ Load when test files or test projects are in scope. Implements Section 4.5 enfor
 
 ## CoverageGap.Tool
 
-SSOT for exit-point coverage. **Gate:** `summary.exitGapCount == 0`. Branch fields informational. **`run`** gates class-library projects only (`OutputType` `Exe` excluded).
+❗ Mandatory NuGet local tool at version **`2.*`** on every repo with test projects. SSOT for exit-point coverage.
 
-**Setup** (once per repo, from repo root):
+**Gate:** `summary.exitGapCount == 0`. Branch fields informational. **`run`** gates class-library projects only (`OutputType` `Exe` excluded).
+
+**Setup** (once per repo root):
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install CoverageGap.Tool
+dotnet tool install CoverageGap.Tool --version 2.*
 ```
 
-CI / fresh clone: `dotnet tool restore` before first run.
+Fresh clone / new machine: `dotnet tool restore` before first run.
 
-**Invoke:** `dotnet tool run coveragegap …` — omit `run` to auto-discover `.slnx`/`.sln` and gate all paired libraries.
+**Gate** (primary):
+
+```bash
+dotnet tool run coveragegap --repo-root .
+```
+
+Auto-discovers `.slnx`/`.sln`; pairs `{Project}.Tests`; runs MTP Cobertura + exit-gap report. Exit codes: `0` pass · `1` gap/failure · `2` usage.
 
 | Task | Command |
 |------|---------|
-| Gate repo | `dotnet tool run coveragegap --repo-root .` |
 | Gate solution | `dotnet tool run coveragegap run solution path/File.slnx --repo-root . --configuration Release --format agent` |
 | Gate project(s) | `dotnet tool run coveragegap run project path/Proj.csproj --repo-root .` |
 | Plan exits (no tests) | `dotnet tool run coveragegap plan project path/Proj.csproj -o exits.json --repo-root .` |
 
-Read `summary.exitGapCount` and `exitGaps[]` (`file`, `line`, `exitPointId`, `kind`); fix and re-run until `exitGapCount == 0`. No tests yet: `plan` → add tests → `run`.
+Fix every `exitGaps[]` entry (`file`, `line`, `exitPointId`, `kind`); re-run until `exitGapCount == 0`. No tests yet: `plan` → add tests → gate.
 
-Pairing: `{Project}.Tests` sibling, else `--test-project`. Parallel-safe: unique temp `--work-dir`; relative `-o` resolves under work dir (not repo root).
+Pairing override: `--test-project`. Parallel-safe: isolated `--work-dir`; relative `-o` under work dir. Flags: `--skip-no-tests`, `--no-build`, `--cobertura <file>`, `--include-snippet`, `--keep-work-dir`.
 
-Useful flags: `--skip-no-tests` (run only), `--no-build`, `--cobertura <file>`, `--include-snippet`, `--keep-work-dir`.
-
-**This repository (build from source):** `dotnet run --project src/CoverageGap.Tool -c Release -- run --repo-root .`
+**This repository (contributors):** `dotnet run --project src/CoverageGap.Tool -c Release -- run --repo-root .`
 
 ## Structure
 

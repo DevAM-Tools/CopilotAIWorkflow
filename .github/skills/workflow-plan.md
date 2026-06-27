@@ -6,7 +6,8 @@ Load on `/plan`. Apply `copilot-instructions.md` Sections 2–4.
 
 1. Gather Context
 2. Grill Me
-3. Write Plan
+3. Reconcile Requirements
+4. Write Plan
 
 ## Stage 1 — Gather Context
 
@@ -45,7 +46,16 @@ Cover every topic below before finalizing plan scope:
 
 Do not proceed while ambiguities remain.
 
-## Stage 3 — Write Plan
+## Stage 3 — Reconcile Requirements
+
+- Cross-check request, Grill-Me answers, code, docs, ADRs, and Section 4 for mismatches and competing goals.
+- Full resolution is not always possible; record a **preference** when both sides cannot hold.
+- Prefer Rule Priority (§4.13), then explicit user choice, then scope split or phasing.
+- Align cross-file drift in scope (docs ↔ code, plan ↔ tests, comments/XML ↔ behavior); ask when source-of-truth is unclear.
+- Document preferences in plan section **Decisions & Trade-offs** (`C{n}`: conflict, choice, rationale); omit section when none.
+- Gate: Write Plan when no undecided preference blocks scope.
+
+## Stage 4 — Write Plan
 
 - Use user path when provided; else write `plans/plans_<slug>.md`.
 - Build slug: lowercase, punctuation/whitespace → `-`, collapse `-`, trim, fallback `task`.
@@ -96,9 +106,10 @@ Status: ⬜ {Initial} · {Depends on / Severity}
 5. Vertical Slices
 6. Steps (Shared Block as above)
 7. Edge Cases and Risks
-8. Open Questions
-9. Closing Summary
-10. Task Checklist (alternating Step N and Step NR)
+8. Decisions & Trade-offs (preferences from Stage 3; omit when none)
+9. Open Questions
+10. Closing Summary
+11. Task Checklist (alternating Step N and Step NR)
 
 ## Target Solution (Vision)
 

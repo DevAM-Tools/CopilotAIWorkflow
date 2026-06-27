@@ -4,10 +4,10 @@ NuGet packages from [CopilotAIWorkflow](https://github.com/DevAM/CopilotAIWorkfl
 
 ## CSharpStyleValidator
 
-Roslyn analyzer enforcing C# style as **compiler errors** (CSV001–CSV007). Add as a development dependency:
+Roslyn analyzer enforcing C# style as **compiler errors** (CSV*). Add as a development dependency:
 
 ```xml
-<PackageReference Include="CSharpStyleValidator" Version="1.*" />
+<PackageReference Include="CSharpStyleValidator" Version="2.*" />
 ```
 
 Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). See [README.md — CSharpStyleValidator](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylevalidator).
@@ -22,9 +22,8 @@ Local dotnet tool — register once per repo, run via `dotnet tool run coverageg
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install CoverageGap.Tool
+dotnet tool install CoverageGap.Tool --version 2.*
 dotnet tool run coveragegap --repo-root .
-dotnet tool run coveragegap run solution path/File.slnx --repo-root . --configuration Release --format agent
 ```
 
 Requires .NET SDK 10.0, MTP + TUnit in test projects. Workflow SSOT: [tech-tunit.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-tunit.md). User quickstart: [README.md §2](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#2--exit-point-coverage-gate-cli).

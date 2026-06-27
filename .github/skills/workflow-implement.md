@@ -19,9 +19,9 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 
 ## Stage 2 — Execute Steps
 
+- **Checklist status:** `⚠️` before first edit · `✅` after Verify, alignment, Step NR clean — all status lines in artifact, before next item.
 - Process **every** checklist step or finding in scope; skip none.
 - Follow strict topological order per plan dependencies.
-- Mark current item `in progress` in plan checklist.
 - Implement **only** current step or finding scope — match `What` and `How` exactly.
 - Do not substitute, simplify, or extend beyond scope without user approval.
 - Run `Verify` from plan step or finding; require pass.
@@ -30,8 +30,6 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Run `/review` at each Step NR; zero Errors before next step.
 - Persist review file in complex-task mode per `workflow-complex-task.md`.
 - Stop with blocker after two failed remediation attempts for same Error root cause.
-- Commit per Section 4.11 after each completed step or finding.
-- Mark item `✅` only after Verify pass, alignment confirmed, review clean, and commit done.
 
 ## Stage 3 — Final Verification
 
