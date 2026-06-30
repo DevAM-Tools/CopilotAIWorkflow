@@ -8,7 +8,7 @@ internal static class CliParser
 {
     public static bool TryParse(string[] args, out CliOptions? options, out string? error)
     {
-        options = new CliOptions();
+        options = new();
         error = null;
 
         int index = 0;

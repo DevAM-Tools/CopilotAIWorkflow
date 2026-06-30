@@ -22,8 +22,7 @@ public static class BranchGapAnalyzer
         ArgumentNullException.ThrowIfNull(scopedDocuments);
         ArgumentException.ThrowIfNullOrEmpty(repositoryRoot);
 
-        Dictionary<(string File, int Line, int ConditionIndex), Models.BranchGap> gaps =
-            new Dictionary<(string, int, int), Models.BranchGap>();
+        Dictionary<(string File, int Line, int ConditionIndex), Models.BranchGap> gaps = [];
 
         for (int scopedIndex = 0; scopedIndex < scopedDocuments.Count; scopedIndex++)
         {

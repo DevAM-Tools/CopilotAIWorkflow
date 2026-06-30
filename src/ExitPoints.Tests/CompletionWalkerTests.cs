@@ -11,7 +11,7 @@ internal sealed class CompletionWalkerTests
         const string source = "namespace N; public class C { }";
         CSharpCompilation compilation = _CreateCompilation(source);
         SemanticModel model = compilation.GetSemanticModel(compilation.SyntaxTrees.Single());
-        List<ExitPointEntry> results = new List<ExitPointEntry>();
+        List<ExitPointEntry> results = [];
 
         CompletionWalker.WalkCallableBody(
             null,

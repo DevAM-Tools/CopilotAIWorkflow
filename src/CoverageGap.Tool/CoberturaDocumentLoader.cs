@@ -21,8 +21,8 @@ internal static class CoberturaDocumentLoader
         out List<ScopedCoberturaDocument> scopedDocuments,
         out string? error)
     {
-        allDocuments = new List<CoberturaDocument>();
-        scopedDocuments = new List<ScopedCoberturaDocument>();
+        allDocuments = [];
+        scopedDocuments = [];
         error = null;
 
         if (coberturaPaths.Count == 0)

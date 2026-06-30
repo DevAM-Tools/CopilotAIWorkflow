@@ -8,7 +8,7 @@ public sealed class DotNetProcessTests
     [Test]
     public async Task RunAsync_PreCancelledToken_ThrowsOperationCanceledException()
     {
-        using CancellationTokenSource cancellation = new CancellationTokenSource();
+        using CancellationTokenSource cancellation = new();
         await cancellation.CancelAsync();
 
         await Assert.That(async () => await DotNetProcess.RunAsync("--version", Environment.CurrentDirectory, cancellation.Token))

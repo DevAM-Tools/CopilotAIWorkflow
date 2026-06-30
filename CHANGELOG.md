@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.1.0
+
+### CSharpStyleValidator
+
+- **CSV008:** Require target-typed `new()` and collection expressions `[]` instead of redundant explicit type names when the type is known from context (declaration, assignment, return, or argument)
+- **Violations:** parameterless `new Type()`, empty object initializer `new Type() { }`, `new List<T>()`, collection initializer `new List<T> { … }`, array initializer `new T[] { … }`
+- **Exemptions (unchanged behavior):**
+  - Constructor calls with arguments: `new Foo(1)`
+  - Object initializers with members: `new Foo() { Prop = value }`
+  - Polymorphic construction: `Base b = new Derived()`
+  - Interface or base-type targets: `IList<int> x = new List<int>()`
+  - Generic type parameters: `T t = new T()`
+  - `throw new ArgumentException()` and similar throw contexts
+  - Rank-sized arrays without element initializer: `new int[n]`
+
+### Documentation
+
+- `tech-csharp.md` and `copilot-instructions.md` aligned with CSV008 exemptions and allocation guidance
+- Demo sample: isolated CSV008 violation file; Csv005 no longer cross-triggers CSV008
+
 ## 2.0.0
 
 ### CoverageGap.Tool

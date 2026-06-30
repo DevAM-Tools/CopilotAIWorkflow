@@ -10,7 +10,7 @@ Single `netstandard2.0` sample covering **CSharpStyleValidator** (CSV*oooooooooo
 dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release
 ```
 
-## Rule violations (CSV001–CSV007)
+## Rule violations (CSV001–CSV008)
 
 Enable all files under `Violations/` and rebuild. The build should fail with analyzer errors:
 
@@ -27,6 +27,7 @@ dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj 
 | `Violations/Csv005_GlobalUsings.cs` | CSV005 | `using` outside `GlobalUsings.cs` |
 | `Violations/Csv006_MultipleExits.cs` | CSV006 | Multiple `return` statements on one line |
 | `Violations/Csv007_VolatileAccess.cs` | CSV007 | Plain read of a `volatile` field |
+| `Violations/Csv008_TargetTypedCreation.cs` | CSV008 | Redundant explicit type (`new List<int>()`) |
 
 To test a single rule, temporarily remove the other `.cs` files from `Violations/` or add a more specific `<Compile Remove="..."/>` in the `.csproj`.
 

@@ -316,7 +316,7 @@ internal static class ProjectCompilationLoader
 
     private static List<MetadataReference> _CreateReferences(IEnumerable<string> paths)
     {
-        List<MetadataReference> references = new List<MetadataReference>();
+        List<MetadataReference> references = [];
         foreach (string path in paths)
         {
             references.Add(MetadataReference.CreateFromFile(path));

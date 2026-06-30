@@ -25,4 +25,7 @@ public static class DiagnosticIds
 
     /// <summary>Plain access to a volatile field.</summary>
     public const string VolatileFieldAccess = "CSV007";
+
+    /// <summary>Redundant explicit type in object or collection creation.</summary>
+    public const string TargetTypedCreation = "CSV008";
 }

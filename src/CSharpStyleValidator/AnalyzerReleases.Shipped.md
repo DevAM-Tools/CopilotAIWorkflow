@@ -15,3 +15,11 @@ CSV004 | Style | Error | Blocking task usage
 CSV005 | Style | Error | Using directive outside GlobalUsings.cs
 CSV006 | Style | Error | Multiple exit points on one line
 CSV007 | Style | Error | Plain volatile field access
+
+## Release 2.1.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+CSV008 | Style | Error | Use target-typed new() or collection expression

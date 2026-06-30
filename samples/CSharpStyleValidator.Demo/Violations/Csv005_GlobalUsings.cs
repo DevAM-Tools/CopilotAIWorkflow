@@ -9,7 +9,7 @@ internal static class Csv005_GlobalUsings
 {
     public static int M()
     {
-        List<int> values = new List<int> { 1 };
+        List<int> values = [1];
         return values.Count;
     }
 }

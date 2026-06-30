@@ -79,6 +79,16 @@ public static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "Volatile fields must be accessed through Volatile or Interlocked APIs.");
 
+    /// <summary>CSV008 target-typed creation.</summary>
+    public static readonly DiagnosticDescriptor TargetTypedCreation = new(
+        DiagnosticIds.TargetTypedCreation,
+        "Use target-typed new() or collection expression",
+        "Use target-typed 'new()' or '[]' instead of explicit type '{0}'",
+        "Style",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Prefer target-typed new() or [] over repeating the type name when the type is known from context.");
+
     /// <summary>All rule descriptors.</summary>
     public static IReadOnlyList<DiagnosticDescriptor> All { get; } = new DiagnosticDescriptor[]
     {
@@ -89,5 +99,6 @@ public static class DiagnosticDescriptors
         GlobalUsingsOnly,
         MultipleExitsPerLine,
         VolatileFieldAccess,
+        TargetTypedCreation,
     };
 }

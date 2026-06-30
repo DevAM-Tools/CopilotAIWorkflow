@@ -21,7 +21,7 @@ internal static class ExitManifestFormatter
 
     private static string _FormatText(IReadOnlyList<ExitPointEntry> exits)
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         for (int exitIndex = 0; exitIndex < exits.Count; exitIndex++)
         {
             ExitPointEntry exit = exits[exitIndex];

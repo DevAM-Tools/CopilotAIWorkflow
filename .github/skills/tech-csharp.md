@@ -7,7 +7,7 @@ Load when `*.cs` files are in scope. Extends Section 4 in `copilot-instructions.
 - Apply build settings from `tech-solution.md` when build files in scope.
 
 ## Naming
-- ❗Never `var`. Explicit type or `new()` / `[]`.
+- ❗Never `var`. Use `new()` / `[]` instead of repeating the type;
 - ❗`_PascalCase` for private fields, properties, methods, statics.
 
 ## Files & Usings

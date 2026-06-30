@@ -116,7 +116,7 @@ public static class CoberturaReader
 
                     if (!linesByFile.TryGetValue(currentClassFile, out Dictionary<int, Models.CoberturaLineInfo>? lineMap))
                     {
-                        lineMap = new Dictionary<int, Models.CoberturaLineInfo>();
+                        lineMap = [];
                         linesByFile[currentClassFile] = lineMap;
                     }
 
@@ -190,7 +190,7 @@ public static class CoberturaReader
 
     private static List<double> _ReadConditions(XmlReader reader)
     {
-        List<double> conditions = new List<double>();
+        List<double> conditions = [];
         string? lineCoverage = reader.GetAttribute("condition-coverage");
         if (reader.IsEmptyElement)
         {

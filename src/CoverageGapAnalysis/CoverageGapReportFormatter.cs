@@ -67,7 +67,7 @@ public static class CoverageGapReportFormatter
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         for (int exitIndex = 0; exitIndex < report.ExitGaps.Count; exitIndex++)
         {
             Models.ExitCoverageGap gap = report.ExitGaps[exitIndex];
@@ -117,7 +117,7 @@ public static class CoverageGapReportFormatter
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         builder.Append("Branch rate: ")
             .Append(report.Summary.BranchRate.ToString("P1", CultureInfo.InvariantCulture))
             .Append(", exit gaps: ")
@@ -178,7 +178,7 @@ public static class CoverageGapReportFormatter
     {
         public int SchemaVersion { get; init; }
 
-        public AgentSummaryDto Summary { get; init; } = new AgentSummaryDto();
+        public AgentSummaryDto Summary { get; init; } = new();
 
         public List<AgentExitGapDto> ExitGaps { get; init; } = [];
 

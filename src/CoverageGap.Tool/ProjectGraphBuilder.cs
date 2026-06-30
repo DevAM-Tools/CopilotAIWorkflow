@@ -23,7 +23,7 @@ internal static class ProjectGraphBuilder
             return false;
         }
 
-        List<ProductionProjectRecord> records = new List<ProductionProjectRecord>();
+        List<ProductionProjectRecord> records = [];
         for (int candidateIndex = 0; candidateIndex < candidatePaths.Count; candidateIndex++)
         {
             string candidatePath = Path.GetFullPath(candidatePaths[candidateIndex]);

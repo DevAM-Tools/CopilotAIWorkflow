@@ -30,7 +30,7 @@ public static class ExitCoverageComparer
         ArgumentException.ThrowIfNullOrEmpty(repositoryRoot);
 
         Dictionary<string, Dictionary<int, int>> mergedHits = _MergeLineHits(documents, repositoryRoot);
-        List<Models.ExitCoverageGap> gaps = new List<Models.ExitCoverageGap>();
+        List<Models.ExitCoverageGap> gaps = [];
 
         for (int exitIndex = 0; exitIndex < exits.Count; exitIndex++)
         {
@@ -85,7 +85,7 @@ public static class ExitCoverageComparer
                 string relativeFile = PathNormalizer.ToRepositoryRelative(fileEntry.Key, repositoryRoot);
                 if (!merged.TryGetValue(relativeFile, out Dictionary<int, int>? lineHits))
                 {
-                    lineHits = new Dictionary<int, int>();
+                    lineHits = [];
                     merged[relativeFile] = lineHits;
                 }
 
@@ -100,7 +100,7 @@ public static class ExitCoverageComparer
                 string absoluteKey = fileEntry.Key.Replace('\\', '/');
                 if (!merged.ContainsKey(absoluteKey))
                 {
-                    Dictionary<int, int> absoluteHits = new Dictionary<int, int>();
+                    Dictionary<int, int> absoluteHits = [];
                     foreach (KeyValuePair<int, Models.CoberturaLineInfo> lineEntry in fileEntry.Value)
                     {
                         absoluteHits[lineEntry.Key] = lineEntry.Value.Hits;

@@ -100,7 +100,7 @@ Goal: save tokens in chat without losing technical substance.
 ### 4.4 Performance
 
 - ❗ Hot-path APIs must not throw for expected failures; use result types, error codes, or `Try*`.
-- Minimize allocations globally.
+- ❗ Minimize allocations wherever possible. Reduce GC runs to a minimum.
 - For hot paths, plan allocation order: spans/memory, then pooling, then `[ThreadStatic]` when safe.
 - Compare `[ThreadStatic]` vs pooling: affinity, pressure, lifetime, reuse safety.
 - Return `ArrayPool<T>` rentals in `finally`.

@@ -45,7 +45,7 @@ public static class ExitPointCollector
 
     private static List<ExitPointEntry> CollectCore(Compilation compilation, ExitPointCollectorOptions effectiveOptions)
     {
-        List<ExitPointEntry> results = new List<ExitPointEntry>();
+        List<ExitPointEntry> results = [];
 
         foreach (SyntaxTree tree in compilation.SyntaxTrees)
         {

@@ -49,7 +49,7 @@ Generator projects only:
 |----------|-------|
 | `Deterministic` | `true` |
 | `VersionPrefix` | central in `Directory.Build.props` (e.g. `1.1.0`) |
-| `ContinuousIntegrationBuild` | `true` when `CI` is set |
+| `ContinuousIntegrationBuild` | `true` on Release builds; `true` when `CI` is set |
 | `DebugType` | `embedded` or `portable` (consistent) |
 
 ### Versioning & Metadata (on-request)

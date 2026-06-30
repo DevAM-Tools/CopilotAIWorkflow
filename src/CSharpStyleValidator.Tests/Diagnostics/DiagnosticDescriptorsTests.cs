@@ -12,12 +12,12 @@ namespace CSharpStyleValidator.Tests.Diagnostics;
 public sealed class DiagnosticDescriptorsTests
 {
     [Test]
-    public async Task All_ContainsSevenUniqueErrorDescriptors()
+    public async Task All_ContainsEightUniqueErrorDescriptors()
     {
-        await Assert.That(DiagnosticDescriptors.All.Count).IsEqualTo(7);
+        await Assert.That(DiagnosticDescriptors.All.Count).IsEqualTo(8);
 
         string[] ids = DiagnosticDescriptors.All.Select(static descriptor => descriptor.Id).ToArray();
-        await Assert.That(ids.Distinct().Count()).IsEqualTo(7);
+        await Assert.That(ids.Distinct().Count()).IsEqualTo(8);
 
         foreach (DiagnosticDescriptor descriptor in DiagnosticDescriptors.All)
         {

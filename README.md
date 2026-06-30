@@ -38,7 +38,7 @@ Or in `.csproj`:
 <PackageReference Include="CSharpStyleValidator" Version="2.*" />
 ```
 
-Rebuild. Violations surface as compiler errors (CSV001–CSV007). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
+Rebuild. Violations surface as compiler errors (CSV001–CSV008). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
 
 [Rule reference](#csharpstylevalidator) · [Demo sample](samples/CSharpStyleValidator.Demo/README.md)
 
@@ -83,7 +83,7 @@ Use when you build Cobertura-based gap reports in your own tooling instead of th
 
 | Package | Consumer TFM | Usage | Role |
 |---------|--------------|-------|------|
-| [CSharpStyleValidator](https://www.nuget.org/packages/CSharpStyleValidator/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSV001–CSV007); bundles `ExitPoints` |
+| [CSharpStyleValidator](https://www.nuget.org/packages/CSharpStyleValidator/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSV001–CSV008); bundles `ExitPoints` |
 | [CoverageGapAnalysis](https://www.nuget.org/packages/CoverageGapAnalysis/) | `net10.0`+ | `PackageReference` | Cobertura parsing and gap-report library |
 | [CoverageGap.Tool](https://www.nuget.org/packages/CoverageGap.Tool/) | N/A (CLI) | Local `dotnet tool install` | `dotnet tool run coveragegap` — single-call solution gate |
 
@@ -210,7 +210,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 
 | Project | Role |
 |---------|------|
-| [`CSharpStyleValidator`](src/CSharpStyleValidator/) | Roslyn analyzer NuGet (CSV001–CSV007) |
+| [`CSharpStyleValidator`](src/CSharpStyleValidator/) | Roslyn analyzer NuGet (CSV001–CSV008) |
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
 | [`CoverageGapAnalysis`](src/CoverageGapAnalysis/) | Cobertura parsing and exit/branch gap reporting library |
 | [`CoverageGap.Tool`](src/CoverageGap.Tool/) | CLI — `dotnet tool run coveragegap` (`run` / `plan`; single-call solution gate) |
@@ -231,6 +231,7 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 | CSV005 | `using` only in `GlobalUsings.cs` |
 | CSV006 | At most one exit point per source line per callable |
 | CSV007 | Volatile fields via `Volatile` or `Interlocked` only |
+| CSV008 | Target-typed `new()` and `[]` (no redundant explicit type) |
 
 XML documentation on public APIs is enforced by built-in **CS1591** when `GenerateDocumentationFile` and `TreatWarningsAsErrors` are enabled.
 

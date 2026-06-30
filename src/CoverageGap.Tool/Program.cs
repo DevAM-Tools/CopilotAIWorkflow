@@ -20,8 +20,8 @@ public static class Program
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
-        using CancellationTokenSource cancellationSource = new CancellationTokenSource();
-        List<IDisposable> signalRegistrations = new List<IDisposable>();
+        using CancellationTokenSource cancellationSource = new();
+        List<IDisposable> signalRegistrations = [];
 
         void Cancel()
         {
