@@ -335,4 +335,84 @@ public sealed class TargetTypedCreationAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.TargetTypedCreation).WithLocation(0).WithArguments("TypeA"));
     }
+
+    [Test]
+    public async Task TargetTypedCreation_CustomInterfaceTarget_NoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public interface IA
+            {
+            }
+
+            public sealed class A : IA
+            {
+            }
+
+            public static class C
+            {
+                public static IA M()
+                {
+                    IA a = new A();
+                    return a;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TargetTypedCreationAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task TargetTypedCreation_ArrayAssignedToReadOnlyMemory_NoDiagnostic()
+    {
+        const string source = "using System;\n" + """
+            namespace N;
+            public static class C
+            {
+                public static ReadOnlyMemory<byte> M()
+                {
+                    ReadOnlyMemory<byte> memory = new byte[] { 1, 2 };
+                    return memory;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TargetTypedCreationAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task TargetTypedCreation_ArrayReturnedAsReadOnlyMemory_NoDiagnostic()
+    {
+        const string source = "using System;\n" + """
+            namespace N;
+            public static class C
+            {
+                public static ReadOnlyMemory<byte> M()
+                {
+                    return new byte[] { 1, 2 };
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TargetTypedCreationAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task TargetTypedCreation_ArrayPassedToReadOnlyMemoryParameter_NoDiagnostic()
+    {
+        const string source = "using System;\n" + """
+            namespace N;
+            public static class C
+            {
+                public static void Accept(ReadOnlyMemory<byte> memory) { }
+
+                public static void M()
+                {
+                    Accept(new byte[] { 1, 2 });
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TargetTypedCreationAnalyzer>(source);
+    }
 }

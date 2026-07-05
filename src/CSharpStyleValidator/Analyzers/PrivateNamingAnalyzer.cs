@@ -48,7 +48,10 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
             context.Symbol.Name));
     }
 
-    /// <remarks>Filters symbols outside CSV003 scope, including metadata-only and implicit declarations.</remarks>
+    /// <remarks>
+    /// Filters symbols outside CSV003 scope, including metadata-only and implicit declarations.
+    /// Exempt: members inside private nested types, explicit interface implementations, and local functions.
+    /// </remarks>
     [ExcludeFromCodeCoverage]
     private static bool ShouldSkipPrivateSymbol(ISymbol symbol, Location location)
     {
@@ -80,6 +83,27 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
+        if (IsInsidePrivateNestedType(symbol))
+        {
+            return true;
+        }
+
+        if (symbol is IMethodSymbol
+            {
+                MethodKind: MethodKind.ExplicitInterfaceImplementation or MethodKind.LocalFunction
+            })
+        {
+            return true;
+        }
+
         return ValidPrivateName.IsMatch(symbol.Name);
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static bool IsInsidePrivateNestedType(ISymbol symbol)
+    {
+        return symbol.ContainingType is INamedTypeSymbol containingType
+            && containingType.ContainingType is not null
+            && containingType.DeclaredAccessibility == Accessibility.Private;
     }
 }

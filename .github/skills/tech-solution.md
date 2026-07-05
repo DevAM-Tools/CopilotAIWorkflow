@@ -36,8 +36,7 @@ Generator projects only:
 | `TreatWarningsAsErrors` | `true` |
 | `EnableNETAnalyzers` | `true` |
 | `EnforceCodeStyleInBuild` | `true` |
-| `AnalysisLevel` | `latest` |
-| `AnalysisMode` | `AllEnabledByDefault` |
+| `AnalysisLevel` | `10-recommended` |
 | `GenerateDocumentationFile` | `true` |
 | `NoWarn` | omit globally |
 | `WarningsAsErrors` | optional; specific warning codes only |

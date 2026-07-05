@@ -11,7 +11,7 @@ namespace ExitPoints;
 /// <summary>Walks callable bodies and completion expressions for exit-point collection.</summary>
 /// <remarks>
 /// Does not model <c>goto</c>, filter/catch-only control flow, or async state-machine exits inside
-/// expression-bodied members; those patterns may be under-reported.
+/// expression-bodied members; those patterns may be under-reported. Models <c>??</c> and <c>??=</c> as dual completion arms.
 /// </remarks>
 internal static class CompletionWalker
 {
@@ -71,22 +71,50 @@ internal static class CompletionWalker
 
                 break;
 
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
+                WalkCompletionExpression(
+                    coalesce.Left,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion);
+                if (coalesce.Right is ThrowExpressionSyntax rightThrow)
+                {
+                    AddExit(rightThrow.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
+                }
+                else
+                {
+                    WalkCompletionExpression(
+                        coalesce.Right,
+                        methodId,
+                        methodDisplayName,
+                        results,
+                        ExitKind.CoalesceArmCompletion);
+                }
+
+                break;
+
+            case AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceAssignmentExpression } coalesceAssignment:
+                WalkCompletionExpression(
+                    coalesceAssignment.Left,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion);
+                WalkCompletionExpression(
+                    coalesceAssignment.Right,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion);
+                break;
+
             case ThrowExpressionSyntax throwExpression:
                 AddExit(throwExpression.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
                 break;
 
             default:
-                if (expression is BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce
-                    && coalesce.Right is ThrowExpressionSyntax rightThrow)
-                {
-                    AddExitFromExpression(coalesce.Left, methodId, methodDisplayName, leafKind, results);
-                    AddExit(rightThrow.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
-                }
-                else
-                {
-                    AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results);
-                }
-
+                AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results);
                 break;
         }
     }

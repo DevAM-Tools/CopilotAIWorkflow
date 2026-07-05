@@ -23,7 +23,7 @@ public static class DiagnosticIds
     /// <summary>Multiple exit points on the same source line.</summary>
     public const string MultipleExitsPerLine = "CSV006";
 
-    /// <summary>Plain access to a volatile field.</summary>
+    /// <summary>Non-atomic access to a volatile field.</summary>
     public const string VolatileFieldAccess = "CSV007";
 
     /// <summary>Redundant explicit type in object or collection creation.</summary>

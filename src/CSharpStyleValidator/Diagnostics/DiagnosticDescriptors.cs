@@ -36,7 +36,8 @@ public static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Private fields, methods, and properties must be named _PascalCase.");
+        description: "Private fields, methods, and properties on the declaring type must use _PascalCase. "
+            + "Exempt: members inside private nested types, explicit interface implementations, and local functions.");
 
     /// <summary>CSV004 task blocking.</summary>
     public static readonly DiagnosticDescriptor TaskBlocking = new(
@@ -66,18 +67,18 @@ public static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Each callable may have at most one exit point per source line.",
+        description: "Each callable may have at most one exit point per source line. Conditional, switch, null-coalescing (??), and null-coalescing assignment (??=) arms count as separate exits.",
         customTags: "CompilationEnd");
 
-    /// <summary>CSV007 volatile field access.</summary>
+    /// <summary>CSV007 volatile non-atomic access.</summary>
     public static readonly DiagnosticDescriptor VolatileFieldAccess = new(
         DiagnosticIds.VolatileFieldAccess,
-        "Plain volatile field access",
-        "Use Volatile.Read, Volatile.Write, or Interlocked for volatile field '{0}'",
+        "Non-atomic volatile field access",
+        "Use Interlocked for read-modify-write on volatile field '{0}'",
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Volatile fields must be accessed through Volatile or Interlocked APIs.");
+        description: "Plain volatile read and write are allowed. Increment, decrement, and compound assignments require Interlocked.");
 
     /// <summary>CSV008 target-typed creation.</summary>
     public static readonly DiagnosticDescriptor TargetTypedCreation = new(
@@ -87,7 +88,8 @@ public static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Prefer target-typed new() or [] over repeating the type name when the type is known from context.");
+        description: "Prefer target-typed new() or [] over repeating the type name when the type is known from context. "
+            + "Exempt when the target cannot use a collection expression (e.g. ReadOnlyMemory<T>) or differs from the created type.");
 
     /// <summary>All rule descriptors.</summary>
     public static IReadOnlyList<DiagnosticDescriptor> All { get; } = new DiagnosticDescriptor[]

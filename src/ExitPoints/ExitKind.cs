@@ -26,6 +26,9 @@ public enum ExitKind
     /// <summary>Conditional <c>?:</c> arm completing the callable.</summary>
     ConditionalArmCompletion,
 
+    /// <summary>Null-coalescing <c>??</c> or <c>??=</c> arm completing the callable.</summary>
+    CoalesceArmCompletion,
+
     /// <summary>Leaf expression completing the callable.</summary>
     ExpressionCompletion,
 }

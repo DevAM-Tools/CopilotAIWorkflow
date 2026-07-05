@@ -13,6 +13,63 @@ public sealed class VolatileFieldAccessAnalyzerTests
     private const string Usings = "using System;\nusing System.Threading;\n";
 
     [Test]
+    public async Task VolatileFieldAccess_PlainRead_NoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private volatile int _Counter;
+
+                public int M()
+                {
+                    return _Counter;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task VolatileFieldAccess_PlainWrite_NoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private volatile int _Counter;
+
+                public void M()
+                {
+                    _Counter = 1;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task VolatileFieldAccess_TernaryPlainRead_NoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private volatile int _Counter;
+
+                public int M(bool flag)
+                {
+                    return flag ? _Counter : 0;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(source);
+    }
+
+    [Test]
     public async Task VolatileFieldAccess_VolatileRead_NoDiagnostic()
     {
         const string source = Usings + """
@@ -24,25 +81,6 @@ public sealed class VolatileFieldAccessAnalyzerTests
                 public int M()
                 {
                     return Volatile.Read(ref _Counter);
-                }
-            }
-            """;
-
-        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(source);
-    }
-
-    [Test]
-    public async Task VolatileFieldAccess_VolatileWrite_NoDiagnostic()
-    {
-        const string source = Usings + """
-            namespace N;
-            public class C
-            {
-                private volatile int _Counter;
-
-                public void M()
-                {
-                    Volatile.Write(ref _Counter, 1);
                 }
             }
             """;
@@ -67,48 +105,6 @@ public sealed class VolatileFieldAccessAnalyzerTests
             """;
 
         await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(source);
-    }
-
-    [Test]
-    public async Task VolatileFieldAccess_PlainRead_ReportsCsv007()
-    {
-        const string source = Usings + """
-            namespace N;
-            public class C
-            {
-                private volatile int _Counter;
-
-                public int M()
-                {
-                    return {|#0:_Counter|};
-                }
-            }
-            """;
-
-        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(
-            source,
-            new DiagnosticResult(DiagnosticDescriptors.VolatileFieldAccess).WithLocation(0).WithArguments("_Counter"));
-    }
-
-    [Test]
-    public async Task VolatileFieldAccess_PlainWrite_ReportsCsv007()
-    {
-        const string source = Usings + """
-            namespace N;
-            public class C
-            {
-                private volatile int _Counter;
-
-                public void M()
-                {
-                    {|#0:_Counter|} = 1;
-                }
-            }
-            """;
-
-        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(
-            source,
-            new DiagnosticResult(DiagnosticDescriptors.VolatileFieldAccess).WithLocation(0).WithArguments("_Counter"));
     }
 
     [Test]
@@ -194,28 +190,7 @@ public sealed class VolatileFieldAccessAnalyzerTests
     }
 
     [Test]
-    public async Task VolatileFieldAccess_TernaryPlainRead_ReportsCsv007()
-    {
-        const string source = Usings + """
-            namespace N;
-            public class C
-            {
-                private volatile int _Counter;
-
-                public int M(bool flag)
-                {
-                    return flag ? {|#0:_Counter|} : 0;
-                }
-            }
-            """;
-
-        await AnalyzerVerifier.VerifyAsync<VolatileFieldAccessAnalyzer>(
-            source,
-            new DiagnosticResult(DiagnosticDescriptors.VolatileFieldAccess).WithLocation(0).WithArguments("_Counter"));
-    }
-
-    [Test]
-    public async Task VolatileFieldAccess_NonVolatileField_NoDiagnostic()
+    public async Task VolatileFieldAccess_NonVolatileIncrement_NoDiagnostic()
     {
         const string source = Usings + """
             namespace N;
@@ -223,9 +198,9 @@ public sealed class VolatileFieldAccessAnalyzerTests
             {
                 private int _Counter;
 
-                public int M()
+                public void M()
                 {
-                    return _Counter;
+                    _Counter++;
                 }
             }
             """;

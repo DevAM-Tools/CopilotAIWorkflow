@@ -446,8 +446,42 @@ internal sealed class ExitPointCollectorTests
 
         IReadOnlyList<ExitPointEntry> exits = _Collect(source);
 
-        await Assert.That(exits.Any(exit => exit.Kind == ExitKind.ExpressionCompletion)).IsTrue();
+        await Assert.That(exits.Any(exit => exit.Kind == ExitKind.CoalesceArmCompletion)).IsTrue();
         await Assert.That(exits.Any(exit => exit.Kind == ExitKind.ThrowExpression)).IsTrue();
+    }
+
+    [Test]
+    public async Task Collect_CoalesceExpression_CountsBothArms()
+    {
+        const string source = """
+            namespace N;
+            public class C
+            {
+                public int M(int? left, int? right) => left ?? right;
+            }
+            """;
+
+        IReadOnlyList<ExitPointEntry> exits = _Collect(source);
+
+        await Assert.That(exits.Count(exit => exit.Kind == ExitKind.CoalesceArmCompletion)).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task Collect_CoalesceAssignment_CountsBothArms()
+    {
+        const string source = """
+            namespace N;
+            public class C
+            {
+                private int? _Value;
+
+                public int M() => _Value ??= 1;
+            }
+            """;
+
+        IReadOnlyList<ExitPointEntry> exits = _Collect(source);
+
+        await Assert.That(exits.Count(exit => exit.Kind == ExitKind.CoalesceArmCompletion)).IsEqualTo(2);
     }
 
     [Test]

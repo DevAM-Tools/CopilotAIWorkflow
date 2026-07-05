@@ -7,8 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>10-recommended</AnalysisLevel>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' != ''">true</ContinuousIntegrationBuild>
@@ -17,7 +16,7 @@
     <Company>DevAM</Company>
     <Authors>DevAM</Authors>
     <Copyright>Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.</Copyright>
-    <VersionPrefix>2.1.0</VersionPrefix>
+    <VersionPrefix>2.1.1</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests')) or $(MSBuildProjectName.Contains('Tool'))">
     <NoWarn>$(NoWarn);CA1707;CA1515;CA2007;CA1826;CS1591;IDE0005</NoWarn>

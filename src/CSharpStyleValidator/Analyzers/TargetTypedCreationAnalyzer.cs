@@ -48,6 +48,11 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         else if (creation.Initializer is InitializerExpressionSyntax collectionInitializer
             && collectionInitializer.IsKind(SyntaxKind.CollectionInitializerExpression))
         {
+            if (ShouldExemptCollectionReplacement(context.SemanticModel, creation))
+            {
+                return;
+            }
+
             Report(context, creation.Type);
             return;
         }
@@ -69,6 +74,11 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
     {
         ArrayCreationExpressionSyntax creation = (ArrayCreationExpressionSyntax)context.Node;
         if (creation.Initializer is null)
+        {
+            return;
+        }
+
+        if (ShouldExemptCollectionReplacement(context.SemanticModel, creation))
         {
             return;
         }
@@ -117,6 +127,52 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         }
 
         return !SymbolEqualityComparer.Default.Equals(creationType, targetType);
+    }
+
+    /// <remarks>
+    /// Skips collection-to-<c>[]</c> suggestions when the contextual target cannot use a collection expression
+    /// (e.g. <c>ReadOnlyMemory&lt;byte&gt;</c>) or differs from the created type (e.g. <c>byte[]</c> to <c>ReadOnlyMemory&lt;byte&gt;</c>).
+    /// </remarks>
+    [ExcludeFromCodeCoverage]
+    private static bool ShouldExemptCollectionReplacement(SemanticModel semanticModel, ExpressionSyntax creation)
+    {
+        ITypeSymbol creationType = semanticModel.GetTypeInfo(creation).Type;
+        ITypeSymbol targetType = GetContextualTargetType(semanticModel, creation);
+        if (creationType is null || targetType is null)
+        {
+            return true;
+        }
+
+        if (!SymbolEqualityComparer.Default.Equals(creationType, targetType))
+        {
+            return true;
+        }
+
+        return !SupportsCollectionExpressionTarget(targetType);
+    }
+
+    /// <remarks><c>Memory&lt;T&gt;</c> and <c>ReadOnlyMemory&lt;T&gt;</c> cannot be initialized with <c>[]</c>.</remarks>
+    [ExcludeFromCodeCoverage]
+    private static bool SupportsCollectionExpressionTarget(ITypeSymbol type)
+    {
+        if (type is IArrayTypeSymbol)
+        {
+            return true;
+        }
+
+        if (type is not INamedTypeSymbol named)
+        {
+            return true;
+        }
+
+        INamedTypeSymbol original = named.OriginalDefinition;
+        if (original.ContainingNamespace?.ToDisplayString() == "System"
+            && (original.Name == "Memory" || original.Name == "ReadOnlyMemory"))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /// <remarks>Resolves the type expected at the creation site from declaration, assignment, return, or argument context.</remarks>

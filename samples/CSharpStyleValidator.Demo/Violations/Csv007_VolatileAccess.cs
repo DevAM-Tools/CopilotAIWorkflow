@@ -2,13 +2,13 @@
 
 namespace CSharpStyleValidator.Demo.Violations;
 
-/// <summary>CSV007: volatile fields require Volatile or Interlocked APIs.</summary>
+/// <summary>CSV007: non-atomic read-modify-write on a <c>volatile</c> field.</summary>
 internal sealed class Csv007_VolatileAccess
 {
-    private volatile int _Counter = 0;
+    private volatile int _Counter;
 
-    public int M()
+    public void M()
     {
-        return _Counter;
+        _Counter++;
     }
 }

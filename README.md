@@ -226,12 +226,12 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 |----|------|
 | CSV001 | Line length ≤ 160 (strings/comments masked) |
 | CSV002 | No `var` |
-| CSV003 | Private `_PascalCase` |
+| CSV003 | Private `_PascalCase` (exempt: private nested types, explicit interface impl, local functions) |
 | CSV004 | No `.Result` / `.Wait()` on `Task` |
 | CSV005 | `using` only in `GlobalUsings.cs` |
-| CSV006 | At most one exit point per source line per callable |
-| CSV007 | Volatile fields via `Volatile` or `Interlocked` only |
-| CSV008 | Target-typed `new()` and `[]` (no redundant explicit type) |
+| CSV006 | At most one exit point per source line per callable (`?:`, `switch`, `??`, `??=` count as multiple arms) |
+| CSV007 | `volatile` fields: plain read/write allowed; `++`/`--`/`+=` require `Interlocked` |
+| CSV008 | Target-typed `new()` and `[]` (exempt: interface/base targets, polymorphic construction, ctor args, throw, non-collection-expression targets such as `ReadOnlyMemory<T>`) |
 
 XML documentation on public APIs is enforced by built-in **CS1591** when `GenerateDocumentationFile` and `TreatWarningsAsErrors` are enabled.
 

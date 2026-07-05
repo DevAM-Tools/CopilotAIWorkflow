@@ -4,7 +4,7 @@ Single `netstandard2.0` sample covering **CSharpStyleValidator** (CSV*oooooooooo
 
 ## Compliant build (default)
 
-`Violations/` is excluded. Analyzer applies via root [`Directory.Build.targets`](../../Directory.Build.targets) when building in this repository.
+`Violations/` is excluded. `CompliantExample.cs` includes a manual `IEnumerable<int>` with a private nested enumerator (CSV003 exempt). Analyzer applies via root [`Directory.Build.targets`](../../Directory.Build.targets) when building in this repository.
 
 ```bash
 dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj -c Release
@@ -26,7 +26,7 @@ dotnet build samples/CSharpStyleValidator.Demo/CSharpStyleValidator.Demo.csproj 
 | `Violations/Csv004_TaskBlocking.cs` | CSV004 | `.Result` on `Task<T>` |
 | `Violations/Csv005_GlobalUsings.cs` | CSV005 | `using` outside `GlobalUsings.cs` |
 | `Violations/Csv006_MultipleExits.cs` | CSV006 | Multiple `return` statements on one line |
-| `Violations/Csv007_VolatileAccess.cs` | CSV007 | Plain read of a `volatile` field |
+| `Violations/Csv007_VolatileAccess.cs` | CSV007 | Non-atomic `++` on a `volatile` field |
 | `Violations/Csv008_TargetTypedCreation.cs` | CSV008 | Redundant explicit type (`new List<int>()`) |
 
 To test a single rule, temporarily remove the other `.cs` files from `Violations/` or add a more specific `<Compile Remove="..."/>` in the `.csproj`.

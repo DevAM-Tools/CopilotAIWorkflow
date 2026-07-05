@@ -129,4 +129,60 @@ public sealed class MultipleExitsPerLineAnalyzerTests
                 .WithSpan(5, 37, 5, 37)
                 .WithArguments("P", "2", "5", "SwitchArmCompletion, SwitchArmCompletion"));
     }
+
+    [Test]
+    public async Task MultipleExitsPerLine_CoalesceSameLine_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int? M(int? left, int? right) => left ?? right;
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(5, 45, 5, 45)
+                .WithArguments("M", "2", "5", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_CoalesceAssignmentSameLine_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private int? _Value;
+
+                public int M() => _Value ??= 1;
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(7, 23, 7, 23)
+                .WithArguments("M", "2", "7", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_NestedCoalesceSameLine_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M(int? a, int? b) => a ?? b ?? 0;
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(5, 37, 5, 37)
+                .WithArguments("M", "3", "5", "CoalesceArmCompletion, CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
 }

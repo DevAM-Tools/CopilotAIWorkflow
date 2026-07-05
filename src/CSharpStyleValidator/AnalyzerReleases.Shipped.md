@@ -14,7 +14,7 @@ CSV003 | Style | Error | Private member naming violation
 CSV004 | Style | Error | Blocking task usage
 CSV005 | Style | Error | Using directive outside GlobalUsings.cs
 CSV006 | Style | Error | Multiple exit points on one line
-CSV007 | Style | Error | Plain volatile field access
+CSV007 | Style | Error | Non-atomic volatile field access
 
 ## Release 2.1.0
 

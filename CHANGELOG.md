@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.1.1
+
+### CSharpStyleValidator
+
+- **CSV003:** Clarified exemptions — private members inside **private nested types**, **explicit interface implementations**, and **local functions** are no longer flagged; outer-type private members still require `_PascalCase`
+- **CSV008:** Confirmed exempt when created type differs from contextual target (e.g. `IA a = new A()`, `IList<int> x = new List<int>()`); regression test added
+- **CSV008:** Exempt array and collection initializers when the contextual target cannot use a collection expression (`Memory<T>`, `ReadOnlyMemory<T>`) or differs from the created type (e.g. `ReadOnlyMemory<byte> m = new byte[] { … }`)
+- **CSV006:** Count `??` and `??=` as dual completion arms (hidden exit points on the same line)
+- **CSV007:** Plain `volatile` read/write allowed; forbid non-atomic `++`, `--`, and compound assignments (use `Interlocked`)
+
+### Documentation
+
+- Demo `CompliantExample` includes manual `IEnumerable<int>` with private nested enumerator
+- `tech-csharp.md` documents CSV003 and CSV008 exemptions
+
 ## 2.1.0
 
 ### CSharpStyleValidator
@@ -74,7 +89,7 @@ Roslyn analyzer package enforcing CopilotAIWorkflow C# style as compiler errors:
 | CSV004 | No `.Result` / `.Wait()` on `Task` |
 | CSV005 | `using` only in `GlobalUsings.cs` |
 | CSV006 | At most one exit point per source line per callable |
-| CSV007 | Volatile fields via `Volatile` or `Interlocked` only |
+| CSV007 | `volatile` fields: plain read/write allowed; non-atomic ops require `Interlocked` |
 
 ### CoverageGap.Tool (global tool)
 
