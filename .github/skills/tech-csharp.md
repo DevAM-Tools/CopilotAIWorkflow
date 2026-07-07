@@ -16,6 +16,7 @@ Load when `*.cs` files are in scope. Extends Section 4 in `copilot-instructions.
 - Sort: `System.*` → `Microsoft.*` → third-party → internal.
 
 ## Style
+- ❗Always pass `CultureInfo.InvariantCulture` as parameter when strings are built or parsed unless another locale is required.
 - Always brace control-flow blocks.
 - At most one callable exit point per source line (`?:`, `switch`, `??`, and `??=` each count multiple arms on one line).
 - Expression-bodied members for simple single expressions.

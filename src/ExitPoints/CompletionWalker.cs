@@ -12,6 +12,7 @@ namespace ExitPoints;
 /// <remarks>
 /// Does not model <c>goto</c>, filter/catch-only control flow, or async state-machine exits inside
 /// expression-bodied members; those patterns may be under-reported. Models <c>??</c> and <c>??=</c> as dual completion arms.
+/// Multi-arm <c>?:</c>, <c>??</c>, <c>??=</c>, and <c>switch</c> exits share an <see cref="ExitPointEntry.OperatorGroupId"/> across line breaks.
 /// </remarks>
 internal static class CompletionWalker
 {
@@ -39,26 +40,31 @@ internal static class CompletionWalker
         string methodId,
         string methodDisplayName,
         List<ExitPointEntry> results,
-        ExitKind leafKind)
+        ExitKind leafKind,
+        OperatorGroup? operatorGroup = null)
     {
         switch (expression)
         {
             case ConditionalExpressionSyntax conditional:
+                OperatorGroup conditionalGroup = CreateOperatorGroup(methodId, GetQuestionMarkToken(conditional));
                 WalkCompletionExpression(
                     conditional.WhenTrue,
                     methodId,
                     methodDisplayName,
                     results,
-                    ExitKind.ConditionalArmCompletion);
+                    ExitKind.ConditionalArmCompletion,
+                    conditionalGroup);
                 WalkCompletionExpression(
                     conditional.WhenFalse,
                     methodId,
                     methodDisplayName,
                     results,
-                    ExitKind.ConditionalArmCompletion);
+                    ExitKind.ConditionalArmCompletion,
+                    conditionalGroup);
                 break;
 
             case SwitchExpressionSyntax switchExpression:
+                OperatorGroup switchGroup = CreateOperatorGroup(methodId, switchExpression.SwitchKeyword);
                 foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
                 {
                     WalkCompletionExpression(
@@ -66,18 +72,21 @@ internal static class CompletionWalker
                         methodId,
                         methodDisplayName,
                         results,
-                        ExitKind.SwitchArmCompletion);
+                        ExitKind.SwitchArmCompletion,
+                        switchGroup);
                 }
 
                 break;
 
             case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
+                OperatorGroup coalesceGroup = CreateOperatorGroup(methodId, coalesce.OperatorToken);
                 WalkCompletionExpression(
                     coalesce.Left,
                     methodId,
                     methodDisplayName,
                     results,
-                    ExitKind.CoalesceArmCompletion);
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceGroup);
                 if (coalesce.Right is ThrowExpressionSyntax rightThrow)
                 {
                     AddExit(rightThrow.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
@@ -89,24 +98,28 @@ internal static class CompletionWalker
                         methodId,
                         methodDisplayName,
                         results,
-                        ExitKind.CoalesceArmCompletion);
+                        ExitKind.CoalesceArmCompletion,
+                        coalesceGroup);
                 }
 
                 break;
 
             case AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceAssignmentExpression } coalesceAssignment:
+                OperatorGroup coalesceAssignmentGroup = CreateOperatorGroup(methodId, coalesceAssignment.OperatorToken);
                 WalkCompletionExpression(
                     coalesceAssignment.Left,
                     methodId,
                     methodDisplayName,
                     results,
-                    ExitKind.CoalesceArmCompletion);
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceAssignmentGroup);
                 WalkCompletionExpression(
                     coalesceAssignment.Right,
                     methodId,
                     methodDisplayName,
                     results,
-                    ExitKind.CoalesceArmCompletion);
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceAssignmentGroup);
                 break;
 
             case ThrowExpressionSyntax throwExpression:
@@ -114,7 +127,7 @@ internal static class CompletionWalker
                 break;
 
             default:
-                AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results);
+                AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results, operatorGroup);
                 break;
         }
     }
@@ -285,7 +298,8 @@ internal static class CompletionWalker
         string methodId,
         string methodDisplayName,
         ExitKind kind,
-        List<ExitPointEntry> results)
+        List<ExitPointEntry> results,
+        OperatorGroup? operatorGroup)
     {
         SyntaxToken token = expression switch
         {
@@ -301,7 +315,7 @@ internal static class CompletionWalker
             _ => expression.GetFirstToken(),
         };
 
-        AddExit(token, methodId, methodDisplayName, kind, results);
+        AddExit(token, methodId, methodDisplayName, kind, results, operatorGroup);
     }
 
     [ExcludeFromCodeCoverage]
@@ -310,7 +324,8 @@ internal static class CompletionWalker
         string methodId,
         string methodDisplayName,
         ExitKind kind,
-        List<ExitPointEntry> results)
+        List<ExitPointEntry> results,
+        OperatorGroup? operatorGroup = null)
     {
         Location location = token.GetLocation();
         if (IsNonSourceLocation(location))
@@ -323,8 +338,55 @@ internal static class CompletionWalker
         int line = span.StartLinePosition.Line + 1;
         int column = span.StartLinePosition.Character + 1;
         string exitPointId = $"{methodId}:{line}:{column}:{kind}";
-        results.Add(new ExitPointEntry(exitPointId, filePath, line, column, methodId, methodDisplayName, kind));
+        string? operatorGroupId = null;
+        int? operatorLine = null;
+        int? operatorColumn = null;
+
+        if (operatorGroup is not null && UsesOperatorGroup(kind))
+        {
+            operatorGroupId = operatorGroup.Value.GroupId;
+            operatorLine = operatorGroup.Value.Line;
+            operatorColumn = operatorGroup.Value.Column;
+        }
+
+        results.Add(new ExitPointEntry(
+            exitPointId,
+            filePath,
+            line,
+            column,
+            methodId,
+            methodDisplayName,
+            kind,
+            operatorGroupId,
+            operatorLine,
+            operatorColumn));
     }
+
+    private static SyntaxToken GetQuestionMarkToken(ConditionalExpressionSyntax conditional)
+    {
+        foreach (SyntaxToken token in conditional.DescendantTokens(descendIntoTrivia: false))
+        {
+            if (token.IsKind(SyntaxKind.QuestionToken))
+            {
+                return token;
+            }
+        }
+
+        return conditional.WhenTrue.GetFirstToken();
+    }
+
+    private static OperatorGroup CreateOperatorGroup(string methodId, SyntaxToken operatorToken)
+    {
+        FileLinePositionSpan span = operatorToken.GetLocation().GetLineSpan();
+        int line = span.StartLinePosition.Line + 1;
+        int column = span.StartLinePosition.Character + 1;
+        return new OperatorGroup($"{methodId}:{line}:{column}:multiarm", line, column);
+    }
+
+    private static bool UsesOperatorGroup(ExitKind kind) =>
+        kind is ExitKind.ConditionalArmCompletion
+            or ExitKind.CoalesceArmCompletion
+            or ExitKind.SwitchArmCompletion;
 
     /// <summary>Non-source locations cannot produce stable file/line exit ids.</summary>
     /// <remarks>Defensive guard for synthesized tokens; production callers only pass in-source syntax tokens.</remarks>
@@ -335,5 +397,13 @@ internal static class CompletionWalker
     {
         return expression is LiteralExpressionSyntax or IdentifierNameSyntax;
     }
-}
 
+    private readonly struct OperatorGroup(string groupId, int line, int column)
+    {
+        public string GroupId { get; } = groupId;
+
+        public int Line { get; } = line;
+
+        public int Column { get; } = column;
+    }
+}

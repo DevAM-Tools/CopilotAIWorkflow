@@ -67,7 +67,7 @@ public static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Each callable may have at most one exit point per source line. Conditional, switch, null-coalescing (??), and null-coalescing assignment (??=) arms count as separate exits.",
+        description: "Each callable may have at most one exit point per source line. Conditional, switch, null-coalescing (??), and null-coalescing assignment (??=) arms count as separate exits even when split across lines (grouped by operator).",
         customTags: "CompilationEnd");
 
     /// <summary>CSV007 volatile non-atomic access.</summary>

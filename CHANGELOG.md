@@ -9,7 +9,7 @@ All notable changes to this project are documented in this file.
 - **CSV003:** Clarified exemptions — private members inside **private nested types**, **explicit interface implementations**, and **local functions** are no longer flagged; outer-type private members still require `_PascalCase`
 - **CSV008:** Confirmed exempt when created type differs from contextual target (e.g. `IA a = new A()`, `IList<int> x = new List<int>()`); regression test added
 - **CSV008:** Exempt array and collection initializers when the contextual target cannot use a collection expression (`Memory<T>`, `ReadOnlyMemory<T>`) or differs from the created type (e.g. `ReadOnlyMemory<byte> m = new byte[] { … }`)
-- **CSV006:** Count `??` and `??=` as dual completion arms (hidden exit points on the same line)
+- **CSV006:** Count `??` and `??=` as dual completion arms; multi-arm `?:`, `??`, `??=`, and `switch` exits share an operator group so line breaks cannot hide multiple completion paths
 - **CSV007:** Plain `volatile` read/write allowed; forbid non-atomic `++`, `--`, and compound assignments (use `Interlocked`)
 
 ### Documentation

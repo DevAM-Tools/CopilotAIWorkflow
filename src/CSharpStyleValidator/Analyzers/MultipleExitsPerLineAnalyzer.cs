@@ -49,12 +49,15 @@ public sealed class MultipleExitsPerLineAnalyzer : DiagnosticAnalyzer
             included.Add(exit);
         }
 
-        foreach (IGrouping<(string MethodId, string FilePath, int Line), ExitPointEntry> group in included
-                     .GroupBy(static exit => (exit.MethodId, exit.FilePath, exit.Line)))
+        foreach (IGrouping<(string MethodId, string FilePath, string GroupKey), ExitPointEntry> group in included
+                     .GroupBy(static exit => (exit.MethodId, exit.FilePath, ResolveGroupKey(exit))))
         {
             TryReportGroup(context, group.ToList());
         }
     }
+
+    private static string ResolveGroupKey(ExitPointEntry exit) =>
+        exit.OperatorGroupId ?? $"line:{exit.Line}";
 
     /// <remarks>Maps grouped exit points to CSV006 diagnostics.</remarks>
     [ExcludeFromCodeCoverage]
@@ -66,8 +69,10 @@ public sealed class MultipleExitsPerLineAnalyzer : DiagnosticAnalyzer
         }
 
         ExitPointEntry first = groupList[0];
+        int reportLine = first.OperatorLine ?? first.Line;
+        int reportColumn = first.OperatorColumn ?? first.Column;
         string kinds = string.Join(", ", groupList.Select(static exit => exit.Kind.ToString()));
-        Location location = TryCreateLocation(context.Compilation, first);
+        Location location = TryCreateLocation(context.Compilation, first.FilePath, reportLine, reportColumn);
         if (location is null)
         {
             return;
@@ -78,15 +83,19 @@ public sealed class MultipleExitsPerLineAnalyzer : DiagnosticAnalyzer
             location,
             first.MethodDisplayName,
             groupList.Count,
-            first.Line,
+            reportLine,
             kinds));
     }
 
     [ExcludeFromCodeCoverage]
-    internal static Location TryCreateLocation(Compilation compilation, ExitPointEntry entry)
+    internal static Location TryCreateLocation(Compilation compilation, ExitPointEntry entry) =>
+        TryCreateLocation(compilation, entry.FilePath, entry.OperatorLine ?? entry.Line, entry.OperatorColumn ?? entry.Column);
+
+    [ExcludeFromCodeCoverage]
+    internal static Location TryCreateLocation(Compilation compilation, string filePath, int line, int column)
     {
         SyntaxTree tree = compilation.SyntaxTrees.FirstOrDefault(
-            candidate => string.Equals(candidate.FilePath, entry.FilePath, StringComparison.OrdinalIgnoreCase));
+            candidate => string.Equals(candidate.FilePath, filePath, StringComparison.OrdinalIgnoreCase));
 
         if (tree is null)
         {
@@ -94,18 +103,18 @@ public sealed class MultipleExitsPerLineAnalyzer : DiagnosticAnalyzer
         }
 
         SourceText text = tree.GetText();
-        int lineIndex = entry.Line - 1;
+        int lineIndex = line - 1;
         if (lineIndex < 0 || lineIndex >= text.Lines.Count)
         {
             return null;
         }
 
-        TextLine line = text.Lines[lineIndex];
-        int column = Math.Min(entry.Column - 1, line.Span.Length);
-        int position = line.Start + column;
+        TextLine textLine = text.Lines[lineIndex];
+        int columnIndex = Math.Min(column - 1, textLine.Span.Length);
+        int position = textLine.Start + columnIndex;
         if (position > text.Length)
         {
-            position = line.Start;
+            position = textLine.Start;
         }
 
         return Location.Create(tree, TextSpan.FromBounds(position, position));

@@ -485,6 +485,62 @@ internal sealed class ExitPointCollectorTests
     }
 
     [Test]
+    public async Task Collect_MultilineReturnTernary_GroupsArmsByOperator()
+    {
+        const string source = """
+            namespace N;
+            public class C
+            {
+                public int M(bool b)
+                {
+                    return b
+                        ? 1
+                        : 2;
+                }
+            }
+            """;
+
+        IReadOnlyList<ExitPointEntry> exits = _Collect(source);
+        List<ExitPointEntry> arms = exits
+            .Where(exit => exit.Kind == ExitKind.ConditionalArmCompletion)
+            .ToList();
+
+        await Assert.That(arms.Count).IsEqualTo(2);
+        await Assert.That(arms[0].Line).IsNotEqualTo(arms[1].Line);
+        await Assert.That(arms.Select(exit => exit.OperatorGroupId).Distinct().Count()).IsEqualTo(1);
+        await Assert.That(arms[0].OperatorLine).IsEqualTo(arms[1].OperatorLine);
+    }
+
+    [Test]
+    public async Task Collect_SwitchArmTernaryMultiline_GroupsArmsByOperator()
+    {
+        const string source = """
+            namespace N;
+            public class C
+            {
+                public int M(int x, bool a)
+                {
+                    return x switch
+                    {
+                        1 => a
+                            ? 1
+                            : 2,
+                        _ => 0,
+                    };
+                }
+            }
+            """;
+
+        IReadOnlyList<ExitPointEntry> exits = _Collect(source);
+        List<ExitPointEntry> conditionalArms = exits
+            .Where(exit => exit.Kind == ExitKind.ConditionalArmCompletion)
+            .ToList();
+
+        await Assert.That(conditionalArms.Count).IsEqualTo(2);
+        await Assert.That(conditionalArms.Select(exit => exit.OperatorGroupId).Distinct().Count()).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Collect_NestedBlockWithReturn_WalksChildStatements()
     {
         const string source = """

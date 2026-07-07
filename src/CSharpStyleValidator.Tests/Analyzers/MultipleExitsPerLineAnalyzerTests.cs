@@ -72,7 +72,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 33, 5, 33)
+                .WithSpan(5, 31, 5, 31)
                 .WithArguments("M", "2", "5", "ConditionalArmCompletion, ConditionalArmCompletion"));
     }
 
@@ -90,7 +90,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 44, 5, 44)
+                .WithSpan(5, 30, 5, 30)
                 .WithArguments("M", "2", "5", "SwitchArmCompletion, SwitchArmCompletion"));
     }
 
@@ -108,8 +108,8 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 41, 5, 41)
-                .WithArguments("M", "3", "5", "ConditionalArmCompletion, ConditionalArmCompletion, ConditionalArmCompletion"));
+                .WithSpan(5, 47, 5, 47)
+                .WithArguments("M", "2", "5", "ConditionalArmCompletion, ConditionalArmCompletion"));
     }
 
     [Test]
@@ -126,7 +126,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 37, 5, 37)
+                .WithSpan(5, 23, 5, 23)
                 .WithArguments("P", "2", "5", "SwitchArmCompletion, SwitchArmCompletion"));
     }
 
@@ -144,7 +144,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 45, 5, 45)
+                .WithSpan(5, 50, 5, 50)
                 .WithArguments("M", "2", "5", "CoalesceArmCompletion, CoalesceArmCompletion"));
     }
 
@@ -164,7 +164,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(7, 23, 7, 23)
+                .WithSpan(7, 30, 7, 30)
                 .WithArguments("M", "2", "7", "CoalesceArmCompletion, CoalesceArmCompletion"));
     }
 
@@ -182,7 +182,179 @@ public sealed class MultipleExitsPerLineAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
-                .WithSpan(5, 37, 5, 37)
-                .WithArguments("M", "3", "5", "CoalesceArmCompletion, CoalesceArmCompletion, CoalesceArmCompletion"));
+                .WithSpan(5, 44, 5, 44)
+                .WithArguments("M", "2", "5", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_TernaryMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M(bool b)
+                {
+                    return b
+                        ? 1
+                        : 2;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(8, 13, 8, 13)
+                .WithArguments("M", "2", "8", "ConditionalArmCompletion, ConditionalArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_CoalesceMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int? M(int? left, int? right)
+                {
+                    return left
+                        ?? right;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(8, 13, 8, 13)
+                .WithArguments("M", "2", "8", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_CoalesceAssignmentMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private int? _Value;
+
+                public int M()
+                {
+                    return _Value
+                        ??= 1;
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(10, 13, 10, 13)
+                .WithArguments("M", "2", "10", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_SwitchExpressionMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M(int x)
+                {
+                    return x switch
+                    {
+                        1 => 1,
+                        2 => 2,
+                    };
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(7, 18, 7, 18)
+                .WithArguments("M", "2", "7", "SwitchArmCompletion, SwitchArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_SwitchArmTernaryMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M(int x, bool a)
+                {
+                    return x switch
+                    {
+                        1 => a
+                            ? 1
+                            : 2,
+                        _ => 0,
+                    };
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(10, 17, 10, 17)
+                .WithArguments("M", "2", "10", "ConditionalArmCompletion, ConditionalArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_SwitchArmCoalesceMultilineReturn_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int? M(int x, int? left, int? right)
+                {
+                    return x switch
+                    {
+                        1 => left
+                            ?? right,
+                        _ => 0,
+                    };
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(10, 17, 10, 17)
+                .WithArguments("M", "2", "10", "CoalesceArmCompletion, CoalesceArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLine_SwitchArmTernaryMultilineExpressionBody_ReportsCsv006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M(int x, bool a) =>
+                    x switch
+                    {
+                        1 => a
+                            ? 1
+                            : 2,
+                        _ => 0,
+                    };
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(9, 17, 9, 17)
+                .WithArguments("M", "2", "9", "ConditionalArmCompletion, ConditionalArmCompletion"));
     }
 }
