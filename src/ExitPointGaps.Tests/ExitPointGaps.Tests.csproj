@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ExitPointGaps.Tests</RootNamespace>
+    <AssemblyName>ExitPointGaps.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExitPointGaps\ExitPointGaps.csproj" />
+    <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+  </ItemGroup>
+</Project>

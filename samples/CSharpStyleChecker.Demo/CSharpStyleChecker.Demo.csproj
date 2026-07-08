@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>CSharpStyleChecker.Demo</RootNamespace>
+    <AssemblyName>CSharpStyleChecker.Demo</AssemblyName>
+    <LangVersion>14</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <IncludeViolations Condition="'$(IncludeViolations)' == ''">false</IncludeViolations>
+    <UseNuGetPackage Condition="'$(UseNuGetPackage)' == ''">false</UseNuGetPackage>
+    <ApplyCSharpStyleChecker Condition="'$(UseNuGetPackage)' == 'true'">false</ApplyCSharpStyleChecker>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseNuGetPackage)' == 'true'">
+    <PackageReference Include="CSharpStyleChecker" Version="1.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IncludeViolations)' != 'true'">
+    <Compile Remove="Violations\**\*.cs" />
+  </ItemGroup>
+</Project>

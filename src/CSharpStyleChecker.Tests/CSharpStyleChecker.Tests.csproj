@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>CSharpStyleChecker.Tests</RootNamespace>
+    <AssemblyName>CSharpStyleChecker.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpStyleChecker\CSharpStyleChecker.csproj" />
+    <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+  </ItemGroup>
+</Project>

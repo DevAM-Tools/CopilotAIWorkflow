@@ -2,42 +2,62 @@
 
 NuGet packages from [CopilotAIWorkflow](https://github.com/DevAM/CopilotAIWorkflow) — agent workflow tooling with mechanical quality gates.
 
-## CSharpStyleValidator
+**Release 1.0.0** — two packages replace the deprecated **CSharpStyleValidator**, **CoverageGap.Tool**, and **CoverageGapAnalysis**. Same purpose and scope; version line restarts at 1.0.0.
 
-Roslyn analyzer enforcing C# style as **compiler errors** (CSV*). Add as a development dependency:
+## CSharpStyleChecker
+
+Roslyn analyzer enforcing C# style as **compiler errors** (CSC001–CSC008). Add as a development dependency:
 
 ```xml
-<PackageReference Include="CSharpStyleValidator" Version="2.*" />
+<PackageReference Include="CSharpStyleChecker" Version="1.*" />
 ```
 
-Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). See [README.md — CSharpStyleValidator](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylevalidator).
+Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). See [README.md — CSharpStyleChecker](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylechecker).
 
-## CoverageGapAnalysis
+**Replaces:** `CSharpStyleValidator` (rule IDs CSV* → CSC*).
 
-Library for Cobertura parsing, branch metrics, and exit-point gap reports. Consumer: `net10.0`+.
+## ExitPointGaps
 
-## CoverageGap.Tool
-
-Local dotnet tool — register once per repo, run via `dotnet tool run coveragegap`:
+Local dotnet tool — lists exit-point gaps (`exitGaps[]`) from Cobertura and Roslyn exit-point collection. Analysis is integrated into the tool assembly (no separate library package).
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install CoverageGap.Tool --version 2.*
-dotnet tool run coveragegap --repo-root .
+dotnet tool install ExitPointGaps --version 1.*
+dotnet tool run exitpointgaps --repo-root .
 ```
 
-Requires .NET SDK 10.0, MTP + TUnit in test projects. Workflow SSOT: [tech-tunit.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-tunit.md). User quickstart: [README.md §2](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#2--exit-point-coverage-gate-cli).
+Requires .NET SDK 10.0, MTP + TUnit in test projects. Gate: `summary.exitGapCount == 0`. Multi-project summaries use schema v3 (`reportFile` indirection). Workflow SSOT: [tech-tunit.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-tunit.md). User quickstart: [README.md §2](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#2--exit-point-coverage-gate-cli).
+
+**Replaces:** `CoverageGap.Tool` + `CoverageGapAnalysis`.
+
+### Performance (1.0.0)
+
+- Per-project parallelism by default; cap with `--max-parallelism <n>`
+- Solution pre-build once, then `--no-build` for repeat runs
+- Scoped Cobertura parse, streaming writes, Roslyn `Compilation` dropped after exit collection
+- Benchmark (this repo, Release, `--no-build`): serial ~22.8s → parallel ~12.0s (~47% faster)
+
+Details: [CHANGELOG.md](CHANGELOG.md).
+
+## Migration
+
+| Deprecated | Use instead |
+|------------|-------------|
+| `PackageReference CSharpStyleValidator` | `CSharpStyleChecker` |
+| `dotnet tool install CoverageGap.Tool` | `dotnet tool install ExitPointGaps` |
+| `PackageReference CoverageGapAnalysis` | `ExitPointGaps` CLI only |
+| Analyzer IDs `CSV001–CSV008` | `CSC001–CSC008` |
+| `dotnet tool run coveragegap` | `dotnet tool run exitpointgaps` |
 
 ## Requirements
 
 | Package | Consumer / host | Notes |
 |---------|-----------------|-------|
-| CSharpStyleValidator | SDK-style `netstandard2.0`+ or .NET Core App | .NET SDK 9.0.300+ or VS 2022 17.14+ (Roslyn 4.14) |
-| CoverageGapAnalysis | `net10.0`+ | Not referenceable from `netstandard2.0` class libraries |
-| CoverageGap.Tool | .NET SDK 10.0 | Local tool manifest; not a project reference |
+| CSharpStyleChecker | SDK-style `netstandard2.0`+ or .NET Core App | .NET SDK 9.0.300+ or VS 2022 17.14+ (Roslyn 4.14) |
+| ExitPointGaps | .NET SDK 10.0 | Local tool manifest; not a project reference |
 | This repository | .NET SDK 10.0 | `global.json` pins 10.0.100 |
 
-**Repo clone:** `Directory.Build.targets` auto-applies `CSharpStyleValidator`. NuGet consumers use `PackageReference`.
+**Repo clone:** `Directory.Build.targets` auto-applies `CSharpStyleChecker`. NuGet consumers use `PackageReference`.
 
 ## License
 

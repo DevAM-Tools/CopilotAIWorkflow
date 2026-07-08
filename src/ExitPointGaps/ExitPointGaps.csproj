@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ExitPointGaps</RootNamespace>
+    <AssemblyName>ExitPointGaps</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>exitpointgaps</ToolCommandName>
+    <PackageId>ExitPointGaps</PackageId>
+    <Description>Lists exit-point gaps from Cobertura and Roslyn exit-point collection.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ExitPointGaps.Tests" />
+  </ItemGroup>
+</Project>

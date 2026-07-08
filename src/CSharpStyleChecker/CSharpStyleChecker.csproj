@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>CSharpStyleChecker</RootNamespace>
+    <AssemblyName>CSharpStyleChecker</AssemblyName>
+    <LangVersion>14</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <PackageId>CSharpStyleChecker</PackageId>
+    <Description>Roslyn analyzers enforcing CopilotAIWorkflow C# style conventions.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/DevAM/CopilotAIWorkflow</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DevAM/CopilotAIWorkflow</RepositoryUrl>
+    <PackageTags>roslyn;analyzer;csharp;style</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="csc_max_line_length" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="CSharpStyleChecker.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\ExitPoints.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+</Project>

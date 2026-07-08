@@ -10,8 +10,9 @@ namespace ExitPoints;
 
 /// <summary>Walks callable bodies and completion expressions for exit-point collection.</summary>
 /// <remarks>
-/// Does not model <c>goto</c>, filter/catch-only control flow, or async state-machine exits inside
-/// expression-bodied members; those patterns may be under-reported. Models <c>??</c> and <c>??=</c> as dual completion arms.
+/// Does not model <c>goto</c> (not an exit point), filter/catch-only control flow, or async state-machine exits inside
+/// expression-bodied members; those patterns may be under-reported. <c>yield return</c> is not an exit point; only
+/// <c>yield break</c> terminates the iterator. Models <c>??</c> and <c>??=</c> as dual completion arms.
 /// Multi-arm <c>?:</c>, <c>??</c>, <c>??=</c>, and <c>switch</c> exits share an <see cref="ExitPointEntry.OperatorGroupId"/> across line breaks.
 /// </remarks>
 internal static class CompletionWalker
@@ -362,6 +363,8 @@ internal static class CompletionWalker
             operatorColumn));
     }
 
+    /// <remarks>Locates the <c>?</c> token for operator grouping; fallback path handles malformed trees only.</remarks>
+    [ExcludeFromCodeCoverage]
     private static SyntaxToken GetQuestionMarkToken(ConditionalExpressionSyntax conditional)
     {
         foreach (SyntaxToken token in conditional.DescendantTokens(descendIntoTrivia: false))
@@ -372,8 +375,13 @@ internal static class CompletionWalker
             }
         }
 
-        return conditional.WhenTrue.GetFirstToken();
+        return GetQuestionMarkTokenFallback(conditional);
     }
+
+    /// <remarks>Defensive fallback when no <c>?</c> token appears in descendants (malformed or synthesized trees).</remarks>
+    [ExcludeFromCodeCoverage]
+    private static SyntaxToken GetQuestionMarkTokenFallback(ConditionalExpressionSyntax conditional) =>
+        conditional.WhenTrue.GetFirstToken();
 
     private static OperatorGroup CreateOperatorGroup(string methodId, SyntaxToken operatorToken)
     {

@@ -2,7 +2,54 @@
 
 All notable changes to this project are documented in this file.
 
-## 2.1.1
+## 1.0.0
+
+### ExitPointGaps performance
+
+- **Per-project parallelism** (default: all projects in scope concurrently); cap with `--max-parallelism <n>`
+- **Solution pre-build** once before multi-project loops (skipped with `--no-build` or single project)
+- **Streaming output:** aggregated `summary.json` is **schema v3** with `reportFile` indirection; per-project reports remain schema v1
+- **Memory:** drop Roslyn `Compilation` after exit collection; scoped Cobertura parse; incremental per-project writes
+- **Pipeline overlap:** Cobertura parse runs in parallel with Roslyn compile per project
+- **Benchmark (CopilotAIWorkflow.slnx, Release, `--no-build`):** serial ~22.8s vs parallel ~12.0s (~47% faster)
+
+### Breaking changes (aggregated JSON only)
+
+| v2 | v3 |
+|----|-----|
+| `schemaVersion: 2` with embedded `report` objects | `schemaVersion: 3` with `projects[].reportFile` |
+| Single-file multi-project `-o out.json` | Multi-project requires directory `-o reports/` or stdout `--stream` |
+
+Migration: read `summary.json` for counts; load each `{reportFile}` for `exitGaps[]`.
+
+### CLI
+
+- `--max-parallelism <n>` — bounded concurrency (`n >= 1`)
+- `--stream` / `--no-stream` — NDJSON stdout for multi-project runs without `-o`
+
+### Rebrand (at this point)
+
+- **ExitPointGaps** replaces `CoverageGap.Tool` + `CoverageGapAnalysis` (analysis integrated into tool assembly)
+- **CSharpStyleChecker** replaces `CSharpStyleValidator`
+- Version line restarts at 1.0.0 (not 3.0 continuation)
+- CLI: `dotnet tool run exitpointgaps` (was `coveragegap`)
+- Diagnostic IDs renamed **CSV001–CSV008** → **CSC001–CSC008** (`csc_max_line_length` editorconfig property)
+- See migration table below
+
+### Migration
+
+| Old | New |
+|-----|-----|
+| `dotnet tool install CoverageGap.Tool` | `dotnet tool install ExitPointGaps` |
+| `dotnet add package CoverageGapAnalysis` | use `ExitPointGaps` CLI (no library package) |
+| `PackageReference CSharpStyleValidator` | `CSharpStyleChecker` |
+| Analyzer rule IDs `CSV001–CSV008` | `CSC001–CSC008` |
+
+---
+
+> **Historical (pre-rebrand):** Entries below describe packages and names before 1.0.0.
+
+## 2.1.2
 
 ### CSharpStyleValidator
 
