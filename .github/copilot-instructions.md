@@ -134,7 +134,7 @@ Goal: save tokens in chat without losing technical substance.
 - Do not put dates in code or commits; copyright year is allowed.
 - Add per-file copyright from `COPYRIGHT` when creating source files.
 - Use only MIT, Apache-2.0, or BSD-like dependencies.
-- ❗ Require **CSharpStyleChecker** NuGet at version **`1.*`** on every SDK-style C# consumer (`netstandard2.0` or `net5.0`+), including source generators; `ExitPoints` is bundled — no separate analyzer reference. Install and CPM wiring: `tech-solution.md`.
+- ❗ Require **CSharpStyleChecker** NuGet at version **`1.*`** on every SDK-style C# consumer (`netstandard2.0` or `net5.0`+), including source generators; active on the referencing project only — not transitive. `ExitPoints` is bundled — no separate analyzer reference. Install and CPM wiring: `tech-solution.md`. Opt out with `ApplyCSharpStyleChecker=false`.
 - Follow New Dependency Protocol in `tech-solution.md` when packages are in scope.
 - Use Mermaid (`TD`, tall layout) instead of ASCII art.
 

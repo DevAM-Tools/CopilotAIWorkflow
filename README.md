@@ -22,7 +22,7 @@ Two packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). No 
 | **ExitPointGaps** (CLI) | .NET SDK 10.0 (local tool manifest) |
 | **This repository** | .NET SDK 10.0 (`global.json`) |
 
-**NuGet vs. repo clone:** Adding `CSharpStyleChecker` via NuGet loads analyzers from `analyzers/dotnet/cs` (including bundled `ExitPoints.dll`) — no MSBuild targets in the package. Cloning this repo applies the analyzer automatically via root [`Directory.Build.targets`](Directory.Build.targets).
+**NuGet vs. repo clone:** Adding `CSharpStyleChecker` via NuGet loads analyzers from `analyzers/dotnet/cs` (including bundled `ExitPoints.dll`) — no MSBuild targets in the package; analyzers apply only on the project that references the package. Cloning this repo applies the analyzer automatically via root [`Directory.Build.targets`](Directory.Build.targets) (opt out with `ApplyCSharpStyleChecker=false`).
 
 ### 1 — Enforce C# style (analyzer)
 

@@ -6,11 +6,13 @@
     <ApplyCSharpStyleChecker Condition="'$(ApplyCSharpStyleChecker)' == '' and '$(_CscConsumerTargetFramework)' == 'true' and '$(MSBuildProjectName)' != 'CSharpStyleChecker' and '$(MSBuildProjectName)' != 'CSharpStyleChecker.Tests' and '$(MSBuildProjectName)' != 'ExitPoints' and '$(MSBuildProjectName)' != 'ExitPoints.Tests'">true</ApplyCSharpStyleChecker>
     <CSharpStyleCheckerProjectPath>$(MSBuildThisFileDirectory)src\CSharpStyleChecker\CSharpStyleChecker.csproj</CSharpStyleCheckerProjectPath>
   </PropertyGroup>
+  <!-- Repo clone: wire local analyzer project; PrivateAssets blocks flow to downstream ProjectReferences. -->
   <ItemGroup Condition="'$(ApplyCSharpStyleChecker)' == 'true'">
     <ProjectReference
       Include="$(CSharpStyleCheckerProjectPath)"
       OutputItemType="Analyzer"
-      ReferenceOutputAssembly="false" />
+      ReferenceOutputAssembly="false"
+      PrivateAssets="all" />
   </ItemGroup>
   <Import
     Project="$(MSBuildThisFileDirectory)src\CSharpStyleChecker\build\CSharpStyleChecker.Local.targets"

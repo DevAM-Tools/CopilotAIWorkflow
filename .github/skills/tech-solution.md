@@ -84,7 +84,7 @@ When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Compan
 
 ## CSharpStyleChecker
 
-❗ Mandatory NuGet **`1.*`** on every SDK-style consumer (`netstandard2.0` or `net5.0`+), including Roslyn source generators.
+❗ Mandatory NuGet **`1.*`** on every SDK-style consumer (`netstandard2.0` or `net5.0`+), including Roslyn source generators. Active on the referencing project only — not transitive to downstream libraries.
 
 | Step | Action |
 |------|--------|

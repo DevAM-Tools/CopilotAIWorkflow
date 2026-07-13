@@ -57,7 +57,7 @@ Details: [CHANGELOG.md](CHANGELOG.md).
 | ExitPointGaps | .NET SDK 10.0 | Local tool manifest; not a project reference |
 | This repository | .NET SDK 10.0 | `global.json` pins 10.0.100 |
 
-**Repo clone:** `Directory.Build.targets` auto-applies `CSharpStyleChecker`. NuGet consumers use `PackageReference`.
+**Repo clone:** `Directory.Build.targets` auto-applies `CSharpStyleChecker` (opt out with `ApplyCSharpStyleChecker=false`). NuGet consumers use `PackageReference` on each project that should enforce CSC rules; not transitive to downstream libraries.
 
 ## License
 
