@@ -25,8 +25,8 @@ Goal: save tokens in chat without losing technical substance.
 
 ### Full-fidelity output (no compression)
 
-- Write plan steps with full Shared Block quality.
-- Write every review finding (Error, Cosmetic, Refactoring, Performance) with full Shared Block quality.
+- Write plan steps with full Shared Block quality; describe them in detail; illustrate them clearly; include Before/After code in every step `How`; cite sources in every step `Context`.
+- Write every review finding (Error, Cosmetic, Refactoring, Performance) with full Shared Block quality; describe it in detail; illustrate it clearly; include Problem/Fix code in every finding `How`; cite sources in every finding `Context`.
 - Write code, MSBuild/project files, and commits in normal complete form per tech rules.
 
 ### Auto-clarity (never compress)

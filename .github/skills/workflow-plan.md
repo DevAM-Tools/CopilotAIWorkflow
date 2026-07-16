@@ -79,12 +79,15 @@ Place at top of plan file, before Summary / Context Anchor. In chat: end of plan
 
 Field order: `What` → `Why` → `How` → `[Context]` → `[Where]` → `Verify` → `[If it fails]`.
 Always require `What`, `Why`, `How`, `Verify`.
-Omit `Context` when no non-obvious constraint exists. Omit `Where` when no file is touched.
+Omit `Context` only when neither constraints nor sources exist. Omit `Where` when no file is touched.
 Require `If it fails` for schema, state, or external-system risks.
-❗Write `How` exhaustively: concrete APIs, signatures, validation, error paths, thread-safety/performance/security constraints, prerequisite state, and before/after snippets or mini examples where behavior is non-obvious.
+❗Describe every step in detail and illustrate it clearly enough that another agent can implement it without guessing missing intent.
+❗Write `How` exhaustively: concrete APIs, signatures, validation, error paths, thread-safety/performance/security constraints, prerequisite state, decision rationale, and important edge cases.
+❗Include fenced **Before** and **After** code in every step `How` — current code illustrating the starting point, then target code showing the intended result; anchor with path/symbol; keep snippets minimal but sufficient to make the intended change obvious.
+❗Cite sources in every step `Context` — skill/section, doc/ADR, API reference, or path/symbol — so the implementer can re-read on demand.
 Put `Where` as path, approximate line numbers, and searchable symbol anchor.
 Put `Verify` as exact command (`-c Release` when applicable) and expected result.
-Use bullets in `How`; avoid redundant prose — detail over brevity in plan artifacts.
+Use bullets in `How`; avoid redundant prose, but prefer detail and illustration over brevity in plan artifacts.
 
 ```markdown
 ## {ID} - {Title}

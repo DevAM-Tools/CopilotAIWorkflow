@@ -56,12 +56,15 @@ Use the templates below for all findings output.
 
 Field order: `What` → `Why` → `How` → `[Context]` → `[Where]` → `Verify` → `[If it fails]`.
 Always require `What`, `Why`, `How`, `Verify`.
-Omit `Context` when no non-obvious constraint exists. Omit `Where` when no file is touched.
+Omit `Context` only when neither constraints nor sources exist. Omit `Where` when no file is touched.
 Require `If it fails` for schema, state, or external-system risks.
-Make `How` a standalone fix recipe: APIs, validation, error paths, thread-safety/performance/security constraints, prerequisite state.
+❗Describe every finding in detail and illustrate it clearly enough that another agent can implement the fix without re-deriving intent.
+Make `How` a standalone, detailed fix recipe: APIs, validation, error paths, thread-safety/performance/security constraints, prerequisite state, decision rationale, and important edge cases.
+❗Include fenced **Problem** and **Fix** code in every finding `How` — current code illustrating the issue, then target code showing the solution; anchor with path/symbol; keep snippets minimal but sufficient to make the issue and remedy obvious.
+❗Cite sources in every finding `Context` — skill/section, doc/ADR, API reference, or path/symbol — so the implementer can re-read on demand.
 Put `Where` as path, approximate line numbers, and searchable symbol anchor.
 Put `Verify` as exact command (`-c Release` when applicable) and expected result.
-Use bullets in `How` where possible; avoid redundant prose.
+Use bullets in `How` where possible; avoid redundant prose, but do not compress away implementation detail or illustration.
 
 ```markdown
 ## {ID} - {Title}
@@ -116,10 +119,10 @@ Assign exactly one bucket per finding.
 
 Bucket-specific `How` / `Why` / `Context` requirements:
 
-- **Error:** include Severity (High/Medium/Low) in status line; include before/after in `How`; name OWASP category for security; specify missing boundary and guard for validation gaps.
-- **Cosmetic:** reference exact style rule in `How`; include before/after when non-obvious.
-- **Refactoring:** state unchanged behavior in `Why`; name extract/move/split in `How`.
-- **Performance:** reference Section 4.4 in `How`; include frequency, allocation pressure, cache behavior, and exception-throwing paths in `Context`.
+- **Error:** include Severity (High/Medium/Low) in status line; show Problem/Fix code in `How`; name OWASP category for security; specify missing boundary and guard for validation gaps.
+- **Cosmetic:** reference exact style rule in `How`; show Problem/Fix code in `How`.
+- **Refactoring:** state unchanged behavior in `Why`; name extract/move/split in `How`; show Problem/Fix code in `How`.
+- **Performance:** reference Section 4.4 in `How`; show Problem/Fix code in `How`; include frequency, allocation pressure, cache behavior, and exception-throwing paths in `Context`.
 
 ## Closing Assessment
 
