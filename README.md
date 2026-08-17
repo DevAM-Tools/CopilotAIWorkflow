@@ -97,10 +97,10 @@ Version line restarts at **1.0.0** (not a continuation of 2.x). Full history: [C
 Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
 - No implementation before plan approval.
-- Explicit phases: plan, implement, review, review-loop, complex-task.
+- Explicit phases: plan, implement, review, review-loop, complex-task, council.
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
-- Token-efficient chat; high-quality plan and review artifacts.
+- Token-efficient chat; high-quality plan, review, and council artifacts.
 
 ---
 
@@ -113,7 +113,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`) |
 | [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
 
@@ -125,10 +125,10 @@ Each concern has exactly one authoritative file under `.github/`. Copilot prompt
 
 | Concern | SSOT |
 |---------|------|
-| Quality, C#, templates, terse, tech triggers | `.github/copilot-instructions.md` |
+| Quality, tech triggers, templates, terse | `.github/copilot-instructions.md` |
 | Workflow stages and gates | `.github/skills/workflow-*.md` |
 | Build, CPM, dependencies | `.github/skills/tech-solution.md` |
-| TUnit / Blazor / SourceGen | respective `.github/skills/tech-*.md` |
+| C# / Rust / TUnit / Blazor / SourceGen | respective `.github/skills/tech-*.md` |
 | Copilot user entry | `.github/prompts/` |
 | Cursor user entry | `.cursor/commands/`, `.cursor/skills/` |
 
@@ -149,7 +149,9 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 
 | Skill | Load when |
 |-------|-----------|
-| `tech-tunit.md` | Test files or test projects in scope |
+| `tech-csharp.md` | `*.cs` in scope |
+| `tech-rust.md` | `*.rs` / `Cargo.toml` / `Cargo.lock` in scope |
+| `tech-tunit.md` | C# tests; also C# production review (ExitPointGaps) |
 | `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` in scope — exhaustive **bUnit** component tests |
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
@@ -158,6 +160,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `workflow-review.md` | `/review` |
 | `workflow-review-loop.md` | `/review-loop` |
 | `workflow-complex-task.md` | `/complex-task` |
+| `workflow-council.md` | `/council`; Sweep Mode on `/plan` and `/review` |
 
 Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
 
@@ -167,11 +170,12 @@ Agents must `Read` matching skills before edits. Missing skill when trigger matc
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Plan:** `workflow-plan.md` — gather context, Grill Me, align & prefer, write artifact
+- **Plan:** `workflow-plan.md` — gather context, perspective sweep, Grill Me, decision loop, write artifact
 - **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, verify
-- **Review:** `workflow-review.md` — scope, load, cross-file consistency, output
+- **Review:** `workflow-review.md` — scope, load, perspective sweep, cross-file consistency, output
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
 - **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop
+- **Council:** `workflow-council.md` — five-lens pressure-test of one decision (Sweep in plan/review; Lite/Full on `/council`)
 
 Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
 
@@ -184,11 +188,11 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/plan`, `/implement`, `/review`, `/review-loop`, or `/complex-task` in chat |
+| Slash commands | Type `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, or `/council` in chat |
 | Agent skills | Skills auto-discover via descriptions; each points to `.github/skills/` SSOT |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
-Natural-language triggers (`plan this feature`, `review the PR`) work the same as slash commands per `copilot-instructions.md` Section 6.
+Natural-language triggers (`plan this feature`, `review the PR`, `council this`) work the same as slash commands per `copilot-instructions.md` Section 6.
 
 ---
 
