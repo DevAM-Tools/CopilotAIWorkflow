@@ -156,11 +156,11 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
 | `workflow-plan.md` | `/plan` |
-| `workflow-implement.md` | `/implement` |
-| `workflow-review.md` | `/review` |
+| `workflow-implement.md` | `/implement`; Closing Exam (council Exam mode) |
+| `workflow-review.md` | `/review`; Skeptic pass (parts + composition) |
 | `workflow-review-loop.md` | `/review-loop` |
 | `workflow-complex-task.md` | `/complex-task` |
-| `workflow-council.md` | `/council`; Sweep Mode on `/plan` and `/review` |
+| `workflow-council.md` | `/council`; Sweep on `/plan` and `/review`; Exam after `/implement` |
 
 Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
 
@@ -170,12 +170,12 @@ Agents must `Read` matching skills before edits. Missing skill when trigger matc
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Plan:** `workflow-plan.md` — gather context, perspective sweep, Grill Me, decision loop, write artifact
-- **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, verify
-- **Review:** `workflow-review.md` — scope, load, perspective sweep, cross-file consistency, output
+- **Plan:** `workflow-plan.md` — gather context, requirements (user view), perspective sweep, Grill Me, decision loop, write artifact, coverage check (conversation → plan); close with Requirements fit
+- **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, tick Step Overview + Shared Block + Task Checklist together, verify against R{n}, Closing Exam of the built result
+- **Review:** `workflow-review.md` — scope, load, Skeptic pass (parts + composition), perspective sweep, cross-file consistency, output
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
-- **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop
-- **Council:** `workflow-council.md` — five-lens pressure-test of one decision (Sweep in plan/review; Lite/Full on `/council`)
+- **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop → one Closing Exam
+- **Council:** `workflow-council.md` — five-view pressure-test (Skeptic, Problem-First, Upside, Outsider, Builder); Sweep in plan/review; Lite/Full on `/council`; Exam after implement
 
 Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
 
