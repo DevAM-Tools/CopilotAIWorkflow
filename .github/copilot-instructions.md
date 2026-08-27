@@ -207,7 +207,7 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 | `/complex-task` | `workflow-complex-task.md` |
 | `/council` | `workflow-council.md` |
 
-- `/council`, `council this`, `run the council`, `pressure-test this`, `stress-test this` → `workflow-council.md`. Not casual "should I". Sweep on every plan/review. Full council on `/council` or a blocking Decision Loop fork (Lite default in plan Decision Loop). Exam council after `/implement` Stage 4 and after complex-task loop success. Exam is not a `/review` substitute.
+- `/council`, `council this`, `run the council`, `pressure-test this`, `stress-test this` → `workflow-council.md`. Not casual "should I". Sweep on every plan/review. Full council on `/council` or a blocking Decision Loop fork (Lite default in plan Decision Loop). Exam council after `/implement` Stage 5 and after complex-task loop success. Exam is not a `/review` substitute.
 - Council subagents use the parent model. Cursor `Task`: set `model: inherit`. Never omit `model`. Never pick a cheaper or faster slug.
 - Do not start implementation before explicit plan approval.
 - Treat explicit approval and equivalent intent phrases as plan approval signals.

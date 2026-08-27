@@ -2,14 +2,15 @@
 
 Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git, and communication rules.
 
-**Purpose:** Implement approved plan steps or accepted review findings **exactly** — complete every item in scope, match plan/finding intent, no skipped or diverging work. Close with a council Exam of the built result.
+**Purpose:** Implement approved plan steps or accepted review findings **exactly** — complete every item in scope, match plan/finding intent, no skipped or diverging work. Close with a review brief, then a council Exam of the built result.
 
 ## Stage Order
 
 1. Prepare
 2. Execute Steps
 3. Final Verification
-4. Closing Exam
+4. Review Brief
+5. Closing Exam
 
 ## Stage 1 — Prepare
 
@@ -42,14 +43,34 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Output Implementation Status Table (every step/finding listed, none omitted).
 - Do not enter Stage 4 until this stage is green.
 
-## Stage 4 — Closing Exam
+## Stage 4 — Review Brief
 
-- Load `workflow-council.md`. Run **Exam** mode on the built result in this invocation's scope (plan R{n}, touched files, tests, latest Step NR reviews).
-- Skip when the parent is `workflow-complex-task.md` Stage 3 per-item implement — that skill runs one Exam after the loop is Error-clean.
-- Skip when the parent is `workflow-review-loop.md` Stage 2 Remediate.
+Write the brief before Stage 5. Exam skipped → still write it. No complete without it. Chat: path only.
+
+- Path: `reviews/brief_<slug>.md`. Single item: `reviews/brief_<slug>_<item>.md` (`step{n}` / finding ID). Slug from plan or review scope. Before Exam: full-scope file.
+- List every created, edited, or deleted path from the working tree. Omit none. Rewrite on remediation.
+- Built result only. Name symbols, behavior, contracts. No diffs.
+- Per file: what changed, why it had to exist (failure without it), which `R{n}`/finding. Ban empty purpose and “as planned” / “cleanup” / “refactor” without necessity.
+- Order for reading, not git: contracts/types → implementations → cutover → tests → docs. State depends-on.
+
+```markdown
+# Review Brief — {scope}
+
+**Expect:** {outcome; R{n}} · **Done when:** {check} · **Why:** {problem without it} · **Out:** {exclusions}
+
+| Seq | Path | Changed | Why needed | Depends on | Serves |
+|-----|------|---------|------------|------------|--------|
+| 1 | {path} | {symbols/behavior} | {necessity} | — | R{n} / E{n} |
+| 2 | {path} | {symbols/behavior} | {necessity} | 1 | R{n} / E{n} |
+```
+
+## Stage 5 — Closing Exam
+
+- Load `workflow-council.md`. Run **Exam** mode on the built result in this invocation's scope (plan R{n}, review brief, touched files, tests, latest Step NR reviews).
+- Skip Exam when parent is `workflow-complex-task.md` Stage 3 per-item or `workflow-review-loop.md` Stage 2. Still run Stage 4.
 - User `quick`/`lite` → Lite Exam (Skeptic addendum still required). Else Full Exam.
-- Chairman **Holds** → implement complete. Cite the exam artifact. Add the Exam row to the status table.
-- Chairman **Does not hold** → remediate kill shots and §4 violations in this run (same gates as Step NR Errors: Verify, alignment, two-attempt cap). Re-run Stage 3 for touched scope, then re-Exam `_<n>`.
+- Chairman **Holds** → implement complete. Cite the brief and the exam artifact. Add the Exam row to the status table.
+- Chairman **Does not hold** → remediate kill shots and §4 violations in this run (same gates as Step NR Errors: Verify, alignment, two-attempt cap). Re-run Stage 3 for touched scope, rewrite Stage 4, then re-Exam `_<n>`.
 - Grill Me follow-ups → ask user; do not mark implement complete.
 - Do not treat Exam as `/review`. Do not skip Step NR reviews because Exam will run.
 
@@ -63,5 +84,6 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 | Step {N} - Requirements fit | ✅ Every R{n} Met |
 | R1 - {outcome} | ✅ Met |
 | E1 - {title} | ✅ Fixed |
+| Review Brief | ✅ reviews/brief_<slug>.md |
 | Closing Exam | ✅ Holds · councils/council_<slug>-exam.md |
 ```

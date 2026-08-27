@@ -24,7 +24,7 @@ Load on `/complex-task`. Orchestrates plan, implement, review, and a closing cou
 ## Stage 3 — Implement/Review Loop
 
 - Iterate checklist in topological order for each `⬜` or `⚠️`.
-- Execute `workflow-implement.md` per item. Skip implement Stage 4 Closing Exam — this workflow runs one Exam in Stage 4 after the loop is Error-clean.
+- Execute `workflow-implement.md` per item. Skip implement Stage 5 Exam. Run Stage 4. This workflow runs one Exam after the loop is Error-clean.
 - Run `/review` on every remediation iteration via implement.
 - Persist every review iteration to `reviews/review_<slug>_<iteration>.md`.
 - Default review output to file mode.
@@ -33,6 +33,7 @@ Load on `/complex-task`. Orchestrates plan, implement, review, and a closing cou
 ## Stage 4 — Stop Conditions
 
 - Preview success: latest review iteration has zero Error findings per step, every scoped step `✅`.
+- Require full-scope `reviews/brief_<slug>.md`. Rewrite if missing or step-only.
 - Then run one **Exam** (`workflow-council.md` Exam mode) on the full built scope. Load that skill.
 - Exam **Holds** → Success.
 - Exam `exam-fail` → return to Stage 3 for those kill shots; then re-Exam `_<n>`.
@@ -46,9 +47,9 @@ Load on `/complex-task`. Orchestrates plan, implement, review, and a closing cou
 
 ## Stage 6 — Final Report
 
-- Output implementation status table for all steps and gates, including Closing Exam.
+- Output implementation status table for all steps and gates, including Review Brief and Closing Exam.
 - Output review iteration table: path, error count, status.
-- Cite the Exam artifact. Goal verdict requires Exam **Holds**.
+- Cite the review brief and the Exam artifact. Goal verdict requires Exam **Holds**.
 - List deferred Cosmetic, Refactoring, Performance findings.
 - State goal-achievement verdict vs every R{n} and plan done criteria.
 - Use terse chat per Section 2; cite artifact paths.

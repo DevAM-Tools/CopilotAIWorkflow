@@ -6,7 +6,7 @@ Five named views, not job titles. Independent advisors → anonymous peer review
 
 ## When
 
-**Run:** architecture, public API, security vs performance, irreversible choice, genuine multi-option fork. Closing Exam after `/implement` Stage 4 (standalone) or complex-task loop success.
+**Run:** architecture, public API, security vs performance, irreversible choice, genuine multi-option fork. Closing Exam after `/implement` Stage 5 (standalone) or complex-task loop success.
 
 **Skip:** lookups, post-choice how-to, `/review` (Sweep still runs inside review; Exam is not a review substitute), casual should-I, write-X. Explicit trigger on a validation-only ask: still run; do not rubber-stamp.
 
@@ -19,7 +19,7 @@ Vague question → one clarifier, then proceed.
 | **Sweep** | `/plan` Stage 2, `/review` Stage 4 | Same agent. No subagents. | none |
 | **Lite** | Plan Decision Loop default; user says `quick`/`lite` | 5 advisors + chairman | `councils/council_<slug>[_<n>].md` |
 | **Full** | `/council` default; security, public API, irreversible | 5 advisors + 5 peer reviews + chairman | same |
-| **Exam** | `/implement` Stage 4; complex-task after Error-clean loop; user says `exam` | Full mechanics unless user says `quick`/`lite`. Skeptic uses Exam addendum. | `councils/council_<slug>-exam[_<n>].md` |
+| **Exam** | `/implement` Stage 5; complex-task after Error-clean loop; user says `exam` | Full mechanics unless user says `quick`/`lite`. Skeptic uses Exam addendum. | `councils/council_<slug>-exam[_<n>].md` |
 
 ## Views
 
@@ -39,7 +39,7 @@ Outsider gets the framed question only — no Constraint Block, no tech-skill du
 
 ## Exam
 
-Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan R{n} and in-scope code?" Include plan path, every R{n}, Implementation Status Table, in-scope paths, latest Step NR review paths. No steering toward Holds. Do not rubber-stamp.
+Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan R{n} and in-scope code?" Include plan path, every R{n}, review brief path, Implementation Status Table, in-scope paths, latest Step NR review paths. No steering toward Holds. Do not rubber-stamp.
 
 Follow Lite/Full stages with these overlays. Advisors still do not edit.
 

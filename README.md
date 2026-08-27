@@ -156,7 +156,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
 | `workflow-plan.md` | `/plan` |
-| `workflow-implement.md` | `/implement`; Closing Exam (council Exam mode) |
+| `workflow-implement.md` | `/implement`; Review Brief; Closing Exam (council Exam mode) |
 | `workflow-review.md` | `/review`; Skeptic pass (parts + composition) |
 | `workflow-review-loop.md` | `/review-loop` |
 | `workflow-complex-task.md` | `/complex-task` |
@@ -171,7 +171,7 @@ Agents must `Read` matching skills before edits. Missing skill when trigger matc
 Stages live in workflow skills only. Prompts do not repeat them.
 
 - **Plan:** `workflow-plan.md` — gather context, requirements (user view), perspective sweep, Grill Me, decision loop, write artifact, coverage check (conversation → plan); close with Requirements fit
-- **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, tick Step Overview + Shared Block + Task Checklist together, verify against R{n}, Closing Exam of the built result
+- **Implement:** `workflow-implement.md` — prepare, execute steps with review gates, tick Step Overview + Shared Block + Task Checklist together, verify against R{n}, write review brief, Closing Exam of the built result
 - **Review:** `workflow-review.md` — scope, load, Skeptic pass (parts + composition), perspective sweep, cross-file consistency, output
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
 - **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop → one Closing Exam
