@@ -97,7 +97,7 @@ Version line restarts at **1.0.0** (not a continuation of 2.x). Full history: [C
 Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
 - No implementation before plan approval.
-- Explicit phases: plan, implement, review, review-loop, complex-task, council.
+- Explicit phases: plan, implement, review, review-loop, complex-task, council, commit-message.
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
 - Token-efficient chat; high-quality plan, review, and council artifacts.
@@ -109,11 +109,12 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | Path | Role |
 |------|------|
 | [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | **SSOT** — always-on policy, quality contract, tech-load protocol, terse communication |
+| `custom_instructions.md` | Optional overlay at repo root — extra instructions to follow when the file exists |
 | [`.github/skills/workflow-*.md`](.github/skills/) | **SSOT** — workflow stages (loaded on `/plan`, `/implement`, etc.) |
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`) |
 | [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
 
@@ -126,20 +127,22 @@ Each concern has exactly one authoritative file under `.github/`. Copilot prompt
 | Concern | SSOT |
 |---------|------|
 | Quality, tech triggers, templates, terse | `.github/copilot-instructions.md` |
+| Optional repo overlay | `custom_instructions.md` (root; skip if missing) |
 | Workflow stages and gates | `.github/skills/workflow-*.md` |
 | Build, CPM, dependencies | `.github/skills/tech-solution.md` |
 | C# / Rust / TUnit / Blazor / SourceGen | respective `.github/skills/tech-*.md` |
 | Copilot user entry | `.github/prompts/` |
 | Cursor user entry | `.cursor/commands/`, `.cursor/skills/` |
 
-Entry points read `copilot-instructions.md` plus one workflow skill. No partial checklists.
+Entry points read `copilot-instructions.md`, `custom_instructions.md` when present, plus one workflow skill. No partial checklists.
 
 ---
 
 ## Configuration precedence
 
 1. [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
-2. Skills loaded per Tech Load Protocol (Section 3) and workflow triggers (Section 6)
+2. `custom_instructions.md` when present (overlay; cannot weaken Section 4)
+3. Skills loaded per Tech Load Protocol (Section 3) and workflow triggers (Section 6)
 
 Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) is a bootstrap only — it does not override SSOT content.
 
@@ -161,6 +164,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `workflow-review-loop.md` | `/review-loop` |
 | `workflow-complex-task.md` | `/complex-task` |
 | `workflow-council.md` | `/council`; Sweep on `/plan` and `/review`; Exam after `/implement` |
+| `workflow-commit-message.md` | `/commit-message`; paste-ready English commit message (`feat`/`fix`/…) for a named scope |
 
 Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
 
@@ -176,6 +180,7 @@ Stages live in workflow skills only. Prompts do not repeat them.
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
 - **Complex-task:** `workflow-complex-task.md` — orchestrates plan → checkpoint → implement/review loop → one Closing Exam
 - **Council:** `workflow-council.md` — five-view pressure-test (Skeptic, Problem-First, Upside, Outsider, Builder); Sweep in plan/review; Lite/Full on `/council`; Exam after implement
+- **Commit-message:** `workflow-commit-message.md` — named scope required, Grill Me if missing, write `commit_message.md` (`feat`/`fix`/… prefix + user-perspective purpose/effect)
 
 Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
 
@@ -188,11 +193,11 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, or `/council` in chat |
+| Slash commands | Type `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, or `/commit-message` in chat |
 | Agent skills | Skills auto-discover via descriptions; each points to `.github/skills/` SSOT |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
-Natural-language triggers (`plan this feature`, `review the PR`, `council this`) work the same as slash commands per `copilot-instructions.md` Section 6.
+Natural-language triggers (`plan this feature`, `review the PR`, `council this`, `commit message for staged`) work the same as slash commands per `copilot-instructions.md` Section 6.
 
 ---
 
@@ -208,6 +213,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 2. Copy [`.cursor/`](.cursor/) and [`AGENTS.md`](AGENTS.md) for Cursor support.
 3. Copy [`COPYRIGHT`](COPYRIGHT) and [`LICENSE`](LICENSE).
 4. Validate paths after copy (`.github/` and `.cursor/` references are relative to repo root).
+5. Optionally add `custom_instructions.md` at the repo root for extra instructions. Do not create it unless you have overlay rules.
 
 ---
 
