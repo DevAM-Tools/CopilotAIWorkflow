@@ -1,6 +1,6 @@
 ---
 name: review
-description: Perform an exhaustive adversarial review (Skeptic: parts and composition) and emit findings using the consolidated template
+description: Adversarial review with associated test analysis and execution (default). Static code-only when user requests reduced scope. Skeptic pass: parts and composition. Use on /review.
 argument-hint: Describe files/features/PR to review
 agent: agent
 ---

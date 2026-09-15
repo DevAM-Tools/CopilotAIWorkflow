@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Perform exhaustive adversarial review of the existing solution. Skeptic pass: defects in the parts and in how the parts interact; hair in the soup. Emit findings using the consolidated template. Use on /review or code review requests.
+description: Adversarial review with associated test analysis and execution (default). Static code-only when user requests reduced scope. Skeptic pass: parts and composition. Use on /review.
 ---
 
 Execute `/review` workflow.

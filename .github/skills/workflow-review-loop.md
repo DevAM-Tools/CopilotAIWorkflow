@@ -32,7 +32,7 @@ For each iteration starting at `1`:
    - Process findings in Priority Action List order.
    - Mark each finding `✅` in the review artifact only after Verify pass and alignment confirmed.
    - Do not skip Cosmetic, Refactoring, or Performance findings unless user explicitly defers them in this session.
-   - Skip implement Stage 5 Exam. Run Stage 4.
+   - Skip implement Stage 5 Exam. Run Stage 4 (extensive **briefing**).
 5. **Increment** — `iteration += 1`; return to step 1.
 
 ## Stage 3 — Stop Conditions
@@ -46,16 +46,16 @@ For each iteration starting at `1`:
 
 - When a review artifact path is provided, resume at first open finding in the latest iteration file.
 - Preserve iteration numbering; next full review writes `review_<slug>_<n+1>.md`.
-- Re-read scope from the artifact Scope section when scope argument is omitted.
+- Re-read scope from the artifact Scope section when scope argument is omitted. Read that file **in full**.
 
 ## Stage 5 — Final Report
 
 - Output review iteration table: path, open Error count, open total count, status.
 - Output implementation status table for every remediated finding ID.
-- Run full build and all tests in optimized/Release configuration. Use Verify/build commands from the loaded tech skill.
+- Run full build and all tests in optimized/Release. Commands from the loaded tech skill.
 - State release verdict from latest review Closing Assessment.
 - List deferred findings with deferral reason when user approved deferral.
-- Use terse chat per Section 2; cite artifact paths only.
+- Chat: artifact paths; do not recap finding bodies.
 
 ### Review Iteration Table
 

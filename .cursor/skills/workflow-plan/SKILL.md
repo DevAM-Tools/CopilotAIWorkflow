@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: Create an implementation plan artifact with user-view requirements and a closing Requirements-fit step. Use on /plan, planning requests, or before implementation without an approved plan.
+description: Create an implementation plan with locked How, Before/After, first-class test cases, and step acceptance. Run requirements first when none exist. Close with a requirements walk and a conversation walk. Use on /plan or before implementation without an approved plan.
 ---
 
 Execute `/plan` workflow.

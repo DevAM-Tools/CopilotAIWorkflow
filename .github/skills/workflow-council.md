@@ -2,7 +2,9 @@
 
 Load on `/council`. Apply `copilot-instructions.md` Sections 2–4. Do not implement. Do not edit code.
 
-Five named views, not job titles. Independent advisors → anonymous peer review (Full/Exam) → chairman. Rule Priority §4.13. Same model as the parent for every subagent.
+Five named views, not job titles. Same agent writes every view, then chairs. Rule Priority §4.13.
+
+❗ **Never spawn subagents or `Task` workers** for advisors, peer review, or Exam. Sequential in this session. Write **Skeptic first**, before other views exist in the artifact, so later views cannot unsay a kill shot. Chairman records clashes.
 
 ## When
 
@@ -16,10 +18,12 @@ Vague question → one clarifier, then proceed.
 
 | Mode | When | How | Artifact |
 |------|------|-----|----------|
-| **Sweep** | `/plan` Stage 2, `/review` Stage 4 | Same agent. No subagents. | none |
-| **Lite** | Plan Decision Loop default; user says `quick`/`lite` | 5 advisors + chairman | `councils/council_<slug>[_<n>].md` |
-| **Full** | `/council` default; security, public API, irreversible | 5 advisors + 5 peer reviews + chairman | same |
-| **Exam** | `/implement` Stage 5; complex-task after Error-clean loop; user says `exam` | Full mechanics unless user says `quick`/`lite`. Skeptic uses Exam addendum. | `councils/council_<slug>-exam[_<n>].md` |
+| **Sweep** | `/plan` Stage 2, `/review` Stage 4 | Same agent. No file. | none |
+| **Lite** | Plan Decision Loop default; user says `quick`/`lite` | 5 views + chairman | `councils/council_<slug>[_<n>].md` |
+| **Full** | `/council` default; security, public API, irreversible | 5 views (longer) + chairman | same |
+| **Exam** | `/implement` Stage 5; complex-task after Error-clean loop; user says `exam` | Full unless user says `quick`/`lite`. Skeptic uses Exam addendum. | `councils/council_<slug>-exam[_<n>].md` |
+
+No anonymous peer-review round. Chairman **Blind spots** = what all five views missed.
 
 ## Views
 
@@ -39,9 +43,9 @@ Outsider gets the framed question only — no Constraint Block, no tech-skill du
 
 ## Exam
 
-Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan R{n} and in-scope code?" Include plan path, every R{n}, review brief path, Implementation Status Table, in-scope paths, latest Step NR review paths. Open brief card links. Break each **How it serves** clause. No steering toward Holds. Do not rubber-stamp.
+Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan R{n}, T{n}, and in-scope code?" Include plan path, requirements path, every R{n} and T{n}, briefing path, Implementation Status Table, in-scope paths, latest Step NR review paths. Open briefing card links. Break each **How it serves** clause. No steering toward Holds. Do not rubber-stamp.
 
-Follow Lite/Full stages with these overlays. Advisors still do not edit.
+Follow Lite/Full stages with these overlays. Do not edit code.
 
 **Skeptic Exam addendum** (mandatory; overrides schema length for Skeptic only):
 
@@ -53,7 +57,7 @@ Follow Lite/Full stages with these overlays. Advisors still do not edit.
 - Do not stop at the first flaw. Kill shots first, then nits that become fatal in combination.
 - Schema (Skeptic in Exam): 400–700 words, no preamble: Position · Argument · Fatal risks (ordered) · Nits · Evidence (path/symbol) · Do this.
 
-Other views keep 150–250 words. Exam Ask:
+Other views keep 150–250 words (Lite: 2–5 bullets each). Exam Ask:
 
 | View | Exam Ask |
 |------|----------|
@@ -63,15 +67,13 @@ Other views keep 150–250 words. Exam Ask:
 | Outsider | Would a first-time user or caller of the built API get this? |
 | Builder | Does `Verify` prove the claim? Name the first command that must fail if it does not hold. |
 
-**Peer review extra (Exam):** Flag any letter that did not cite path/symbol, that accepted a green path without trying to break it, or that treated Skeptic as optional.
-
 **Chairman:** **Holds** · **Does not hold**. Kill shots and §4 violations → Does not hold. Isolated nits that are not fatal and do not violate §4 → risks; still Holds. No "it depends" without Grill Me. Do not emit plan `C{n}`.
 
 Loop status: `done` (Holds) · `exam-fail` (Does not hold) · `grill-me` · `re-council`. Parent implement remediates `exam-fail`, then re-runs Exam as `_<n>`. Cap 2 reruns on the same root cause → blocker.
 
 ## Sweep
 
-From plan and review. No `councils/` file. No peer review.
+From plan and review. No `councils/` file.
 
 Per view: 2–5 bullets. Cite path/symbol for code facts. Empty row → re-run that view.
 
@@ -110,21 +112,21 @@ Do not council a how-to after the choice. Do not Grill Me a rubber-stamp.
 
 **Stop:** no blocking ambiguity · same question would repeat · 3 Decision Loop iterations → Open Questions; user chooses or accepts risk.
 
-## Lite / Full stages
+## Lite / Full / Exam stages
 
-1. **Context** — User text, attachments, plan/review/ADR, in-scope code. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan R{n}, latest reviews.
+Same agent throughout. No `Task`. No parallel advisors.
+
+1. **Context** — User text, attachments, plan/review/ADR, in-scope code. Read attached docs **in full**. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan R{n}/T{n}, latest reviews, briefing.
 2. **Frame** — One neutral prompt: decision, user context, repo constraints/paths, stakes, Constraint Block (omit for Outsider). No steering. Save in artifact. Exam: use the Holds question in **Exam**.
-3. **Advisors** — Spawn all five **in parallel**. Sequential contaminates.
-   - Each: view + framed question + addendum + schema. Lean into the angle. Do not hedge. Exam: attach Skeptic Exam addendum to Skeptic only.
-   - Cursor: `Task` `generalPurpose`, `run_in_background: true`, `model: inherit`, self-contained prompt, no edits/git.
-   - Same model as the parent. Never omit `model`. Never pick a cheaper, faster, or smaller slug.
-   - Copilot / no subagents: sequential; before each: "You have not seen the other advisors." Mark `degraded`. Prefer Cursor for Full and Exam.
-   - Schema (150–250 words, no preamble): Position · Argument · Fatal risk / Extra value · Evidence (path/symbol) · Do this. Exam Skeptic: 400–700 words per Exam addendum.
-4. **Peer review (Full and Exam, not Lite)** — Shuffle A–E; do not default Skeptic=A. Mapping secret until chairman. Five parallel reviewers; framed question + A–E only; no advisor names. Same `Task` settings: `model: inherit`. Each answers (<200 words): strongest letter and why · biggest blind spot · what all five missed · least-evidenced claim. Exam: also the peer-review extra in **Exam**.
-5. **Chairman** — Parent agent. De-anonymize. §4.13. May dissent from the majority; explain. No "it depends" without a recorded user fact — emit Grill Me instead.
-   - Verdict: Agrees · Clashes (do not smooth) · Blind spots (peer-review only, or all missed) · Recommendation (one call) · One thing to do first · Grill Me Follow-ups (`Source: Council`; omit if none) · `C{n}` mapping (omit if not in a plan loop). Exam: Holds / Does not hold per **Exam**; omit `C{n}`.
-6. **Ambiguity loop** — Follow-ups → one Grill Me round (`workflow-plan.md` template). Answers change the fork → re-frame, re-run, `_<n>`. User-only facts still missing → stay in Grill Me. Clear recommendation → `C{n}`, stop. Enforce stop rules above. From plan Decision Loop: return to Reconcile. Exam: `exam-fail` → parent remediates and re-Exams; do not open a plan Decision Loop.
-7. **Output** — `councils/council_<slug>.md`; Exam: `councils/council_<slug>-exam.md`; reruns `_<n>` starting at 2. Slug: lowercase, punctuation/whitespace → `-`. Artifact: framed question, mode, paths/skills, advisors, letter mapping (Full/Exam), peer reviews (Full/Exam), verdict, loop status (`done` / `grill-me` / `re-council` / `exam-fail`). Chat: verdict sections only. No advisor essays. No HTML.
+3. **Advisors** — Write views in this order: Skeptic → Problem-First → Upside → Outsider → Builder. Lean into each angle. Do not hedge. Exam: attach Skeptic Exam addendum to Skeptic only.
+   - Schema Lite: 2–5 bullets per view.
+   - Schema Full: 150–250 words, no preamble: Position · Argument · Fatal risk / Extra value · Evidence (path/symbol) · Do this. Exam Skeptic: 400–700 words per Exam addendum.
+4. **Chairman** — §4.13. May dissent; explain. No "it depends" without a recorded user fact — emit Grill Me instead.
+   - Verdict: Agrees · Clashes (do not smooth) · Blind spots (what all five missed) · Recommendation (one call) · One thing to do first · Grill Me Follow-ups (`Source: Council`; omit if none) · `C{n}` mapping (omit if not in a plan loop). Exam: Holds / Does not hold per **Exam**; omit `C{n}`.
+5. **Ambiguity loop** — Follow-ups → one Grill Me round (`workflow-plan.md` template). Answers change the fork → re-frame, re-run, `_<n>`. User-only facts still missing → stay in Grill Me. Clear recommendation → `C{n}`, stop. From plan Decision Loop: return to Reconcile. Exam: `exam-fail` → parent remediates and re-Exams; do not open a plan Decision Loop.
+6. **Output** — `councils/council_<slug>.md`; Exam: `councils/council_<slug>-exam.md`; reruns `_<n>` starting at 2. Slug: lowercase, punctuation/whitespace → `-`. Artifact: framed question, mode, paths/skills, five views, verdict, loop status (`done` / `grill-me` / `re-council` / `exam-fail`). ❗ Write verdicts at full fidelity in chat and in the artifact. Advisor text stays in the artifact. Chat: verdict sections only. No advisor essays. No HTML.
+
+This is structured self-critique, not an independent jury. Compensate by writing Skeptic first and by citing path/symbol for every code claim.
 
 ## Completion
 

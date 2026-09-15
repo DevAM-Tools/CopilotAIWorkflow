@@ -16,6 +16,15 @@ Load when `Directory.Build.props`, `Directory.Build.targets`, `Directory.Package
 - ❗Group `global using` directives by category; separate groups with a comment header.
 - Order groups: `System.*` → `Microsoft.*` → third-party → internal.
 
+```csharp
+// System
+global using System;
+global using System.Threading;
+
+// Microsoft
+global using Microsoft.Extensions.Logging;
+```
+
 ## Directory.Build.props
 
 ### Target Framework and Language
@@ -43,9 +52,16 @@ Generator projects only:
 | `EnforceCodeStyleInBuild` | `true` |
 | `AnalysisLevel` | `10-recommended` |
 | `GenerateDocumentationFile` | `true` |
-| `NoWarn` | omit globally; user approval only — document reason and scope |
+| `NoWarn` | omit globally; user approval only — template below |
 | `WarningsAsErrors` | optional; specific warning codes only |
-| `WarningsNotAsErrors` | user approval only — document reason and scope |
+| `WarningsNotAsErrors` | user approval only — same template |
+
+When a warning is hidden in MSBuild, keep the reason next to the property:
+
+```xml
+<!-- Reason: {why the warning is inapplicable}. Scope: this project. IDs: CS1591. User approved. -->
+<NoWarn>$(NoWarn);CS1591</NoWarn>
+```
 
 ### Build Behavior
 
@@ -102,8 +118,25 @@ Intent: Section 4.7. Never add a dependency without user approval.
 
 - Never add `PackageReference`, `PackageVersion`, or `ProjectReference` without user approval.
 - Ask in Grill-Me when plan may need new dependencies.
-- Present: package id, purpose, license (`MIT` / `Apache-2.0` / BSD-like), alternatives.
+- Present: package id, **what it does**, **why it is needed**, license (`MIT` / `Apache-2.0` / BSD-like), alternatives.
 - After approval: add `PackageVersion` first, then `PackageReference` without `Version`.
+
+```xml
+<!-- Directory.Packages.props -->
+<PackageVersion Include="TUnit" Version="1.*" />
+<!-- Project .csproj -->
+<PackageReference Include="TUnit" />
+```
+
+## Commands
+
+```bash
+dotnet build CopilotAIWorkflow.slnx -c Release
+dotnet test CopilotAIWorkflow.slnx -c Release --no-build
+dotnet pack path/Proj.csproj -c Release
+```
+
+Do not add a wrapper script without approval. File-in-use during build: concurrent agent (Section 4.14).
 
 ## Source File Copyright Header
 
