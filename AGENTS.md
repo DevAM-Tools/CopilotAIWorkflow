@@ -6,17 +6,21 @@ Structured agent workflow with **single source of truth** in `.github/`. Cursor-
 
 | Concern | Location |
 |---------|----------|
-| Always-on policy, quality contract, tech triggers | [`.github/copilot-instructions.md`](.github/copilot-instructions.md) |
+| Always-on policy, quality contract, tech triggers, terms | [`.github/copilot-instructions.md`](.github/copilot-instructions.md) |
 | Optional overlay (skip if missing) | `custom_instructions.md` at repo root |
-| Workflow stages (`/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`) | [`.github/skills/workflow-*.md`](.github/skills/) |
-| Technology rules (C#, Rust, TUnit, Blazor, SourceGen, build) | [`.github/skills/tech-*.md`](.github/skills/) |
+| Workflow stages | [`.github/skills/workflow-*.md`](.github/skills/) |
+| Technology rules | [`.github/skills/tech-*.md`](.github/skills/) |
+
+Workflows: `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`.
+
+Tech: C#, Rust, Python, tests (`tech-test.md` plus TUnit / pytest / Rust / Playwright), Web UI (`tech-web.md`), Blazor, SourceGen, build.
 
 ## Cursor integration
 
 | Mechanism | Path | Role |
 |-----------|------|------|
 | Always-on rule | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Bootstrap + SSOT paths |
-| Slash commands | [`.cursor/commands/`](.cursor/commands/) | `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message` |
+| Slash commands | [`.cursor/commands/`](.cursor/commands/) | Same names as workflows above |
 | Agent skills | [`.cursor/skills/`](.cursor/skills/) | Discovery wrappers → `.github/skills/` |
 
 ## GitHub Copilot integration

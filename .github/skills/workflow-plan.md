@@ -2,7 +2,7 @@
 
 Load on `/plan`. Apply `copilot-instructions.md` Sections 2–4.
 
-Plans are for **human acceptance** and for a **weaker executing agent**. Before/After, locked `How`, named test cases, and step acceptance criteria are the handoff. Do not treat existing files under `plans/` as style examples unless the user points at one. Do not compress step `How`, Requirements, or Requirements-fit.
+Plans are for **human acceptance** and for a **weaker executing agent**. Before/After, locked `How`, test **content** (`TEST{n}`), and step acceptance criteria are the handoff. Do not treat existing files under `plans/` as style examples unless the user points at one. Do not compress step `How`, Test case **Content**, or Requirements-fit. Do not copy the requirements table into the plan.
 
 ## Stage Order
 
@@ -17,9 +17,10 @@ Plans are for **human acceptance** and for a **weaker executing agent**. Before/
 
 ## Stage 0 — Requirements
 
-- If a requirements artifact, attached doc, or explicit list already exists: **read it in full** and use it. Do not rewrite outcomes that are already clear.
-- Else execute `workflow-requirements.md` (write `requirements/req_<slug>.md`), then continue.
-- Carry `R{n}` into this plan. Steps do **not** cite requirement IDs in `How`. Tracking happens by **running Done-when at step close** and at Requirements-fit.
+- If a requirements file already exists (user path, attached workspace doc, or `requirements/req_<slug>.md`): **read it in full** and use it. Do not rewrite outcomes that are already clear. That file is the high-level **user-view** system description (`workflow-requirements.md`). Do not turn it into a task list in the plan.
+- Else execute `workflow-requirements.md` (write `requirements/req_<slug>.md` from an explicit list without reinventing, or run the full requirements workflow), then continue.
+- The plan **links** that file. It does **not** copy requirement tables or Done-when text. Section 4.6: every file reference is a clickable relative Markdown link (from `plans/`, or the user-given path). Bare backticks are not enough.
+- Map every `REQ{n}` that has Done-when in Target Solution and Coverage. Cite other `REQ{n}` when a coverage row maps to them. Steps do **not** cite `REQ{n}` in `How`. Tick `Met` in the **requirements file** on those Done-when rows when the check runs (step close and Requirements-fit).
 
 ## Stage 1 — Gather Context
 
@@ -28,7 +29,7 @@ Plans are for **human acceptance** and for a **weaker executing agent**. Before/
 - Enumerate all affected files before planning.
 - Run Tech Load Protocol per `copilot-instructions.md` Section 3.
 - Identify interface candidates, hot paths, and (for web UI) Playwright journeys.
-- Build a test-case list (Stage 6 Test cases). Apply `tech-test.md`.
+- Build test **content** (Stage 6 Test cases). Apply `tech-test.md`.
 - Identify public API surface when this is a library or other public contract.
 
 ## Stage 2 — Perspective Sweep
@@ -46,9 +47,9 @@ Include unresolved Sweep/Council follow-ups. Tag `Source`. Council candidates �
 Cover every topic before finalizing scope:
 
 - functional outcomes and **concrete** acceptance criteria (not “it builds”)
-- named test cases: in / out; edges; time budget (`tech-test.md`)
+- test **content** (minimum the plan must cover): important scenarios; edges; special constellations; contradictions; gaps; what is out; time budget (`tech-test.md`). Class and Layer may be named. Test code may appear later in the plan; agree content here.
 - public API snippet + usage when a public surface exists
-- web UI: load per Section 3 (`tech-web.md`, `tech-playwright.md`, `tech-test.md`, stack UI skill); dark mode (other themes out of scope); responsive behavior; journeys; debug story
+- web UI: load per Section 3 (`tech-web.md`, `tech-playwright.md`, `tech-test.md`, stack UI skill); dark mode (other themes out of scope); mandatory responsive layout and locked breakpoints (`tech-web.md`); journeys; debug story
 - performance and allocations (hot paths, budgets) — performance is a feature
 - edge cases and error handling
 - security boundaries and STRIDE
@@ -89,12 +90,11 @@ Grill Me ↔ Council per `workflow-council.md` until no blocking fork. Lite defa
 - English (Section 4.6).
 - Slug: lowercase, punctuation/whitespace → `-`, collapse `-`, trim, fallback `task`.
 - Step Overview at top. Status starts `⬜`.
-- Link or copy Requirements (User View) next. Link to `requirements/req_<slug>.md`. Copy a short table only if the plan must stand alone.
-- Map every `R{n}` in Target Solution (design completeness). Unmapped `R{n}` = incomplete. Extra design with no `R{n}`: justify or cut. **Do not** repeat those IDs inside step `How`.
-- Test cases are first-class (section + checklist rows). Name behaviors, error paths, boundaries, concurrency, and security — not only test file names. An executing agent must be able to implement them as steps.
-- Write Requirements as user-observable outcomes with a Done-when check. Not slogans. Not implementation tasks. A green build is not an acceptance criterion.
-- End with Requirements fit, then its Step NR.
-- Record `Loaded skills:` (include `workflow-council.md` and `tech-test.md` when tests exist), Sweep table, council paths, Decision Loop count, step dependencies. Leave Coverage for Stage 7.
+- Next: Requirements — **link only**. Real Markdown link to the Stage 0 file. Do not paste requirement tables.
+- Map every `REQ{n}` that has Done-when in Target Solution (design completeness). Unmapped = incomplete. Extra design with no matching `REQ{n}`: justify or cut. Do not restate full requirement text here. **Do not** cite `REQ{n}` inside step `How`.
+- Test cases are first-class **content** (index + `TEST{n}` cards). Cover everything **important** in the plan. Extra tests at implement time are allowed. An executing agent must be able to prove each card without inventing the scenario.
+- End with Requirements fit, then its Step `{n}R`.
+- Record `Loaded skills:` (include `workflow-council.md` and `tech-test.md` when tests exist), Sweep table, council paths as Section 4.6 links, Decision Loop count, step dependencies. Leave Coverage for Stage 7. Every file named in the plan (Context, Where, Coverage, Target Solution) is a clickable relative link (Section 4.6).
 - Every step needs a fully specified `How` and Before/After (Shared Block below).
 - Do not present the plan for approval. Run Stage 7.
 
@@ -107,7 +107,7 @@ Narrow table. Experience lives in the step block, not as an extra column.
 |------|--------|----------|
 | Step 1 — {title} | ⬜ | {one sentence} |
 | Step 1R — Review Step 1 | ⬜ | Zero Error findings; iterate until clean |
-| Step {N} — Requirements fit | ⬜ | Every R{n} met from the user view |
+| Step {N} — Requirements fit | ⬜ | Every REQ{n} with Done-when Met |
 | Step {N}R — Review Step {N} | ⬜ | Zero Error findings; iterate until clean |
 ```
 
@@ -116,7 +116,7 @@ Narrow table. Experience lives in the step block, not as an extra column.
 Field order: `What` → `Why` → `How` → `Experience` → `Acceptance` → `Tests` → `[Public API]` → `[Size]` → `[Context]` → `[Where]` → `Verify` → `Debug` → `[If it fails]`.
 
 Always require `What`, `Why`, `How`, `Experience`, `Acceptance`, `Verify`.
-Require `Tests` when the step ships behavior (name `T{n}` cases this step adds or runs).
+Require `Tests` when the step ships behavior (cite `TEST{n}` this step adds or runs; **Content** lives on the card).
 Require `Public API` when the step ships or changes a public surface.
 Require `Size` when the step may exceed the soft budget (see Step Rules).
 Omit `Context` only when neither constraints nor sources exist. Omit `Where` when no file is touched.
@@ -128,8 +128,9 @@ Require `Debug` so the executing agent can probe a red `Verify` (command, Playwr
 ❗Write `How` exhaustively: types, items, visibility, signatures, parameters, return values, call-site edits, validation, error paths, control flow, data flow, thread-safety / performance / security constraints, prerequisite state, decision rationale, and important edge cases.
 ❗Include fenced **Before** and **After** in every step `How` — current code, then Target Solution shape (real signatures and key bodies); anchor with path/symbol. Not stubs, not pseudocode-only, not an intermediate shape later steps will replace. New file: After only. Requirements-fit: skip unless a gap needs a fix.
 ❗Cite a concrete source in `Context` when an external reference exists.
+Test code in `How` or on a `TEST{n}` card is allowed. It does not replace Test case **Content**.
 
-`Where`: path, approximate lines, symbol. Mark `primary` (create/rewrite) or `call-site` or `additive` (append-only).
+`Where`: clickable relative Markdown link (Section 4.6), approximate lines, symbol. Mark `primary` (create/rewrite) or `call-site` or `additive` (append-only).
 `Verify`: exact command in optimized/Release per loaded tech skill, plus expected result.
 `Experience`: what a person can try after this step, what they should see, how to try it, and what is **not yet** true.
 
@@ -147,7 +148,7 @@ Not yet: …
 ### Acceptance
 - [ ] {observable check for this step — may be deeper than R-level}
 ### Tests
-- T{n} {case} — {in this step: add | run}
+- TEST{n} {short name} — {in this step: add | run}
 ### Public API
 ### Size
 Prod files: {n} · ~LOC: {n} (tests excluded) · over budget because: {or n/a}
@@ -165,55 +166,77 @@ Collision: other agents locking build/test?
 ## Plan Structure
 
 1. Step Overview
-2. Requirements (User View) — table or link to `requirements/req_<slug>.md`
-3. Test cases (first-class)
+2. Requirements — Markdown link to the requirements file (no copied table)
+3. Test cases (index + content cards)
 4. Summary / Context Anchor (include Coverage table)
 5. Target Solution (Vision) — include Public API snippet when applicable
 6. Phases (optional; >10 steps or multiple areas)
 7. Slices
-8. Steps (Shared Block; last = Requirements fit + NR)
+8. Steps (Shared Block; last = Requirements fit + `{n}R`)
 9. Edge Cases and Risks
 10. Decisions & Trade-offs (`C{n}`; omit when none)
 11. Open Questions
 12. Closing Summary
-13. Task Checklist (Step N, tests that are their own steps, Step NR; include Requirements fit)
+13. Task Checklist (Step N, tests that are their own steps, Step `{n}R`; include Requirements fit)
 
-## Requirements (User View)
+## Requirements
 
 ```markdown
-## Requirements (User View)
+## Requirements
 
-Source: {path or "inline"}
-
-| ID | Requirement | Done when | Met |
-|----|-------------|-----------|-----|
-| R1 | {observable user outcome} | {check a later agent can execute} | ⬜ |
+Source: [requirements/req_<slug>.md](../requirements/req_<slug>.md)
 ```
 
-- Imperative, testable. One outcome per `R{n}`.
-- Fill `Met` only when Done-when **ran** (step close or Requirements-fit). Start `⬜`.
-- Reject the plan when an `R{n}` cannot be observed by a user.
-- Step `How` does not say “implements R3”. At step close the agent re-reads this table and ticks rows whose Done-when now holds.
+- Use the real relative (or user-given) path. The label should match the file name. Do not paste requirement tables.
+- `Met` lives in the requirements file on every `REQ{n}` that has Done-when. Fill it only when Done-when **ran**. Start `⬜` there.
+- Reject the plan when a `REQ{n}` with Done-when in the linked file cannot be observed by a user.
+- Step `How` does not say “implements REQ12”. At step close the agent re-reads the **linked** file and ticks rows whose Done-when now holds.
 
 ## Test cases
 
-First-class. The implementing agent can add or run each row as part of a step (or a dedicated test step).
+First-class **content**. The cards are the **minimum** the implementing agent must prove. Cover everything important here (strategy classes that apply, plus content-level edges, special constellations, contradictions, and gaps). Extra tests at implement time are allowed and are not scope creep unless they contradict agreed Out.
+
+Index (narrow). Details live in the cards, not extra columns.
 
 ```markdown
 ## Test cases
 
-| ID | Case | Kind | Step | Status |
-|----|------|------|------|--------|
-| T1 | {behavior, including edge} | unit · error · boundary · concurrency · UI | Step 2 | ⬜ |
+| ID | Case | Step | Status |
+|----|------|------|--------|
+| TEST1 | {short name} | Step 2 | ⬜ |
 ```
 
-Kind stays short so the table remains narrow. Details belong in the step `Tests` / `How`.
-Exhaustive = the **classes** in `tech-test.md`, not every integer. Keep the suite fast.
+Every `TEST{n}` needs a card. **Content** is required. **Class** and **Layer** may be named. Test code may follow; it does not replace Content.
+
+```markdown
+### TEST{n} — {short name}
+
+- **Class:** happy · error · boundary · collection · absence · concurrency · trust-boundary
+- **Layer:** unit · UI
+- **Content:** {domain scenario: what is set up, what happens, what must be observable. Name the edges, special constellations, contradictions, or gaps this case exists to catch when they apply.}
+- **Out:** {what this case does not cover}
+```
+
+Omit **Class**, **Layer**, or **Out** when they add nothing. Do not omit **Content**. Do not use Class/Layer tags, a test file name, or a method name as the only description.
+
+Accept:
+
+```markdown
+### TEST1 — Duplicate export name is rejected
+
+- **Class:** error
+- **Layer:** UI
+- **Content:** An export named Report already exists. The user submits Report again. A duplicate-name error is visible and the list still has one row. This catches silent overwrite versus the uniqueness rule.
+```
+
+Reject as the whole card: `TEST1 — error · UI` · `TEST1 — ExportFormTests.cs` · `TEST1 — add tests`.
+
+Exhaustive = the **classes** in `tech-test.md` plus named content (edges, constellations, contradictions, gaps), not every integer. Keep the suite fast. An applicable class with no `TEST{n}` and no Out = gap.
 
 ## Target Solution (Vision)
 
 - Concrete end-state: types, files, APIs, data flow, invariants, algorithms. Not a slogan.
-- Map every `R{n}` to a design element here (completeness). Steps then apply this shape.
+- Map every `REQ{n}` that has Done-when to a design element here (completeness). Do not paste Done-when from the requirements file. Steps then apply this shape.
 - SSOT for final file shape. A primary-file `After` that differs from this section is an incomplete plan.
 - Do not use step order here.
 
@@ -271,24 +294,24 @@ Still required:
 
 Run after the plan file is written. **Walk the plan twice.** Patch until both walks are clean. Do not enter Completion with gaps.
 
-1. **Requirements walk** — Re-read the requirements artifact (or User View table) **in full**. Every `R{n}` and every `T{n}` must land in Target Solution and in a step `How` / `Tests` / `Acceptance`. Unmapped = gap.
-2. **Conversation walk** — Re-read the conversation, Grill Me Q/A, Sweep, council, and attached docs **in full**, then the **entire** written plan. Every relevant user ask, constraint, non-goal, named type/path/command, accepted proposal, and rejected option with leftover constraint must land somewhere. Unmapped = gap. “Implied” without a citation = gap.
+1. **Requirements walk** — Re-read the **linked** requirements file **in full**. Do not treat anything in the plan as a copy of those tables. Every `REQ{n}` that has Done-when, and every `TEST{n}`, must land in Target Solution and in a step `How` / `Tests` / `Acceptance`. A `TEST{n}` without **Content** = gap. An applicable `tech-test.md` class with no `TEST{n}` and no Out = gap. Unmapped = gap.
+2. **Conversation walk** — Re-read the conversation, Grill Me Q/A, Sweep, council, and attached docs **in full**, then the **entire** written plan. Every relevant user ask, constraint, non-goal, named type/path/command, accepted proposal, rejected option with leftover constraint, and named edge / constellation / contradiction / gap must land somewhere (`REQ{n}`, `TEST{n}` **Content**, Out, `C{n}`, or out of scope). Unmapped = gap. “Implied” without a citation = gap.
 
-Include every `R{n}`, every `T{n}`, and every Grill Me answer as a row. Record dropped items with reason. Write both tables into Context Anchor. Re-run this stage after any patch.
+Include every `REQ{n}` with Done-when, every `TEST{n}`, and every Grill Me answer as a row. Record dropped items with reason. Write both tables into Context Anchor. Re-run this stage after any patch.
 
 ```markdown
 **Coverage (requirements → plan):**
 
 | ID | Lands in |
 |----|----------|
-| R1 | Target Solution · Step 2 Acceptance |
-| T1 | Step 2 Tests |
+| REQ12 | Target Solution · Step 2 Acceptance |
+| TEST1 | Step 2 Tests · TEST1 Content |
 
 **Coverage (conversation → plan):**
 
 | Item | Source | Lands in |
 |------|--------|----------|
-| {one-line item} | User · Q{n} · Sweep · Council · Doc | R{n} · T{n} · Step {n} · C{n} · Out of scope ({reason}) |
+| {one-line item} | User · Q{n} · Sweep · Council · Doc | REQ12 · TEST1 · Step {n} · C{n} · Out of scope ({reason}) |
 ```
 
 ## Requirements Fit (last step)
@@ -297,30 +320,30 @@ Include every `R{n}`, every `T{n}`, and every Grill Me answer as a row. Record d
 ## Step {N} - Requirements fit
 Status: ⬜ Depends on all prior steps
 ### What
-Walk the built solution as a user. Check every R{n} and every T{n}.
+Walk the built solution as a user. Check every REQ{n} with Done-when and every TEST{n}.
 ### Why
 A green build can still miss the user outcome.
 ### How
-- Re-read Requirements (User View) and Test cases. Ignore implementer intent.
-- For each R{n}: run Done-when. Cite evidence (command, UI, API, file, output).
-- For each T{n}: confirm the case exists and can fail.
+- Re-read the linked requirements file and Test cases. Ignore implementer intent.
+- For each REQ{n} with Done-when: run Done-when. Cite evidence (command, UI, API, file, output). Tick Met in the requirements file.
+- For each TEST{n}: confirm the Content exists as a test that can fail (extra tests beyond TEST{n} are fine).
 - Mark Met / Status ✅ only when the check holds with no caveats.
 - Any ❌ or leftover ⬜ = blocker.
 - Skip Before/After unless a gap needs a code fix; then stop and file the gap.
 ### Experience
 A person can execute every Done-when without reading the source.
 ### Acceptance
-- [ ] Every R{n} Met = ✅
-- [ ] Every T{n} Status = ✅
+- [ ] Every REQ{n} with Done-when Met = ✅
+- [ ] Every TEST{n} Status = ✅
 ### Verify
-Every R{n} Met = ✅. Every T{n} ✅. Zero leftover ⬜.
+Every REQ{n} with Done-when Met = ✅. Every TEST{n} ✅. Zero leftover ⬜.
 ### Debug
 Re-run the failing Done-when in isolation. Check agent collision before redesign.
 ```
 
 ## Checklist Rules
 
-- Flat ordered list: Step N, any dedicated test steps, Step NR. Include Requirements fit.
+- Flat ordered list: Step N, any dedicated test steps, Step `{n}R`. Include Requirements fit.
 - Tick Status on every transition on **all three** surfaces: Step Overview, Shared Block, Task Checklist.
 - Zero Error findings at each review gate before the next step.
 

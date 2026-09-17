@@ -1,6 +1,6 @@
 ---
 name: workflow-illustrate
-description: Build a self-contained interactive HTML illustration. Use on /illustrate.
+description: Build an HTML illustration. Use on /illustrate. Ask before vendoring libraries.
 ---
 
 Execute `/illustrate` workflow.

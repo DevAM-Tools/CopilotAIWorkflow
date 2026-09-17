@@ -1,6 +1,6 @@
 ---
 name: illustrate
-description: Build a self-contained interactive HTML illustration. Use on /illustrate.
+description: Build an HTML illustration. Use on /illustrate. Ask before vendoring libraries.
 argument-hint: Name the item of interest (plan, requirements, API, concept)
 agent: agent
 ---

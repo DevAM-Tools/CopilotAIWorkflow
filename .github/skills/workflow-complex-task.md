@@ -38,12 +38,16 @@ Load on `/complex-task`. Orchestrates requirements (if needed), plan, implement,
 
 ## Stage 5 — Stop Conditions
 
-- Preview success: latest review iteration has zero Error findings per step, every scoped step and `T{n}` `✅`.
+- Preview success: latest review iteration has zero Error findings per step, every scoped step and `TEST{n}` `✅`.
 - Require full-scope `reviews/briefing_<slug>.md`. Rewrite if missing or step-only. Legacy `reviews/brief_<slug>.md` may be read; new writes use `briefing_`.
 - Then run one **Exam** (`workflow-council.md` Exam mode) on the full built scope. Same agent; no subagents.
 - Exam **Holds** → Success.
 - Exam `exam-fail` → return to Stage 4 for those kill shots; then re-Exam `_<n>`.
-- Defer Cosmetic, Refactoring, and Performance findings.
+- Defer Cosmetic, Refactoring, and Performance findings. This is intentional: `/complex-task`
+  is a planned delivery loop. Step `{n}R` gates on `/review` Ready (zero Errors). Nits stay
+  deferred so the plan can finish and Exam can run. They are not this workflow’s job.
+  `/review-loop` is the full-clean loop (zero findings in all buckets unless deferred).
+  Do not copy that default here.
 - Block when same Error root cause persists after two remediation attempts in same step scope, or the same Exam root fails twice.
 
 ## Stage 6 — Resume
@@ -54,9 +58,9 @@ Load on `/complex-task`. Orchestrates requirements (if needed), plan, implement,
 
 ## Stage 7 — Final Report
 
-- Output implementation status table for all steps, `T{n}` rows, gates, Briefing, and Closing Exam.
+- Output implementation status table for all steps, `TEST{n}` rows, gates, Briefing, and Closing Exam.
 - Output review iteration table: path, error count, status.
 - Cite the briefing and the Exam artifact. Goal verdict requires Exam **Holds**.
 - List deferred Cosmetic, Refactoring, Performance findings.
-- State goal-achievement verdict vs every `R{n}`, every `T{n}`, and plan done criteria.
+- State goal-achievement verdict vs every `REQ{n}` with Done-when, every `TEST{n}`, and plan done criteria.
 - Chat: artifact paths; do not recap bodies.

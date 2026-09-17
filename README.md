@@ -100,7 +100,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 - Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate.
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
-- Plans lock the implementation (Before/After) so a weaker agent can execute them; chat may use natural prose.
+- Plans lock the implementation (Before/After) so a weaker agent can execute them; reviews lock the fix the same way (`How` + Problem/Fix). Chat may use natural prose.
 
 ---
 
@@ -156,40 +156,31 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-rust.md` | `*.rs` / `Cargo.toml` / `Cargo.lock` in scope |
 | `tech-python.md` | `*.py` / `pyproject.toml` / `*.pyi` in scope — strict typing |
 | `tech-test.md` | Tests or production APIs in scope — case design |
-| `tech-tunit.md` | C# tests; also C# production review (ExitPointGaps) |
+| `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review (ExitPointGaps) |
 | `tech-pytest.md` | pytest files in scope |
 | `tech-rust-test.md` | Rust unit/integration tests |
-| `tech-web.md` | Product web UI (plan time, even before HTML files) — layout, CSS reuse, a11y |
-| `tech-playwright.md` | Web UI (plan time, even before spec files) — test and debug |
+| `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints, CSS/JS placement, a11y |
+| `tech-playwright.md` | Web UI (plan time, even before spec files) — test and debug; create-time illustration verify |
 | `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` — Blazor mechanism on top of `tech-web.md` |
 | `tech-sourcegen.md` | Generator code in scope |
-| `tech-solution.md` | Build files, `.csproj`, `GlobalUsings.cs` |
-| `workflow-requirements.md` | `/requirements`; also before `/plan` when none exist |
+| `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs` |
+| `workflow-requirements.md` | `/requirements`; `REQ{n}` user-view behavior and properties; also before `/plan` when none exist |
 | `workflow-plan.md` | `/plan` |
 | `workflow-implement.md` | `/implement`; extensive briefing; Closing Exam |
-| `workflow-review.md` | `/review`; Skeptic pass (parts + composition); **default** runs associated tests; static code-only on explicit reduced scope |
-| `workflow-review-loop.md` | `/review-loop` |
-| `workflow-complex-task.md` | `/complex-task` |
-| `workflow-council.md` | `/council`; Sweep on `/plan` and `/review`; Exam after `/implement`; same agent, no subagents |
-| `workflow-commit-message.md` | `/commit-message`; specific message (names, before/after, examples); changelog on release |
-| `workflow-illustrate.md` | `/illustrate`; self-contained HTML |
+| `workflow-review.md` | `/review`; file mode default; `chat only` opt-in; public-release verdict |
+| `workflow-review-loop.md` | `/review-loop`; default full clean (all buckets) |
+| `workflow-complex-task.md` | `/complex-task`; defers nits; Exam after Error-clean |
+| `workflow-council.md` | `/council`; Sweep on `/plan` (five views); `/review` uses Skeptic + Outsider only |
+| `workflow-commit-message.md` | `/commit-message`; complete message; git after the file is out of scope |
+| `workflow-illustrate.md` | `/illustrate`; HTML zip; ask before vendoring libraries into `vendor/` |
 
 Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
 
-Existing files under `plans/` are historical unless the user names one. Follow `workflow-plan.md` templates, not those artifacts.
+Always-on policy: [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+(terms in §5.1). Skills load only on trigger. Do not record instruction line
+counts here.
 
-## Instruction size
-
-Always-on tokens are the expensive ones (`copilot-instructions.md`). Skills load only on trigger. After this rewrite (non-blank lines):
-
-| Layer | Lines |
-|-------|-------|
-| Always-on `copilot-instructions.md` | ~193 |
-| Workflow skills | ~941 |
-| Tech skills | ~679 |
-| **SSOT total** | **~1813** |
-
-When changing instructions, report the new always-on and total line counts in the completion status.
+Existing files under `plans/` or `reviews/` are historical unless the user names one. Follow the matching workflow-skill templates, not those artifacts.
 
 ---
 
@@ -197,15 +188,21 @@ When changing instructions, report the new always-on and total line counts in th
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Requirements:** `workflow-requirements.md` — intention, observable `R{n}`, concrete acceptance criteria; skip reinventing when the user already supplied them
-- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After, first-class `T{n}` test cases, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
-- **Implement:** `workflow-implement.md` — read the plan in full, execute steps and test cases, verify requirements at step close, extensive **briefing**, Closing Exam
-- **Review:** `workflow-review.md` — Skeptic pass (parts + composition); **default** analyzes and runs associated tests; static code-only on explicit reduced scope
-- **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until clean (no plan required)
+- **Requirements:** `workflow-requirements.md` — required behavior and expected properties (`REQ{n}`); skip reinventing when the user already supplied them
+- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After, link requirements (do not copy the REQ table; Section 4.6 clickable relative links for every file), first-class `TEST{n}` test **content**, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
+- **Implement:** `workflow-implement.md` — read the plan in full, execute steps and `TEST{n}` content, verify requirements at step close (tick `Met` in the linked requirements file), extensive **briefing** (file cards are Section 4.6 links), Closing Exam
+- **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
+  public-release verdict for the **scope**; ignore prior `reviews/review_*.md`
+  unless named; Section 3 skill load; locked finding `How`; Section 4.6 links;
+  **default** runs tests and writes `reviews/review_<slug>_<n>.md`; static on
+  explicit reduced scope; `chat only` / `ohne Review-Datei` opt-in
+- **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until zero findings in all buckets unless deferred (no plan required); `errors only` on request
 - **Complex-task:** `workflow-complex-task.md` — requirements (if needed) → plan → checkpoint → implement/review loop → one Closing Exam
-- **Council:** `workflow-council.md` — five views in the **same agent** (no subagents); Sweep in plan/review; Lite/Full on `/council`; Exam after implement
-- **Commit-message:** `workflow-commit-message.md` — named scope, specific message (names, before/after, examples) in `commit_message.md`; `CHANGELOG.md` when the scope is a release
-- **Illustrate:** `workflow-illustrate.md` — self-contained HTML; slideshows include overview + navigation; 3D via allowlisted three.js / Babylon.js; Playwright can verify
+- **Council:** `workflow-council.md` — five views in the **same agent** (no subagents); Sweep in `/plan`; Lite/Full on `/council`; Exam after implement
+- **Commit-message:** `workflow-commit-message.md` — named scope, complete specific message (names, before/after, examples) in `commit_message.md`; `CHANGELOG.md` when the scope is a release; git after the file is out of scope
+- **Illustrate:** `workflow-illustrate.md` — HTML zip, no build; asks before
+  vendoring allowlisted libraries (download into `vendor/`, relative paths,
+  offline); Playwright verifies at create time only
 
 Review gates and checklist updates: `workflow-implement.md` Stage 2 and plan artifact Task Checklist.
 

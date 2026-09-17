@@ -399,3 +399,9 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+/plans/
+/councils/
+/reviews/
+
+# Temporary local experiments (Blazor Playwright demo, etc.)
+/tmp/

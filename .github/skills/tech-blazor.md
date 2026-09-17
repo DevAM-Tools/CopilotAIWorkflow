@@ -23,7 +23,7 @@ Load when `.razor`, `.razor.cs`, or `.razor.css` files are in scope. Extends `te
 
 ```csharp
 [Parameter, EditorRequired]
-public string Title { get; set; } = "";
+public required string Title { get; set; }
 
 [Parameter]
 public EventCallback<string> TitleChanged { get; set; }
@@ -63,7 +63,7 @@ await Task.Delay(TimeSpan.FromSeconds(5), _cts.Token);
 
 ## CSS
 
-Shared look, reuse, responsive layout: `tech-web.md`.
+Shared look, locked breakpoints, CSS layers, JS vs CSS: `tech-web.md`.
 
 - Put component-only rules in `ComponentName.razor.css`.
 - Use `::deep` only when a parent must style a child it owns visually. Otherwise add a shared class in app/layout CSS.
@@ -72,7 +72,7 @@ Shared look, reuse, responsive layout: `tech-web.md`.
 
 - Component logic: bUnit (render states, parameters, user events, auth visibility, error boundaries).
 - Code-behind, view-models, services: TUnit; exit-point gate: `tech-tunit.md`.
-- Page journeys and UI debug: `tech-playwright.md` (`TUnit.Playwright` in `{App}.E2E`).
+- Page journeys and UI debug: `tech-playwright.md` (`TUnit.Playwright` in `{App}.UiTest`).
 - Case design: `tech-test.md`.
 
 ## Commands
@@ -81,4 +81,4 @@ Shared look, reuse, responsive layout: `tech-web.md`.
 dotnet test path/App.Tests.csproj -c Release
 ```
 
-E2E commands: `tech-playwright.md`.
+UI test commands: `tech-playwright.md`.

@@ -114,7 +114,28 @@ Intent: Section 4.7. Never add a crate without user approval.
 - 4-space indent; no tabs. Let `rustfmt` apply.
 - Implement `Drop` for resource owners. No manual forget except documented intent.
 - Decompose complex functions into focused helpers.
-- UTF-8 for CLI I/O.
+- ❗ Executables with console I/O: set UTF-8 **once** at process start (Section 4.7). Required on Windows. No extra crate. Call before any print.
+
+```rust
+#[cfg(windows)]
+{
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn SetConsoleOutputCP(code_page: u32) -> i32;
+        fn SetConsoleCP(code_page: u32) -> i32;
+    }
+
+    const CP_UTF8: u32 = 65001;
+    // SAFETY: SetConsoleOutputCP / SetConsoleCP are Windows kernel32 APIs.
+    // Both take a u32 code page; 65001 is CP_UTF8. No pointers, aliases, or
+    // lifetimes. Calls are valid on Windows. Return is ignored so a console
+    // that cannot switch CP does not abort; later I/O still runs.
+    unsafe {
+        let _ = SetConsoleOutputCP(CP_UTF8);
+        let _ = SetConsoleCP(CP_UTF8);
+    }
+}
+```
 - Stream files with `BufReader` / `Read` / `Write` (Section 4.4). Do not `fs::read` / `fs::read_to_string` on unbounded files.
 
 ```rust

@@ -9,6 +9,7 @@ Load when `Directory.Build.props`, `Directory.Build.targets`, `Directory.Package
 | `Directory.Build.props` | repository root |
 | `Directory.Packages.props` | repository root |
 | `Directory.Build.targets` | repository root (only when needed) |
+| `.editorconfig` | repository root (`root = true`) |
 | `GlobalUsings.cs` | project root, no namespace |
 
 ## GlobalUsings.cs
@@ -56,12 +57,32 @@ Generator projects only:
 | `WarningsAsErrors` | optional; specific warning codes only |
 | `WarningsNotAsErrors` | user approval only — same template |
 
-When a warning is hidden in MSBuild, keep the reason next to the property:
+When a warning is hidden in MSBuild, use the **global** suppression template in `tech-csharp.md` (Diagnostics). One XML comment **per id**: id, why the warning is inapplicable, **why global** (not method/file/pragma), user approved.
 
 ```xml
-<!-- Reason: {why the warning is inapplicable}. Scope: this project. IDs: CS1591. User approved. -->
+<!-- Id: CS1591. Why: {why this warning is inapplicable}. Why global: {why not method/file/pragma}. User approved. -->
 <NoWarn>$(NoWarn);CS1591</NoWarn>
 ```
+
+### IDE / code-style (`IDE1006` and other `IDE*` naming)
+
+`IDE1006` (naming convention) is an **EditorConfig code-style** diagnostic. It shows in the IDE even when `dotnet build` is clean.
+
+Tried both:
+
+| Mechanism | `dotnet build` (with `EnforceCodeStyleInBuild`) | IDE squiggle |
+|-----------|--------------------------------------------------|--------------|
+| `<NoWarn>$(NoWarn);IDE1006</NoWarn>` | Suppresses | **Does not** clear |
+| `.editorconfig` `dotnet_diagnostic.IDE1006.severity = none` | Suppresses | **Clears** |
+
+❗ Do **not** use `NoWarn` for `IDE1006`. Put it in the root `.editorconfig` under `[*.cs]`. Same comment fields as a global suppress: **id**, **why**, **why global**, user approved. One comment per id.
+
+```ini
+# Id: IDE1006. Why: default IDE naming rejects '_' on private members; CSharpStyleChecker requires _PascalCase. Why global: every private member; NoWarn does not clear the IDE diagnostic; a pragma per member is not viable. User approved.
+dotnet_diagnostic.IDE1006.severity = none
+```
+
+Do not “fix” the squiggle by dropping the `_` prefix. Private members stay `_PascalCase` (`tech-csharp.md`). This repo’s `.editorconfig` already sets `IDE1006` to `none` for that reason.
 
 ### Build Behavior
 

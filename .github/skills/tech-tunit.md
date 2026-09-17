@@ -1,16 +1,16 @@
 # TUnit Testing Rules
 
-Load when `*.Tests.cs`, `.Tests` projects, or C# Playwright E2E are in scope. Content and case design: `tech-test.md`. Browser journeys: `tech-playwright.md`.
+Load when `*Tests.cs`, `{Project}.Tests` projects, `{App}.UiTest`, or C# Playwright UI tests are in scope. Content and case design: `tech-test.md`. Browser journeys: `tech-playwright.md`.
 
 ## Scope
 
 - Unit tests: `{Project}.Tests`.
 - Razor/Blazor component logic: bUnit in that `.Tests` project (`tech-blazor.md`).
-- C# browser journeys: dedicated `{App}.E2E` with **TUnit** + `TUnit.Playwright` (`tech-playwright.md`). Do not put journeys in `{Project}.Tests`. ExitPointGaps pairs `.Tests`, not `.E2E`.
+- C# browser journeys: dedicated `{App}.UiTest` with **TUnit** + `TUnit.Playwright` (`tech-playwright.md`). Do not put journeys in `{Project}.Tests`. ExitPointGaps pairs `.Tests`, not `.UiTest`.
 
 ## Framework
 
-❗ **TUnit only** — unit, bUnit, and C# E2E. Do not add or migrate to xUnit, NUnit, MSTest, FluentAssertions, `Microsoft.Playwright.NUnit`, `.MSTest`, or `.Xunit`.
+❗ **TUnit only** — unit, bUnit, and C# UI tests. Do not add or migrate to xUnit, NUnit, MSTest, FluentAssertions, `Microsoft.Playwright.NUnit`, `.MSTest`, or `.Xunit`.
 
 **Minimal stack (nothing else required for unit tests):**
 
@@ -20,7 +20,7 @@ Load when `*.Tests.cs`, `.Tests` projects, or C# Playwright E2E are in scope. Co
 | **MTP** | Test runner (`global.json` → `Microsoft.Testing.Platform`) |
 | **ExitPointGaps** | Exit-point coverage gate (local dotnet tool) |
 
-C# E2E adds `TUnit.Playwright` (`PageTest` in `{App}.E2E`) — `tech-playwright.md`.
+C# UI tests add `TUnit.Playwright` (`JourneyTest` / `PageTest` in `{App}.UiTest`) — `tech-playwright.md`. Default browser: system `Channel`; see that skill.
 
 Common agent mistakes — **do not** port xUnit/NUnit habits:
 
@@ -31,7 +31,7 @@ Common agent mistakes — **do not** port xUnit/NUnit habits:
 | `[Theory]` + `[InlineData]` | `[Test]` + `[Arguments(...)]` or `[MethodDataSource]` |
 | `IClassFixture<T>` / `[SetUp]` | `[Before(Class)]` / `[Before(Test)]` |
 | `coverlet.collector` | MTP coverage via ExitPointGaps (no extra NuGet) |
-| `PackageReference` xunit/nunit/`Microsoft.Playwright.NUnit` | **Remove** — unit `.csproj`: only `TUnit`. E2E `.csproj`: `TUnit` + `TUnit.Playwright` |
+| `PackageReference` xunit/nunit/`Microsoft.Playwright.NUnit` | **Remove** — unit `.csproj`: only `TUnit`. `{App}.UiTest` `.csproj`: `TUnit` + `TUnit.Playwright` |
 
 **`global.json` (repo root):**
 
@@ -89,6 +89,7 @@ dotnet run --project src/ExitPointGaps -c Release -- run --help
 
 - Test project: `<ProductionProjectName>.Tests` — mirror prod namespace and folders.
 - One file per class: `<ClassName>Tests.cs`.
+- Section 3 file glob is `*Tests.cs` in `{Project}.Tests/` (not `*.Tests.cs`).
 - Shared helpers: `Helpers/`.
 - ❗ Test method names are **PascalCase without underscores**. Not snake_case, not `Method_Scenario_Expected`, not `_PascalCase`.
 - Data source names: PascalCase without underscores (`MethodScenarioData`).

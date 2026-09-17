@@ -1,6 +1,6 @@
 ---
 name: requirements
-description: Capture intention and break it into observable requirements with acceptance criteria. Use on /requirements, or before /plan when no requirements exist yet. Use existing artifacts when the user already supplied them.
+description: Record required behavior and expected properties as REQ{n} (shall / shall not / shall exhibit). Implementation-far. Use on /requirements, or before /plan when none exist. Use existing artifacts when the user already supplied them.
 argument-hint: Describe the endeavor, or point at an existing requirements doc
 agent: agent
 ---

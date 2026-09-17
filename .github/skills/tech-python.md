@@ -35,6 +35,15 @@ unused = probe()  # noqa: F841  # Reason: {why}. User approved.
 raw: Any = lib.call()  # pyright: ignore[reportUnknownMemberType]  # Reason: {why}. User approved.
 ```
 - Explicit encodings (`encoding="utf-8"`). Do not depend on process locale.
+- ❗ Executables with console I/O: set UTF-8 **once** at process start (Section 4.7). Required on Windows. Call before any print.
+
+```python
+import sys
+
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+sys.stdin.reconfigure(encoding="utf-8")
+```
 - Return a result type for expected failure (`Ok`/`Err`, or `(value, err)` with a typed error). Do not throw on expected paths, especially on hot paths.
 - Validate at trust boundaries. Document omitted validation and caller guarantees in the docstring.
 

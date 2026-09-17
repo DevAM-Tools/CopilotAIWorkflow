@@ -1,8 +1,8 @@
 # Commit-Message Workflow
 
-Load on `/commit-message`, `/commit_message`, or a request to write a commit message for a named scope. Apply `copilot-instructions.md` Section 2.
+Load on `/commit-message`, `/commit_message`, or a request to write a commit message for a named scope. Apply `copilot-instructions.md` Section 2 (chat language). This skill is the contract for a **complete** message. Git commit, push, and other repo writes after the file are **out of scope**.
 
-**Purpose:** Write one English, paste-ready commit message for the given scope. The message must be **specific enough to use without opening the diff**: named outcomes, before/after behavior, and at least one example when there is a usage surface. When the scope is a **release** (or the user asks), also update `CHANGELOG.md`. Type prefix is the scan header. Voice is the person who lives with the result.
+**Purpose:** Write one English, paste-ready commit message for the given scope. The message must be **specific enough to use without opening the diff**: named outcomes, before/after behavior, and at least one example when there is a usage surface. When the scope is a **release** (or the user asks), also update `CHANGELOG.md`. Type prefix is the scan header. Voice is the person who lives with the result. This workflow **ends** when that file (and CHANGELOG when Stage 5 ran) is written.
 
 **Hard rules:**
 
@@ -13,6 +13,7 @@ Load on `/commit-message`, `/commit_message`, or a request to write a commit mes
 - Never write an implementation diary, ticket/plan/review IDs, or Conventional-Commit area scopes (`feat(cli):`).
 - ❗ A slogan is incomplete. If a later reader cannot tell what to type, call, or expect, rewrite before emitting.
 - Skip Tech Load. Do not edit production code. Overwrite `commit_message.md` unless the user names another path. **Exception:** `CHANGELOG.md` when Stage 5 runs.
+- Do not `git add`, `git commit`, `git push`, or otherwise record the message in git as part of this workflow. That step is out of scope.
 
 ## Stage Order
 
@@ -76,7 +77,7 @@ Do **not** Grill Me to shorten a message. If evidence is rich, the message must 
 ```markdown
 ## Q{n} — {topic}
 **Source:** Commit-message
-**Context:** {one sentence}
+**Context:** {1-3 sentences}
 **Question:** {single-part question}
 **Options:** 1) {option} · 2) {option} · 3) {option} · or free-text
 ```
@@ -189,20 +190,20 @@ follows your language; plans and other lasting artifacts stay English.
 
 ## Requirements
 
-Say `/requirements` (or capture outcomes before `/plan` when none exist).
-You get intention, numbered R{n} rows, and a Done-when check you can
+Say `/requirements` (or capture the user-view system description before `/plan` when none exist).
+You get `REQ{n}` rows (behavior, properties, shall-not) and a Done-when check you can
 observe — not “it builds”. If you already attached a list, the plan
 reads it instead of rewriting it.
 
-Example: “Export must fail closed when the path is empty” becomes an
-R{n} with Done-when: the operator sees a path-empty error and no file.
+Example: “Export must fail closed when the path is empty” becomes
+`REQ10` with Done-when: the operator sees a path-empty error and no file.
 
 ## Illustrate
 
-Say `/illustrate` for one concept. You get a self-contained HTML file
-you can zip and open without the repo. Slideshows include an overview
-plus next/prev. Verify with Playwright (load, slides, canvas) — do not
-eyeball.
+Say `/illustrate` for one concept. You get an HTML zip you can open
+without the repo. The agent asks before vendoring libraries (download
+into `vendor/`; no CDN in the file). Slideshows include an overview
+plus next/prev. Playwright verifies at create time only.
 
 ## Review and council
 
@@ -251,13 +252,13 @@ Example addition:
 
 ### Agent workflow
 
-- `/requirements` captures intention and acceptance criteria before `/plan` when none exist
+- `/requirements` formalizes high-level `REQ{n}` user-view requirements before `/plan` when none exist
 - Council runs in the same agent; no subagent advisors
 ```
 
 ## Completion
 
-Chat: subject line, artifact path, changelog path if Stage 5 ran, status table, goal verdict, top risks (≤5). Do not paste the body.
+Chat: subject line, artifact path, changelog path if Stage 5 ran. Do not paste the body.
 
 | Item | Status |
 |------|--------|
@@ -265,4 +266,4 @@ Chat: subject line, artifact path, changelog path if Stage 5 ran, status table, 
 | Type | {type}{! if breaking} |
 | Artifact | `commit_message.md` |
 | Changelog | `CHANGELOG.md` · skipped |
-| Goal | Ready to paste / Blocked (Grill Me) |
+| Goal | Message complete / Blocked (Grill Me) |

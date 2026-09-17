@@ -5,8 +5,6 @@
 - Apply these instructions to every change, technology, and workflow phase.
 - Optional: if `custom_instructions.md` exists at the repository root, read and apply it. Missing is not an error. Do not create it. It extends these instructions; it does not replace them. It cannot weaken Section 4.
 - Treat natural-language equivalents of `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/requirements`, `/illustrate` as the same workflow trigger.
-- End every workflow with: status table, release or goal verdict, top risks (≤5 bullets), artifact paths.
-- Do not recap artifact contents in chat. Exception: council verdict sections.
 - ❗ Edit only files inside the current workspace. Paths outside it need an explicit user request.
 - ❗ When the user attaches or names files, **read that file in full**. User-given docs are context, not optional background.
 - Stop and ask when out-of-scope work is discovered.
@@ -33,20 +31,25 @@ Chat follows the user. Skills, instructions, and non-temporary documents are Eng
 - Apply only loaded tech skills. Unloaded skills do not apply.
 - Load `tech-test.md` whenever tests or production APIs are in scope.
 - Load `tech-web.md` when planning or changing a **product** web UI — even before HTML files exist. Do not load it for `illustrations/**`.
-- Load `tech-playwright.md` when planning or changing a web UI — even before spec files exist — and when verifying HTML illustrations.
+- Load `tech-playwright.md` when planning or changing a web UI — even before spec
+  files exist — and when verifying HTML illustrations at create time or in a
+  full `/review`. The shipped illustration zip does not include Playwright.
 
 | Trigger | Load skill |
 |---------|------------|
-| `*.cs`, `*.cs/**` | `tech-csharp.md` |
-| `*.Tests.cs`, `*.Tests/**`, C# test projects, C# Playwright E2E | `tech-test.md`, `tech-tunit.md` |
-| `*.razor`, `*.razor.cs`, `*.razor.css` | `tech-web.md`, `tech-blazor.md`, `tech-playwright.md`, `tech-test.md`, `tech-tunit.md` |
+| `*.cs` | `tech-csharp.md` |
+| `*Tests.cs`, `{Project}.Tests/**`, C# test projects, `{App}.UiTest` / C# Playwright UI tests | `tech-test.md`, `tech-tunit.md` |
+| `GlobalUsings.cs` | `tech-csharp.md`, `tech-solution.md` |
+| `.editorconfig`, `Directory.Build.props`, `Directory.Build.targets`, `Directory.Packages.props` | `tech-solution.md` |
+| `global.json` | `tech-tunit.md` |
+| `*.razor`, `*.razor.cs`, `*.razor.css` | `tech-web.md`, `tech-blazor.md`, `tech-playwright.md`, `tech-test.md`, `tech-tunit.md`, `tech-csharp.md` |
 | Web UI / HTML / CSS in an application | `tech-web.md`, `tech-playwright.md`, `tech-test.md` |
-| `*Generator*.cs`, `IIncrementalGenerator` | `tech-sourcegen.md` |
+| `*Generator*.cs`, `IIncrementalGenerator` | `tech-sourcegen.md`, `tech-csharp.md` |
 | `*.csproj`, `*.props`, `*.targets` | `tech-solution.md` |
 | `*.rs`, `Cargo.toml`, `Cargo.lock` | `tech-rust.md` |
 | Rust tests (`#[cfg(test)]`, `tests/`) | `tech-test.md`, `tech-rust-test.md` |
 | `*.py`, `pyproject.toml`, `*.pyi` | `tech-python.md`, `tech-test.md` |
-| `test_*.py`, `*_test.py`, `pytest` | `tech-pytest.md` |
+| `test_*.py`, `*_test.py`, `pytest` | `tech-python.md`, `tech-test.md`, `tech-pytest.md` |
 | `*.spec.ts`, Playwright | `tech-playwright.md`, `tech-test.md` |
 | `illustrations/**`, illustration HTML | `tech-playwright.md` |
 
@@ -74,7 +77,7 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 - Provide result types or language-idiomatic try-APIs at public boundaries for expected failure paths.
 - Preserve preconditions, postconditions, and interface consistency.
 - Never ship incomplete implementations. Mark incomplete work with `// TODO:` and concrete reason.
-- Never put plan IDs, issue IDs, requirement IDs or tracking IDs in code or comments.
+- Never put plan IDs, issue IDs, `REQ{n}`, `TEST{n}`, or tracking IDs in code or comments.
 - Guard against off-by-one errors, invalid transitions, and logic regressions.
 - ❗ Assess integer ops for overflow/underflow; guard when wrap-around would break correctness, security, or invariants. Mechanism: loaded tech skill.
 
@@ -113,7 +116,7 @@ Performance is a feature of every application and library, not optional polish. 
 - Cover happy path, errors, boundaries, concurrency, and security. Exhaustive means those **behavior classes**, not iterating every integer value.
 - Keep tests fast. No sleeps. No network in unit tests.
 - Test **strategy**: `tech-test.md`. Test **stack and coverage tool**: loaded tech skill. When the skill defines a gate, that gate is the release gate.
-- Align test cases in planning / Grill Me. Treat named cases as work the implementing agent can execute.
+- In planning / Grill Me, lock test **content** as `TEST{n}` (important scenarios, edges, constellations, contradictions, gaps). That content is the minimum to prove. Extra tests at implement time are allowed. Schema: `workflow-plan.md`. Strategy: `tech-test.md`.
 
 ### 4.6 Documentation
 
@@ -124,10 +127,18 @@ Performance is a feature of every application and library, not optional polish. 
 - Document every public API item in the language’s canonical doc form. Form: loaded tech skill.
 - Document key algorithm and data-structure decisions.
 - Markdown tables: keep them narrow (about 3–4 columns, short cells). Mermaid: `TD`, tall layout, short labels — not wide `LR` graphs. Assume the reader has several panes open.
+- ❗ File references are **clickable Markdown links**. The target is relative to the
+  file that contains the link, with forward slashes, so the link opens. Form from
+  `plans/` or `reviews/`: [`src/Foo.cs`](../src/Foo.cs). Bare backticks, absolute
+  `E:\` / `/Users/` paths, and unlinked names are not enough. Especially plans,
+  briefings, and reviews; also requirements, councils, and README. Fenced commands
+  may keep a raw path so it stays copy-pasteable. In chat, link workspace files
+  from repo root: [`src/Foo.cs`](src/Foo.cs).
 
 ### 4.7 Repository
 
 - Support Windows/Linux/macOS on x64/ARM64.
+- ❗ Executables that write or read the console: set the console to UTF-8 **once** at process start. Required on Windows (legacy code page). Mechanism: loaded tech skill.
 - Keep Debug and Release behavior identical.
 - Limit line length to 160.
 - Do not put dates in code; copyright year is allowed.
@@ -140,11 +151,24 @@ Performance is a feature of every application and library, not optional polish. 
 
 ### 4.8 UI
 
-- Add `aria-*` on interactive UI elements when UI is in scope.
-- ❗ Web UIs must be responsive (usable from a phone-width viewport up, no required horizontal scroll on content) unless the user explicitly asks otherwise.
-- Keep one visual language across pages. Shared CSS for app/layout look; isolate only component-specific rules. Weigh each new rule: app-wide, layout/page, or this component. Mechanism: `tech-web.md` (stack extras: `tech-blazor.md`).
-- Ship **dark mode**. Other themes are allowed but **out of scope** unless the user asks.
-- Plan Playwright journeys for web UIs from the first plan, for tests **and** debugging. Playwright may also verify HTML illustrations (`workflow-illustrate.md`).
+These bullets apply to **product** web UIs (app pages, Blazor, HTML/CSS in a
+product). They do **not** apply to `/illustrate` HTML. Do not load `tech-web.md`
+for `illustrations/**`.
+
+- Add `aria-*` on interactive UI elements when a product UI is in scope.
+- ❗ Product web UIs must be responsive (phone-first, 320px floor, no page-level
+  horizontal scroll) unless the user explicitly asks otherwise. Locked
+  breakpoints, CSS layers, and JS vs CSS: `tech-web.md`.
+- Keep one visual language across product pages. Shared CSS for app/layout look;
+  isolate only component-specific rules. Weigh each new rule: app-wide,
+  layout/page, or this component. Mechanism: `tech-web.md` (stack extras:
+  `tech-blazor.md`).
+- Ship **dark mode** on product UIs. Other themes are allowed but **out of
+  scope** unless the user asks.
+- Plan Playwright journeys for product web UIs from the first plan, for tests
+  **and** debugging. Playwright may verify HTML illustrations at create time
+  (`workflow-illustrate.md`). The shipped zip does not depend on Playwright.
+  Illustrations are not required to be responsive.
 
 ### 4.9 Structure
 
@@ -156,7 +180,7 @@ Performance is a feature of every application and library, not optional polish. 
 
 ### 4.10 Release Verdict
 
-- End every review with `Ready for public release` or prioritized blockers.
+- Every review must answer whether the reviewed **scope** is ready for public release. Write that in Summary: `Ready for public release` or prioritized blockers. Do not add a separate closing section.
 
 ### 4.11 Git
 
@@ -200,6 +224,18 @@ Performance is a feature of every application and library, not optional polish. 
 - `⚠️` At risk / Blocked
 - `⬜` Not started / Open
 - Tick every plan status surface together: Step Overview, Shared Block, Task Checklist. Never leave the overview stale.
+
+## 5.1 Terms
+
+| Term | Meaning |
+|------|---------|
+| Grill Me | One round of user-fact questions. Not a council. |
+| `C{n}` | A recorded choice between options that could not all hold. |
+| Shared Block | The field template for a plan step or review finding. |
+| Step `{n}R` | The `/review` of Step `{n}`. Same as “Step NR” with N = `{n}`. |
+| `REQ{n}` | A requirements row. IDs stay out of product code. |
+| `TEST{n}` | Plan test **content**, not a file name. |
+| MTP | Microsoft.Testing.Platform (`global.json` `test.runner`). |
 
 ## 6) Workflow Entry
 

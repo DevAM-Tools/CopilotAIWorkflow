@@ -35,4 +35,4 @@ On workflow start: read `copilot-instructions.md`, `custom_instructions.md` when
 - Slash commands: `.cursor/commands/` (thin wrappers, same as `.github/prompts/`)
 - Discoverable skills: `.cursor/skills/` (pointers to `.github/skills/` SSOT)
 
-Do not restate SSOT content in chat when artifacts were written to files; cite paths only.
+Chat handover: the matching workflow skill’s Completion (or Output Modes). Do not restate it here.

@@ -16,6 +16,9 @@ Load when `*.cs` files are in scope. C# mechanisms for Section 4 in `copilot-ins
 - Put global usings in `GlobalUsings.cs` only; group by category with comment headers (`tech-solution.md`). File-local type aliases (`using Alias = ...`) are allowed in source files.
 - Sort: `System.*` → `Microsoft.*` → third-party → internal.
 
+## Copyright
+- `.cs` and `.razor.cs`: `// {copyright}` — exact text from `COPYRIGHT`. Other file types: `tech-solution.md` when that skill is loaded.
+
 ## Style
 - ❗Always pass `CultureInfo.InvariantCulture` as parameter when strings are built or parsed unless another locale is required.
 - Always brace control-flow blocks.
@@ -66,17 +69,41 @@ public int CountGaps(ReadOnlySpan<char> path) { /* do not store `path` */ }
 
 ## Diagnostics
 
-- ❗Never suppress warnings (`#pragma warning disable`, `SuppressMessage`, `NoWarn`) without user approval.
-- When approved: use this template. Name the rule id. State why the warning is wrong or inapplicable. Narrowest scope. Restore after the scope.
+- ❗Never suppress warnings (`#pragma warning disable`, `SuppressMessage`, `NoWarn`, `WarningsNotAsErrors`) without user approval.
+- Prefer a code fix. Prefer a local `#pragma` / `SuppressMessage` over `NoWarn`.
+- When approved: use the matching template below. A suppression without those fields is incomplete.
+
+Every suppressed **id** must name:
+
+1. **Id** — the compiler / analyzer code (`CS1591`, `CA1859`, …). One comment per id. Do not lump several ids into one reason.
+2. **Why** — why this warning is wrong or inapplicable here.
+3. **Scope** — the smallest place that is still correct (method, type, file, project, repo). Restore after a `#pragma` scope.
+4. **Why global** — **required for `NoWarn` / `WarningsNotAsErrors` / EditorConfig `dotnet_diagnostic.*.severity = none`.** Why a local suppress cannot work.
+
+### Local
 
 ```csharp
-#pragma warning disable CA1859 // Reason: {why}. Scope: this method. User approved.
+#pragma warning disable CA1859 // Id: CA1859. Why: {why}. Scope: this method. User approved.
 #pragma warning restore CA1859
 ```
 
 ```csharp
-[SuppressMessage("Performance", "CA1859:...", Justification = "Reason: {why}. User approved.")]
+[SuppressMessage("Performance", "CA1859:...", Justification = "Id: CA1859. Why: {why}. User approved.")]
 ```
+
+### Global (`Directory.Build.props` or `.csproj`)
+
+MSBuild property details: `tech-solution.md`. Put the comments immediately above the property. Append `$(NoWarn);` so earlier ids stay.
+
+```xml
+<!-- Id: CS1591. Why: {why this warning is inapplicable}. Why global: {why not method/file/pragma}. User approved. -->
+<!-- Id: CA1707. Why: {why this warning is inapplicable}. Why global: {why not method/file/pragma}. User approved. -->
+<NoWarn>$(NoWarn);CS1591;CA1707</NoWarn>
+```
+
+### IDE naming (`IDE1006`)
+
+Do not use `NoWarn`. Root `.editorconfig`: `tech-solution.md` (IDE / code-style).
 
 ## Comments and XML docs
 - Comment purpose, motivation, caveats, and design choice before non-trivial logic. State why; never restate obvious syntax.
@@ -200,14 +227,19 @@ await using FileStream stream = File.OpenRead(path);
 - 4-space indent; no tabs.
 - Follow `IDisposable` / `IAsyncDisposable` patterns.
 - Decompose complex methods into focused helpers.
-- UTF-8 console encoding in CLI startup.
+- ❗ Executables with console I/O: set UTF-8 **once** at process start (Section 4.7). Required on Windows.
+
+```csharp
+Console.OutputEncoding = Encoding.UTF8;
+Console.InputEncoding = Encoding.UTF8;
+```
 - Name threads; `CultureInfo.InvariantCulture` for thread culture.
 - No console/trace for library error handling.
 
 ## Tests
 `tech-test.md` + `tech-tunit.md`. Test methods: PascalCase without underscores (`PairEmptyRepoReturnsNone`).
 - ❗ Require 100% exit-path coverage on every public or internal API before release. Branch coverage is not the gate. Run ExitPointGaps per `tech-tunit.md`.
-- C# browser journeys: TUnit + `TUnit.Playwright` in `{App}.E2E` (`tech-playwright.md`). Not NUnit, xUnit, or MSTest.
+- C# browser journeys: TUnit + `TUnit.Playwright` in `{App}.UiTest` (`tech-playwright.md`). Not NUnit, xUnit, or MSTest.
 
 ## Commands
 

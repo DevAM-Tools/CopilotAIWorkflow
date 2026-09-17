@@ -29,14 +29,25 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 
 - Finish unit tests in milliseconds. Do not `Sleep` / `time.sleep` / `thread::sleep`.
 - Do not use network, real clock waits, or an extra process when a deterministic fake will do.
-- Keep Playwright to a few critical journeys, not every pixel. Trace on failure.
 - Assert one behavior per test. Parametrize related inputs; do not copy-paste.
+
+## Web UI (Playwright)
+
+When a product web UI is in scope, **use Playwright intensively** to prove what the user can see and do. Do not treat a green unit/component suite as UI coverage.
+
+When requirements or the plan name **concrete UI behavior** (`REQ{n}` / `TEST{n}`: visible text, validation, navigation, viewport, keyboard, enabled/disabled), each named behavior needs an observable Playwright assert. A generic “page loads” journey is not enough.
+
+Cover the same **behavior classes** as above, in the browser: happy path, expected errors, empty/min/max, viewports in `tech-web.md`, and trust-boundary messages the user can read. Plan those cases as `TEST{n}` **Content**.
+
+Do **not** skip journeys to keep the suite small. Do **not** assert every pixel, screenshot, or CSS rule. Assert observable UI: heading, row, error text, URL, focus, enabled/disabled, layout that would break the task (clipped primary action, required horizontal scroll).
+
+Trace on failure. No `waitForTimeout` as sync. Mechanics: `tech-playwright.md`. Component logic stays in the component runner (`tech-blazor.md`), not Playwright. **C# project:** `{App}.UiTest`.
 
 ## Plan and Grill Me
 
-Name cases as first-class `T{n}` in `workflow-plan.md`. Agree in Grill Me what is in, what is out, and the time budget. Implement those cases as steps.
+Write test **content** as first-class `TEST{n}` cards in `workflow-plan.md` (schema there). Agree the **minimum** the plan must cover: important scenarios, edges, special constellations, contradictions, gaps, what is out, and the time budget. Class and Layer may be named. Test code in the plan is allowed; it does not replace Content.
 
-Do not treat a green build as a test case.
+Implement those cards as steps. Extra tests at implement time are allowed. Do not treat a green build as a test case.
 
 ## Design
 
