@@ -100,7 +100,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 - Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate.
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
-- Plans lock the implementation (Before/After) so a weaker agent can execute them; reviews lock the fix the same way (`How` + Problem/Fix). Chat may use natural prose.
+- Plans lock the implementation (Before/After) so a weaker agent can execute them; reviews lock the fix the same way (`How` + Problem/Fix). Prefer snippets over prose in those artifacts; extra illustration code is welcome. Chat may use natural prose.
 
 ---
 
@@ -189,11 +189,12 @@ Existing files under `plans/` or `reviews/` are historical unless the user names
 Stages live in workflow skills only. Prompts do not repeat them.
 
 - **Requirements:** `workflow-requirements.md` — required behavior and expected properties (`REQ{n}`); skip reinventing when the user already supplied them
-- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After, link requirements (do not copy the REQ table; Section 4.6 clickable relative links for every file), first-class `TEST{n}` test **content**, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
+- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), link requirements (do not copy the REQ table; Section 4.6 clickable relative links for every file), first-class `TEST{n}` test **content**, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
 - **Implement:** `workflow-implement.md` — read the plan in full, execute steps and `TEST{n}` content, verify requirements at step close (tick `Met` in the linked requirements file), extensive **briefing** (file cards are Section 4.6 links), Closing Exam
 - **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
   public-release verdict for the **scope**; ignore prior `reviews/review_*.md`
-  unless named; Section 3 skill load; locked finding `How`; Section 4.6 links;
+  unless named; Section 3 skill load; locked finding `How` with Problem/Fix
+  before/after code (extra illustration snippets welcome); Section 4.6 links;
   **default** runs tests and writes `reviews/review_<slug>_<n>.md`; static on
   explicit reduced scope; `chat only` / `ohne Review-Datei` opt-in
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until zero findings in all buckets unless deferred (no plan required); `errors only` on request

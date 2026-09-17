@@ -2,7 +2,7 @@
 
 Load on `/plan`. Apply `copilot-instructions.md` Sections 2–4.
 
-Plans are for **human acceptance** and for a **weaker executing agent**. Before/After, locked `How`, test **content** (`TEST{n}`), and step acceptance criteria are the handoff. Do not treat existing files under `plans/` as style examples unless the user points at one. Do not compress step `How`, Test case **Content**, or Requirements-fit. Do not copy the requirements table into the plan.
+Plans are for **human acceptance** and for a **weaker executing agent**. Before/After, locked `How`, test **content** (`TEST{n}`), and step acceptance criteria are the handoff. Prefer fenced snippets over prose when describing types, APIs, algorithms, control flow, or file shape; prose carries why, constraints, and what code cannot show. Extra illustrative snippets (call-site usage, data examples, test shape) are welcome throughout the plan. They do not replace locked Before/After or TEST{n} **Content**. Do not treat existing files under `plans/` as style examples unless the user points at one. Do not compress step `How`, Test case **Content**, or Requirements-fit. Do not copy the requirements table into the plan.
 
 ## Stage Order
 
@@ -95,7 +95,7 @@ Grill Me ↔ Council per `workflow-council.md` until no blocking fork. Lite defa
 - Test cases are first-class **content** (index + `TEST{n}` cards). Cover everything **important** in the plan. Extra tests at implement time are allowed. An executing agent must be able to prove each card without inventing the scenario.
 - End with Requirements fit, then its Step `{n}R`.
 - Record `Loaded skills:` (include `workflow-council.md` and `tech-test.md` when tests exist), Sweep table, council paths as Section 4.6 links, Decision Loop count, step dependencies. Leave Coverage for Stage 7. Every file named in the plan (Context, Where, Coverage, Target Solution) is a clickable relative link (Section 4.6).
-- Every step needs a fully specified `How` and Before/After (Shared Block below).
+- Every step needs a fully specified `How` and Before/After (Shared Block below). Prefer snippets over a prose-only `How` or Target Solution. Extra illustration snippets are welcome.
 - Do not present the plan for approval. Run Stage 7.
 
 ### Step Overview
@@ -127,8 +127,9 @@ Require `Debug` so the executing agent can probe a red `Verify` (command, Playwr
 ❗Write `How` so another agent can implement without inventing types, items, signatures, algorithms, control flow, or file structure.
 ❗Write `How` exhaustively: types, items, visibility, signatures, parameters, return values, call-site edits, validation, error paths, control flow, data flow, thread-safety / performance / security constraints, prerequisite state, decision rationale, and important edge cases.
 ❗Include fenced **Before** and **After** in every step `How` — current code, then Target Solution shape (real signatures and key bodies); anchor with path/symbol. Not stubs, not pseudocode-only, not an intermediate shape later steps will replace. New file: After only. Requirements-fit: skip unless a gap needs a fix.
+Prefer those fences over a paragraph that restates the same shape. Extra snippets that illustrate usage, edges, or the test that proves the step are welcome.
 ❗Cite a concrete source in `Context` when an external reference exists.
-Test code in `How` or on a `TEST{n}` card is allowed. It does not replace Test case **Content**.
+Test code in `How` or on a `TEST{n}` card is allowed and welcome. It does not replace Test case **Content**.
 
 `Where`: clickable relative Markdown link (Section 4.6), approximate lines, symbol. Mark `primary` (create/rewrite) or `call-site` or `additive` (append-only).
 `Verify`: exact command in optimized/Release per loaded tech skill, plus expected result.
@@ -140,6 +141,7 @@ Status: ⬜ {Initial} · {Depends on}
 ### What
 ### Why
 ### How
+Fenced **Before** / **After** (required). Prefer snippets over prose. Extra illustration snippets welcome.
 ### Experience
 After this step a person can: …
 They should see: …
@@ -206,7 +208,7 @@ Index (narrow). Details live in the cards, not extra columns.
 | TEST1 | {short name} | Step 2 | ⬜ |
 ```
 
-Every `TEST{n}` needs a card. **Content** is required. **Class** and **Layer** may be named. Test code may follow; it does not replace Content.
+Every `TEST{n}` needs a card. **Content** is required. **Class** and **Layer** may be named. Test code or a short fenced example of setup / expected observation is welcome; it does not replace Content.
 
 ```markdown
 ### TEST{n} — {short name}
@@ -235,7 +237,7 @@ Exhaustive = the **classes** in `tech-test.md` plus named content (edges, conste
 
 ## Target Solution (Vision)
 
-- Concrete end-state: types, files, APIs, data flow, invariants, algorithms. Not a slogan.
+- Concrete end-state: types, files, APIs, data flow, invariants, algorithms. Show that shape in snippets, not only in prose. Not a slogan.
 - Map every `REQ{n}` that has Done-when to a design element here (completeness). Do not paste Done-when from the requirements file. Steps then apply this shape.
 - SSOT for final file shape. A primary-file `After` that differs from this section is an incomplete plan.
 - Do not use step order here.

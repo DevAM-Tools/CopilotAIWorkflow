@@ -2,7 +2,7 @@
 
 Load on `/review`. Apply `copilot-instructions.md` Sections 2–4.
 
-Findings are for **human acceptance** of the defect and the proposed fix, and for a **weaker executing agent**. Locked `How` plus Problem/Fix is the handoff — the same bar as plan step `How`. Write each finding so a weaker agent has **no interpretation room** on the fix, and so a person can accept or reject the defect and the fix without reconstructing the argument. Do not compress finding `How`, Evaluate, or Summary. Exam is not a `/review` substitute.
+Findings are for **human acceptance** of the defect and the proposed fix, and for a **weaker executing agent**. Locked `How` plus Problem/Fix is the handoff — the same bar as plan step `How`. Write each finding so a weaker agent has **no interpretation room** on the fix, and so a person can accept or reject the defect and the fix without reconstructing the argument. Fenced **Problem** (current) and **Fix** (after) code is the most useful part of a finding; do not replace it with a prose description of the edit. Extra illustrative snippets (failing call site, a test that would catch it, bad vs good usage) are welcome in the review output. Do not compress finding `How`, Evaluate, or Summary. Exam is not a `/review` substitute.
 
 The review **must** answer: is this **scope** ready for public release? Write that as Summary **Release**. `Ready for public release` only when every hunt ran and zero Errors are open. Otherwise `Blocked by {IDs}`. Do not hedge. Do not answer for files outside scope.
 
@@ -153,7 +153,7 @@ High-stakes fork with ≥2 valid options: recommend `/council` in `How`. Do not 
 
 ## Stage 5 — Output
 
-Use the templates below. Write Summary **last**; place it after Findings Overview. Put the release verdict **in Summary**. Do **not** add a Closing Assessment or any second closer.
+Use the templates below. Write Summary **last**; place it after Findings Overview. Put the release verdict **in Summary**. Do **not** add a Closing Assessment or any second closer. Extra illustration snippets are welcome in findings; they do not replace Problem/Fix.
 
 ### Shared Block (every finding)
 
@@ -169,6 +169,7 @@ Omit `Context` only when neither constraints nor sources exist. Omit `Where` whe
 ❗Write `How` so another agent can implement the fix without inventing types, items, signatures, algorithms, control flow, or file structure.
 ❗Write `How` exhaustively: types, items, visibility, signatures, parameters, return values, call-site edits, validation, error paths, control flow, data flow, thread-safety / performance / security constraints, prerequisite state, decision rationale, and important edge cases.
 ❗Include fenced **Problem** and **Fix** code in every finding `How` — current code, then target code with real signatures and key bodies; anchor with path/symbol. Not stubs, not comments-as-code, not an intermediate shape.
+That before/after pair is what a person and a weaker agent use; extra illustration snippets are welcome and do not replace it.
 Reject a `How` that allows more than one implementation, **except** when Consistency recorded two Fix options for an unresolved source-of-truth conflict (user decides; do not pick a winner).
 
 ❗Cite a concrete source in every finding `Context` when an external reference exists. File cites are clickable relative Markdown links (Section 4.6).
@@ -186,6 +187,7 @@ Look at: {clickable relative link / symbol or command}
 Accept when: {observable a person can check}
 Must not change: {behavior that must stay}
 ### How
+Fenced **Problem** (current) / **Fix** (after) — required. Extra illustration snippets welcome.
 ### Context
 ### Where
 ### Verify
