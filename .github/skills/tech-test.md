@@ -35,9 +35,9 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 
 When a product web UI is in scope, **use Playwright intensively** to prove what the user can see and do. Do not treat a green unit/component suite as UI coverage.
 
-When requirements or the plan name **concrete UI behavior** (`REQ{n}` / `TEST{n}`: visible text, validation, navigation, viewport, keyboard, enabled/disabled), each named behavior needs an observable Playwright assert. A generic “page loads” journey is not enough.
+When requirements or the plan name **concrete UI behavior** (requirement ID / `TEST-<AREA>-<TOPIC>`: visible text, validation, navigation, viewport, keyboard, enabled/disabled), each named behavior needs an observable Playwright assert. A generic “page loads” journey is not enough.
 
-Cover the same **behavior classes** as above, in the browser: happy path, expected errors, empty/min/max, viewports in `tech-web.md`, and trust-boundary messages the user can read. Plan those cases as `TEST{n}` **Content**.
+Cover the same **behavior classes** as above, in the browser: happy path, expected errors, empty/min/max, viewports in `tech-web.md`, and trust-boundary messages the user can read. Plan those cases as `TEST-<AREA>-<TOPIC>` **Content**.
 
 Do **not** skip journeys to keep the suite small. Do **not** assert every pixel, screenshot, or CSS rule. Assert observable UI: heading, row, error text, URL, focus, enabled/disabled, layout that would break the task (clipped primary action, required horizontal scroll).
 
@@ -45,7 +45,7 @@ Trace on failure. No `waitForTimeout` as sync. Mechanics: `tech-playwright.md`. 
 
 ## Plan and Grill Me
 
-Write test **content** as first-class `TEST{n}` cards in `workflow-plan.md` (schema there). Agree the **minimum** the plan must cover: important scenarios, edges, special constellations, contradictions, gaps, what is out, and the time budget. Class and Layer may be named. Test code in the plan is allowed; it does not replace Content.
+Write test **content** as first-class `TEST-<AREA>-<TOPIC>` cards in `workflow-plan.md` (schema there). Agree the **minimum** the plan must cover: important scenarios, edges, special constellations, contradictions, gaps, what is out, and the time budget. Class and Layer may be named. Test code in the plan is allowed; it does not replace Content.
 
 Implement those cards as steps. Extra tests at implement time are allowed. Do not treat a green build as a test case.
 
@@ -53,7 +53,9 @@ Implement those cards as steps. Extra tests at implement time are allowed. Do no
 
 - Use real deterministic implementations. Mock only external or non-deterministic dependencies.
 - Write tests that can fail. A test that cannot fail is not coverage.
-- Name tests `unit_scenario_expected` unless the tech test skill says otherwise. **C#:** PascalCase methods (`tech-tunit.md`).
+- Name tests `unit_scenario_expected` unless the tech test skill says
+  otherwise. **C#:** PascalCase methods (`tech-tunit.md`). The plan ID
+  (`TEST-<AREA>-<TOPIC>`) stays in the plan. Do not use it as the method name.
 - Separate Arrange, Act, Assert with a blank line.
 - Cover Windows/Linux/macOS, x64/ARM64 unless the user scoped otherwise.
 

@@ -43,8 +43,8 @@ Outsider gets the framed question only — no Constraint Block, no tech-skill du
 
 ## Exam
 
-Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan REQ{n}, TEST{n}, and in-scope code?" Include plan path, requirements path, every `REQ{n}` with Done-when and every
-`TEST{n}`, briefing path, Implementation Status Table, in-scope paths, latest
+Target is the **built result**, not a decision fork. Frame: "Does this implementation hold against the plan requirement IDs, test IDs, and in-scope code?" Include plan path, requirements path, every requirement ID with Done-when and every
+test ID, briefing path, Implementation Status Table, in-scope paths, latest
 Step `{n}R` review paths. Open briefing card links. Break each **How it serves** clause. No steering toward Holds. Do not rubber-stamp.
 
 Follow Lite/Full stages with these overlays. Do not edit code.
@@ -64,7 +64,7 @@ Other views keep 150–250 words (Lite: 2–5 bullets each). Exam Ask:
 | View | Exam Ask |
 |------|----------|
 | Skeptic | Why can the shipped result not work? Apply the Skeptic Exam addendum. |
-| Problem-First | Did we solve the stated REQ{n}, or a different problem? Match each **How it serves** clause to the file. |
+| Problem-First | Did we solve the stated requirements? Match each **How it serves** clause to the file. |
 | Upside | What in-scope gap remains in what shipped? Defects only. No gold-plating. |
 | Outsider | Would a first-time user or caller of the built API get this? |
 | Builder | Does `Verify` prove the claim? Name the first command that must fail if it does not hold. |
@@ -134,7 +134,7 @@ Do not council a how-to after the choice. Do not Grill Me a rubber-stamp.
 
 Same agent throughout. No `Task`. No parallel advisors.
 
-1. **Context** — User text, attachments, plan/review/ADR, in-scope code. Read attached docs **in full**. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan `REQ{n}`/`TEST{n}`, latest reviews, briefing.
+1. **Context** — User text, attachments, plan/review/ADR, in-scope code. Read attached docs **in full**. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan requirement IDs and test IDs, latest reviews, briefing.
 2. **Frame** — One neutral prompt: decision, user context, repo constraints/paths, stakes, Constraint Block (omit for Outsider). No steering. Save in artifact. Exam: use the Holds question in **Exam**.
 3. **Advisors** — Write views in this order: Skeptic → Problem-First → Upside → Outsider → Builder. Lean into each angle. Do not hedge. Exam: attach Skeptic Exam addendum to Skeptic only.
    - Schema Lite: 2–5 bullets per view.

@@ -191,12 +191,13 @@ follows your language; plans and other lasting artifacts stay English.
 ## Requirements
 
 Say `/requirements` (or capture the user-view system description before `/plan` when none exist).
-You get `REQ{n}` rows (behavior, properties, shall-not) and a Done-when check you can
-observe — not “it builds”. If you already attached a list, the plan
-reads it instead of rewriting it.
+You get an atomic `REQ-<AREA>-<TOPIC>` list (behavior, properties, shall-not)
+and a Done-when check you can observe — not “it builds”. If you already
+attached a list, the plan reads it instead of rewriting it.
 
 Example: “Export must fail closed when the path is empty” becomes
-`REQ10` with Done-when: the operator sees a path-empty error and no file.
+`REQ-EXPORT-FAIL-CLOSED` with Done-when: the operator sees a path-empty
+error and no file.
 
 ## Illustrate
 
@@ -252,7 +253,7 @@ Example addition:
 
 ### Agent workflow
 
-- `/requirements` formalizes high-level `REQ{n}` user-view requirements before `/plan` when none exist
+- `/requirements` formalizes high-level `REQ-<AREA>-<TOPIC>` user-view requirements before `/plan` when none exist
 - Council runs in the same agent; no subagent advisors
 ```
 

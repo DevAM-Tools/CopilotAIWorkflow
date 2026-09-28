@@ -77,7 +77,7 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 - Provide result types or language-idiomatic try-APIs at public boundaries for expected failure paths.
 - Preserve preconditions, postconditions, and interface consistency.
 - Never ship incomplete implementations. Mark incomplete work with `// TODO:` and concrete reason.
-- Never put plan IDs, issue IDs, `REQ{n}`, `TEST{n}`, or tracking IDs in code or comments.
+- Never put plan IDs, issue IDs, `REQ-<AREA>-<TOPIC>`, `TEST-<AREA>-<TOPIC>`, or tracking IDs in code or comments.
 - Guard against off-by-one errors, invalid transitions, and logic regressions.
 - ❗ Assess integer ops for overflow/underflow; guard when wrap-around would break correctness, security, or invariants. Mechanism: loaded tech skill.
 
@@ -116,7 +116,11 @@ Performance is a feature of every application and library, not optional polish. 
 - Cover happy path, errors, boundaries, concurrency, and security. Exhaustive means those **behavior classes**, not iterating every integer value.
 - Keep tests fast. No sleeps. No network in unit tests.
 - Test **strategy**: `tech-test.md`. Test **stack and coverage tool**: loaded tech skill. When the skill defines a gate, that gate is the release gate.
-- In planning / Grill Me, lock test **content** as `TEST{n}` (important scenarios, edges, constellations, contradictions, gaps). That content is the minimum to prove. Extra tests at implement time are allowed. Schema: `workflow-plan.md`. Strategy: `tech-test.md`.
+- In planning / Grill Me, lock test **content** as `TEST-<AREA>-<TOPIC>`
+  (important scenarios, edges, constellations, contradictions, gaps). The ID
+  names the case the way `REQ-<AREA>-<TOPIC>` names a requirement. That
+  content is the minimum to prove. Extra tests at implement time are allowed.
+  Schema: `workflow-plan.md`. Strategy: `tech-test.md`.
 
 ### 4.6 Documentation
 
@@ -233,8 +237,8 @@ for `illustrations/**`.
 | `C{n}` | A recorded choice between options that could not all hold. |
 | Shared Block | The field template for a plan step or review finding. |
 | Step `{n}R` | The `/review` of Step `{n}`. Same as “Step NR” with N = `{n}`. |
-| `REQ{n}` | A requirements row. IDs stay out of product code. |
-| `TEST{n}` | Plan test **content**, not a file name. |
+| `REQ-<AREA>-<TOPIC>` | One atomic requirement. The ID names the subject. Stays out of product code. |
+| `TEST-<AREA>-<TOPIC>` | Plan test content. The ID names the case. Not a file or method name. Stays out of product code. |
 | MTP | Microsoft.Testing.Platform (`global.json` `test.runner`). |
 
 ## 6) Workflow Entry

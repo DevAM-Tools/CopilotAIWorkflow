@@ -180,7 +180,7 @@ Mechanics only. Case design and suite size: `tech-test.md`.
 
 - One journey per spec/class when possible. Node name: `feature_scenario.spec.ts`. C#: PascalCase (`tech-tunit.md`).
 - Assert what the user can see (heading, table row, error text, URL).
-- **Named UI requirements:** each concrete UI `REQ{n}` / `TEST{n}` gets an observable assert. Do not stop at smoke (“heading visible”) when the requirement names validation, navigation, or layout.
+- **Named UI requirements:** each concrete UI requirement ID / `TEST-<AREA>-<TOPIC>` gets an observable assert. Do not stop at smoke (“heading visible”) when the requirement names validation, navigation, or layout.
 - **Product UI:** run the journey at the phone (`375 × 667`) and desktop (`1280 × 720`) viewports in `tech-web.md` unless the user waived responsiveness. Add tablet (`768 × 1024`) when layout changes at 768px.
 - **Illustrations:** asserts in `workflow-illustrate.md` only. Do not apply
   product viewports from `tech-web.md`. Spec files are optional keep-tests in

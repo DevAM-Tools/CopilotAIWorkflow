@@ -73,7 +73,7 @@ Cite source path and the broken rule in `Context`. Miss = Error. A trigger that 
 
 ### Distillate (always-on properties)
 
-Reminder of Section 4. Still walk the leading sources in full. Record finding IDs or `none` in Summary.
+Reminder of Section 4. Still walk the leading sources in full. Record finding IDs or `none` on the matching Summary **Checks** row.
 
 - **Security:** OWASP Top 10; never trust caller parameters, URLs, bindings, payloads; injection; no secrets, credentials, tokens, or PII in logs; STRIDE mitigations for external input.
 - **Races:** no unsynchronized shared mutable state; race, TOCTOU, async interleaving, lock inversion, partial-state; document lock/atomic; concurrent tests for thread-safety claims.
@@ -100,7 +100,7 @@ Walk associated tests against implemented behavior:
 
 Happy-only coverage of a behavior that has other applicable classes is a gap. Existing tests that miss an important edge, constellation, contradiction, or gap are insufficient even when filenames look complete.
 
-When a plan is in scope: walk every `REQ{n}` Done-when from the **linked** requirements file and every `TEST{n}` **Content** against code and tests. Unmet on the page = Error. Extra tests beyond `TEST{n}` are not a gap. Missing Content on a card is a gap. An applicable `tech-test.md` class with no `TEST{n}`, no extra test, and no Out = gap.
+When a plan is in scope: walk every requirement ID that has Done-when from the **linked** requirements file and every test ID **Content** against code and tests. Unmet on the page = Error. Extra tests beyond the planned test IDs are not a gap. Missing Content on a card is a gap. An applicable `tech-test.md` class with no test ID, no extra test, and no Out = gap.
 
 **Full review:** run executable Done-when checks; run the loaded coverage gate when one exists (failing gate = Error). **Static review:** judge from source only; if `tech-tunit.md` is loaded, missing exit-path tests = Error; do not run the gate. Other stacks: do not invent an exit-path gate.
 
@@ -114,7 +114,7 @@ Required pass. Walk Section 4.4 and every performance **property** in the loaded
 
 Inspect named hot paths **intensively**. Inspect cold/setup paths only for dominant waste (unbounded buffer, slurped file, accidental N²).
 
-For **each** named hot path, check and record in Summary (finding IDs or `none` per axis):
+For **each** named hot path, check and record on the Summary **Checks** rows (finding IDs or `none` per axis):
 
 - **Complexity:** time and extra space vs input size; hidden nested loops; repeated full scans; worse-than-necessary polynomial work
 - **Allocations:** per-item heap; intermediate collections; boxing; closure capture; string/byte materialization; copy where a view, stack buffer, or reuse would do
@@ -211,7 +211,22 @@ Fenced **Problem** (current) / **Fix** (after) — required. Extra illustration 
 
 ### Summary
 
-Release verdict lives here. Architecture, composition, themes, security, races, orphans, performance axes, test sufficiency, undocumented design, and the property walk live here. Do not add a second closer.
+The Summary is the structured result of the review. A reader sees the
+verdict, every finding in one table, and every hunt in one table. The release
+verdict lives here. Do not add a second closer. Do not replace the tables
+with paragraphs.
+
+- **Release** and **Execution** are single lines.
+- **Counts** is one line. A bucket with zero findings shows `0`.
+- **Findings** has one row per open finding. The Result cell is one sentence:
+  the defect and where it is. Severity sits in the Bucket cell for Errors.
+  Do not paste Problem/Fix here.
+- **Hot paths** names each path this review treated as hot, or `none`.
+- **Checks** has one row per Stage 4 hunt, in the order below. The Result cell
+  is finding IDs or `none`. `none` means the hunt ran and found nothing. A
+  hunt that does not apply says `n/a` and why (`n/a — no product UI`). A
+  missing row is an incomplete Summary.
+- **Priority** lists findings in fix order, one line each: the ID and what the fix changes. Write `none` when Findings has no defect rows.
 
 ```markdown
 ## Summary
@@ -220,30 +235,54 @@ Release verdict lives here. Architecture, composition, themes, security, races, 
 
 **Execution:** {build / test / gate outcome, or `Not run — static review`}
 
-**Sweep:** Skeptic {IDs or `none`; parts and whole} · Outsider {IDs or `none`}
+**Counts:** Error {n} · Cosmetic {n} · Refactoring {n} · Performance {n}
 
-**Architecture / composition:** {1–3 sentences}
+**Hot paths:** {names, or `none`}
 
-**Dominant themes:** {or `none`}
+### Findings
 
-**Security:** {IDs or `none`}
+| ID | Bucket | Result |
+|----|--------|--------|
+| E1 | Error · High | {defect and where, one sentence} |
+| R1 | Refactoring | {defect and where, one sentence} |
 
-**Thread-safety / races:** {posture; IDs or `none`}
+### Checks
 
-**Orphans / structure:** {IDs or `none`}
+| Check | Result |
+|-------|--------|
+| Security | {IDs or `none`} |
+| Races | {IDs or `none`} |
+| Correctness | {IDs or `none`} |
+| API | {IDs or `none`} |
+| Docs | {IDs or `none`} |
+| Design decisions | {IDs or `none`} |
+| Orphans | {IDs or `none`} |
+| Tests | {IDs or `none`} |
+| Performance complexity | {IDs or `none`} |
+| Performance allocations | {IDs or `none`} |
+| Performance latency | {IDs or `none`} |
+| Performance throughput | {IDs or `none`} |
+| Performance memory | {IDs or `none`} |
+| Performance CPU | {IDs or `none`} |
+| Repo | {IDs or `none`} |
+| UI | {IDs or `none` or `n/a — no product UI`} |
+| Debug | {IDs or `none`} |
+| Consistency | {IDs or `none`} |
+| Skeptic parts | {IDs or `none`} |
+| Skeptic whole | {IDs or `none`} |
+| Outsider | {IDs or `none`} |
+| Custom instructions | {`present` or `none`} |
+| Skills | {loaded skill names} |
+| Unloaded trigger | {`none` or Error ID} |
 
-**Performance:** hot paths {names}; complexity {IDs or `none`} · allocations {IDs or `none`} · latency {IDs or `none`} · throughput {IDs or `none`} · memory {IDs or `none`} · CPU {IDs or `none`}
+### Priority
 
-**Tests:** {content sufficient | gaps {IDs}; `TEST{n}` match when a plan exists}
-
-**Docs / design decisions:** {consistency; undocumented choices {IDs or `none`}}
-
-**Skills / instructions:** leading = custom_instructions {yes|none} · {loaded skills} · Section 4; misses {IDs or `none`}; unloaded trigger {none | Error}
-
-**Priority:** {top 3 finding IDs, one line each}
+1. {ID} — {what the fix changes}
 ```
 
-Patch Output before Completion if any Stage 4 hunt is missing from Summary.
+When nothing was found, Findings is one row: `| — | — | none |`, and Priority is `none`.
+
+Patch Output before Completion if any Checks row is missing or a finding is absent from Findings.
 
 ### Output Modes
 
@@ -283,5 +322,5 @@ Assign exactly one bucket: Error · Cosmetic · Refactoring Opportunity · Perfo
 ## Completion
 
 - Summary **Release** answers the public-release question for this scope.
-- Summary holds every Stage 4 hunt. No second closer.
+- Summary **Findings** lists every open finding. Summary **Checks** has every Stage 4 hunt. No second closer.
 - Report counts by bucket and prioritized action list.
