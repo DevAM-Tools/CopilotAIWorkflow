@@ -1,6 +1,6 @@
 # Test Strategy
 
-Load whenever tests or production APIs are in scope. Content and case design live here. Runner, asserts, and coverage **tools** live in the technology test skill (`tech-tunit.md`, `tech-pytest.md`, `tech-rust-test.md`, `tech-playwright.md`).
+Load whenever tests or production APIs are in scope. Content and case design live here. Runner and asserts live in the technology test skill (`tech-tunit.md`, `tech-pytest.md`, `tech-rust-test.md`, `tech-playwright.md`).
 
 Implements Section 4.5 in `copilot-instructions.md`.
 
@@ -31,6 +31,14 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 - Do not use network, real clock waits, or an extra process when a deterministic fake will do.
 - Assert one behavior per test. Parametrize related inputs; do not copy-paste.
 
+## Runs
+
+Minimize how long a run takes. Every stack.
+
+- Run .NET tests with `dotnet test`. Filter syntax: `tech-tunit.md`.
+- When a full run is not required, run only the tests that cover the change. Use that stack’s filter (`tech-tunit.md`, `tech-pytest.md`, `tech-rust-test.md`, `tech-playwright.md`).
+- Run the whole test project or solution when the change can break tests you cannot name, when the user asks for a full run, or at final verification (`workflow-implement.md` Stage 3).
+
 ## Web UI (Playwright)
 
 When a product web UI is in scope, **use Playwright intensively** to prove what the user can see and do. Do not treat a green unit/component suite as UI coverage.
@@ -58,10 +66,6 @@ Implement those cards as steps. Extra tests at implement time are allowed. Do no
   (`TEST-<AREA>-<TOPIC>`) stays in the plan. Do not use it as the method name.
 - Separate Arrange, Act, Assert with a blank line.
 - Cover Windows/Linux/macOS, x64/ARM64 unless the user scoped otherwise.
-
-## Exit paths
-
-When the loaded tech skill defines a coverage gate, that gate is the release gate. Humans review **whether the cases are the right ones**; the tool counts exits. C#: `tech-tunit.md` (ExitPointGaps).
 
 ## Debugging
 

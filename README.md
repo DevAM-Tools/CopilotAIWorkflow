@@ -44,7 +44,7 @@ Rebuild. Violations surface as compiler errors (CSC001–CSC008). No `PrivateAss
 
 ### 2 — Exit-point coverage gate (CLI)
 
-**ExitPointGaps** lists exit-point gaps (`exitGaps[]`). Tests + Cobertura + exit-gap JSON in one call. **Gate:** `summary.exitGapCount == 0` (branch gaps informational). Analysis code lives inside the tool — no separate library package. **SSOT:** [`.github/skills/tech-tunit.md`](.github/skills/tech-tunit.md).
+**ExitPointGaps** lists exit-point gaps (`exitGaps[]`). Tests + Cobertura + exit-gap JSON in one call. **Gate:** `summary.exitGapCount == 0` (branch gaps informational). Analysis code lives inside the tool — no separate library package.
 
 **Setup** (repo root):
 
@@ -156,7 +156,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-rust.md` | `*.rs` / `Cargo.toml` / `Cargo.lock` in scope |
 | `tech-python.md` | `*.py` / `pyproject.toml` / `*.pyi` in scope — strict typing |
 | `tech-test.md` | Tests or production APIs in scope — case design |
-| `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review (ExitPointGaps) |
+| `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review |
 | `tech-pytest.md` | pytest files in scope |
 | `tech-rust-test.md` | Rust unit/integration tests |
 | `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints, CSS/JS placement, a11y |

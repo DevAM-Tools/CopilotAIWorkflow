@@ -37,7 +37,7 @@ Skip none. Use these names only.
 | Outsider | Would a first-time user get this? | Drop insider context. Flag jargon, opaque names, missing first-caller steps. Unknown term → treat as unknown. |
 | Builder | What is the first concrete step? | Prove it can ship. Name the first command, plan step, or `Verify`. No first step → say so. |
 
-**Constraint Block** (all except Outsider): §4.13. Loaded test stack and coverage gate (cite skill). New Dependency Protocol (cite loaded skill). MIT/Apache-2.0/BSD-like. No scope expand. No edits. Cite path/symbol for code claims.
+**Constraint Block** (all except Outsider): §4.13. Loaded test stack (cite skill). New Dependency Protocol (cite loaded skill). MIT/Apache-2.0/BSD-like. No scope expand. No edits. Cite path/symbol for code claims.
 
 Outsider gets the framed question only — no Constraint Block, no tech-skill dump.
 

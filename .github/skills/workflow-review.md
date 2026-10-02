@@ -18,9 +18,9 @@ Enter as a skeptical auditor **new to this project**. A single defect can cause 
 
 Default **full review**. Enter **static review** only on an explicit reduced-scope request (`static review`, `code only`, `code-only`, `reduced scope`, `without running tests`, `ohne Testausführung`, `nur Code-Analyse`). Record the mode in **Scope**. Do not review before scope and mode are confirmed.
 
-**Full:** Read sources, tests, docs, call sites. Judge test **content**. Run in-scope build, paired tests, coverage gate, and Playwright in optimized/Release. Record commands in **Test Execution**. Red build/test/gate → **Error** with output in `Context`. Do not explore the product outside those commands.
+**Full:** Read sources, tests, docs, call sites. Judge test **content**. Run the in-scope build and the tests that cover the change, in optimized/Release. .NET: `dotnet test`. Widen to the paired project or solution only when a filter cannot name the affected tests (`tech-test.md`). Run the Playwright journeys that cover the change. The editor’s integrated browser is available for the changed product UI and using it is recommended (`tech-playwright.md`). Record commands in **Test Execution**. Red build or test → **Error** with output in `Context`. Do not explore the product outside those commands.
 
-**Static:** Read sources, tests, docs. Judge tests and exit-path coverage from source. Write **Test Execution:** `Not run — static review`. Do not run build, tests, gate, Playwright, debugger, or the product.
+**Static:** Read sources, tests, docs. Judge tests from source. Write **Test Execution:** `Not run — static review`. Do not run build, tests, Playwright, debugger, or the product.
 
 ## Stage Order
 
@@ -57,7 +57,7 @@ Default **full review**. Enter **static review** only on an explicit reduced-sco
 
 **Full review:** after reading, run build and scoped tests per Modes. On failure, capture output. Consider concurrent-agent collision (Section 4.14) before treating a failure as a product defect.
 
-**Static review:** do not run build, test, or coverage commands.
+**Static review:** do not run build or test commands.
 
 ## Stage 4 — Review
 
@@ -102,7 +102,7 @@ Happy-only coverage of a behavior that has other applicable classes is a gap. Ex
 
 When a plan is in scope: walk every requirement ID that has Done-when from the **linked** requirements file and every test ID **Content** against code and tests. Unmet on the page = Error. Extra tests beyond the planned test IDs are not a gap. Missing Content on a card is a gap. An applicable `tech-test.md` class with no test ID, no extra test, and no Out = gap.
 
-**Full review:** run executable Done-when checks; run the loaded coverage gate when one exists (failing gate = Error). **Static review:** judge from source only; if `tech-tunit.md` is loaded, missing exit-path tests = Error; do not run the gate. Other stacks: do not invent an exit-path gate.
+**Full review:** run executable Done-when checks. **Static review:** judge from source only.
 
 ### Design decisions
 
@@ -132,7 +132,8 @@ Source-visible cost is enough. Do not require a profiler unless the user asked o
 - Missing misuse/abuse analysis for new public APIs, public API drift from the plan snippet, or a dependency/script added without user approval → Error.
 - Product web UI: markup/CSS follow `tech-web.md` (phone-first, locked
   breakpoints) unless the user waived responsiveness. **Full review:** run planned
-  Playwright journeys; failures = Error. **Static review:** specs must exist and
+  Playwright journeys; failures = Error. The editor’s integrated browser is
+  available and recommended (`tech-playwright.md`). **Static review:** specs must exist and
   look able to fail; do not launch the browser.
 - Illustrations: do not load or apply `tech-web.md`. Do not require responsive
   layout. Asserts in `workflow-illustrate.md` only.
@@ -233,7 +234,7 @@ with paragraphs.
 
 **Release:** Ready for public release | Blocked by {IDs}
 
-**Execution:** {build / test / gate outcome, or `Not run — static review`}
+**Execution:** {build / test outcome, or `Not run — static review`}
 
 **Counts:** Error {n} · Cosmetic {n} · Refactoring {n} · Performance {n}
 
@@ -302,7 +303,7 @@ Priority Action List in chat. Do not write `reviews/review_*.md`.
 1. Findings Overview (top)
 2. Summary (release verdict lives here)
 3. Scope (**Mode:** full review | static review; **Loaded skills:** {list}; in-scope files as Section 4.6 links)
-4. Test Execution (**full review:** commands run, pass/fail, gate summary; **static review:** `Not run — static review`)
+4. Test Execution (**full review:** commands run, pass/fail; **static review:** `Not run — static review`)
 5. Perspective Sweep (Skeptic and Outsider; finding IDs or `none`)
 6. Errors
 7. Cosmetic Issues

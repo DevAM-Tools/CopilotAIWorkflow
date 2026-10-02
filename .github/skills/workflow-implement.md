@@ -32,7 +32,8 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
   (`TEST-<AREA>-<TOPIC>`). Mark that row `✅` when the Content exists as a
   test that can fail. Extra tests beyond those IDs are allowed when they
   still prove agreed behavior.
-- Run `Verify` from the plan step or finding; require pass. On failure follow Section 4.15 and the step `Debug` block. Consider concurrent-agent collision (Section 4.14).
+- Run `Verify` from the plan step or finding; require pass. Keep that run on the tests that cover the step (`tech-test.md`). On failure follow Section 4.15 and the step `Debug` block. Consider concurrent-agent collision (Section 4.14).
+- When a step changes a product web UI, the editor’s integrated browser is available and recommended (`tech-playwright.md`).
 - **Alignment check:** plan/finding target vs actual; no silent deviation.
 - **Requirements check (step close):** re-read the **linked** requirements file (not a copy in the plan). Run Done-when for each requirement ID still `⬜` that this step could have made true. Tick `Met` in that file only when the check **ran**. Do not tick because `How` alluded to an outcome. Do not write requirement IDs or test IDs into code or comments.
 - Confirm step `Acceptance` checkboxes.
@@ -48,7 +49,7 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Confirm **every** scoped step, test ID, and finding is `✅`; leftover `⬜` / `⚠️` = blocker.
 - Re-run alignment: every requirement ID with Done-when Met ✅, every test ID ✅, or all accepted findings resolved.
 - Run full build and all tests in optimized/Release. Commands from the loaded tech skill.
-- For web UI: run the planned Playwright journeys.
+- For web UI: run the planned Playwright journeys. The editor’s integrated browser is available and recommended (`tech-playwright.md`).
 - Output Implementation Status Table (every step / finding / test ID listed).
 - Do not enter Stage 4 until this stage is green.
 
