@@ -4,6 +4,8 @@ namespace ExitPointGaps;
 
 internal static class ProjectCompilationLoader
 {
+    #region Public API
+
     public static async Task<Compilation?> CreateAsync(
         string projectPath,
         bool skipBuild,
@@ -47,7 +49,6 @@ internal static class ProjectCompilationLoader
             return (null, "dotnet restore or build failed.");
         }
 
-        string assetsPath = Path.Combine(projectDirectory, "obj", "project.assets.json");
         if (!CompilationAssetsCache.TryGetOrLoad(
                 projectDirectory,
                 fullProjectPath,
@@ -68,6 +69,15 @@ internal static class ProjectCompilationLoader
         return (CSharpCompilation.Create(projectName, trees, references), null);
     }
 
+    public static string ResolveConfiguration(string? configuration)
+    {
+        return _ResolveConfiguration(configuration);
+    }
+
+    #endregion
+
+    #region Private helpers
+
     private static async Task<bool> _EnsureBuiltAsync(
         string fullProjectPath,
         string projectDirectory,
@@ -75,7 +85,7 @@ internal static class ProjectCompilationLoader
         CancellationToken cancellationToken)
     {
         DotNetProcessResult restoreResult = await DotNetProcess.RunAsync(
-            $"restore \"{fullProjectPath}\"",
+            Invariant($"restore \"{fullProjectPath}\""),
             projectDirectory,
             cancellationToken).ConfigureAwait(false);
         if (restoreResult.ExitCode != 0)
@@ -84,15 +94,10 @@ internal static class ProjectCompilationLoader
         }
 
         DotNetProcessResult buildResult = await DotNetProcess.RunAsync(
-            $"build \"{fullProjectPath}\" -c {configuration} --no-restore -v:q",
+            Invariant($"build \"{fullProjectPath}\" -c {configuration} --no-restore -v:q"),
             projectDirectory,
             cancellationToken).ConfigureAwait(false);
         return buildResult.ExitCode == 0;
-    }
-
-    public static string ResolveConfiguration(string? configuration)
-    {
-        return _ResolveConfiguration(configuration);
     }
 
     private static string _ResolveConfiguration(string? configuration)
@@ -111,141 +116,6 @@ internal static class ProjectCompilationLoader
         return "Release";
     }
 
-    /// <remarks>Spawns <c>dotnet</c> subprocesses; success path exercised by loader integration tests.</remarks>
-    [ExcludeFromCodeCoverage]
-    private static string? _ReadTargetFramework(string projectPath, string assetsPath, out string? error)
-    {
-        error = null;
-        string? fromProject = _TryReadTargetFrameworkFromProject(projectPath, out string? projectError);
-        if (!string.IsNullOrEmpty(projectError))
-        {
-            error = projectError;
-            return null;
-        }
-
-        if (!string.IsNullOrEmpty(fromProject))
-        {
-            return fromProject;
-        }
-
-        return _TryReadTargetFrameworkFromAssets(assetsPath);
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static string? _TryReadTargetFrameworkFromProject(string projectPath, out string? error)
-    {
-        error = null;
-        if (!ProjectXmlLoader.TryLoadDocument(projectPath, out XDocument? document, out error))
-        {
-            return null;
-        }
-
-        XElement? tfm = document!.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFramework");
-        if (tfm is not null && !string.IsNullOrWhiteSpace(tfm.Value))
-        {
-            return tfm.Value;
-        }
-
-        XElement? tfms = document.Descendants().FirstOrDefault(element => element.Name.LocalName == "TargetFrameworks");
-        if (tfms is not null && !string.IsNullOrWhiteSpace(tfms.Value))
-        {
-            return tfms.Value.Split(';', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-        }
-
-        return null;
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static string? _TryReadTargetFrameworkFromAssets(string assetsPath)
-    {
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsPath));
-        if (!document.RootElement.TryGetProperty("project", out JsonElement project)
-            || !project.TryGetProperty("frameworks", out JsonElement frameworks))
-        {
-            return null;
-        }
-
-        foreach (JsonProperty framework in frameworks.EnumerateObject())
-        {
-            return framework.Name;
-        }
-
-        return null;
-    }
-
-    private static List<MetadataReference> _ResolveReferences(
-        string assetsPath,
-        string targetFramework,
-        string projectDirectory,
-        string configuration)
-    {
-        HashSet<string> paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsPath));
-        if (document.RootElement.TryGetProperty("targets", out JsonElement targets)
-            && targets.TryGetProperty(targetFramework, out JsonElement target))
-        {
-            foreach (JsonProperty library in target.EnumerateObject())
-            {
-                if (!library.Value.TryGetProperty("runtime", out JsonElement runtime))
-                {
-                    continue;
-                }
-
-                foreach (JsonProperty runtimeFile in runtime.EnumerateObject())
-                {
-                    string? resolved = _ResolveAssetPath(document.RootElement, library.Name, runtimeFile.Name);
-                    if (resolved is not null && File.Exists(resolved))
-                    {
-                        paths.Add(resolved);
-                    }
-                }
-            }
-        }
-
-        string outputDir = Path.Combine(projectDirectory, "bin", configuration, targetFramework);
-        if (Directory.Exists(outputDir))
-        {
-            foreach (string dll in Directory.EnumerateFiles(outputDir, "*.dll"))
-            {
-                paths.Add(dll);
-            }
-        }
-
-        return _CreateReferences(paths);
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static string? _ResolveAssetPath(JsonElement root, string libraryName, string runtimeFileName)
-    {
-        if (!root.TryGetProperty("libraries", out JsonElement libraries)
-            || !libraries.TryGetProperty(libraryName, out JsonElement library))
-        {
-            return null;
-        }
-
-        if (!library.TryGetProperty("path", out JsonElement pathElement))
-        {
-            return null;
-        }
-
-        string packagePath = pathElement.GetString() ?? string.Empty;
-        if (!root.TryGetProperty("packageFolders", out JsonElement folders))
-        {
-            return null;
-        }
-
-        foreach (JsonProperty folder in folders.EnumerateObject())
-        {
-            string candidate = Path.Combine(folder.Name, packagePath, runtimeFileName);
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
-
     private static SyntaxTree[] _LoadSyntaxTrees(string projectPath, string projectDirectory)
     {
         HashSet<string> sourcePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -255,8 +125,8 @@ internal static class ProjectCompilationLoader
         {
             foreach (string path in Directory.EnumerateFiles(projectDirectory, "*.cs", SearchOption.AllDirectories))
             {
-                if (!path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                    && !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+                if (!path.Contains(Invariant($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
+                    && !path.Contains(Invariant($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
                     && !path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
                 {
                     sourcePaths.Add(path);
@@ -268,7 +138,9 @@ internal static class ProjectCompilationLoader
         int treeIndex = 0;
         foreach (string path in sourcePaths)
         {
-            trees[treeIndex++] = CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path);
+            using FileStream stream = File.OpenRead(path);
+            SourceText text = SourceText.From(stream, Encoding.UTF8);
+            trees[treeIndex++] = CSharpSyntaxTree.ParseText(text, path: path);
         }
 
         return trees;
@@ -323,4 +195,6 @@ internal static class ProjectCompilationLoader
 
         return references;
     }
+
+    #endregion
 }

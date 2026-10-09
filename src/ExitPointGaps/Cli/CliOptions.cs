@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Parsed CLI options shared by <c>run</c> and <c>plan</c>.</summary>
 internal sealed class CliOptions
 {
+    #region Public API
+
     public string Command { get; set; } = CliConstants.RunCommand;
 
     public RunTargetKind TargetKind { get; set; } = RunTargetKind.SolutionAuto;
@@ -48,6 +50,8 @@ internal sealed class CliOptions
     public bool ShowHelp { get; set; }
 
     public bool IsRunCommand => string.Equals(Command, CliConstants.RunCommand, StringComparison.OrdinalIgnoreCase);
+
+    #endregion
 }
 
 /// <summary>Scope target for <c>run</c> and <c>plan</c>.</summary>

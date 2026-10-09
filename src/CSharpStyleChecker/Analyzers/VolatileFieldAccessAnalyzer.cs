@@ -14,6 +14,8 @@ namespace CSharpStyleChecker.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class VolatileFieldAccessAnalyzer : DiagnosticAnalyzer
 {
+    #region Lifecycle
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(DiagnosticDescriptors.VolatileFieldAccess);
@@ -42,6 +44,10 @@ public sealed class VolatileFieldAccessAnalyzer : DiagnosticAnalyzer
             SyntaxKind.PostDecrementExpression);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
         if (TryGetTargetExpression(context.Node, out ExpressionSyntax target)
@@ -54,7 +60,10 @@ public sealed class VolatileFieldAccessAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    /// <remarks>Defensive: registered syntax kinds map to assignment/unary nodes; default is unreachable in practice.</remarks>
+    /// <summary>
+    /// Maps registered assignment/unary nodes to their target expression.
+    /// Reason: default branch is unreachable for registered kinds; covered via analyzer verifier diagnostics.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetTargetExpression(SyntaxNode node, out ExpressionSyntax target)
     {
@@ -75,7 +84,10 @@ public sealed class VolatileFieldAccessAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    /// <remarks>Resolves field symbols for identifier and member-access expressions.</remarks>
+    /// <summary>
+    /// Resolves field symbols for identifier and member-access expressions.
+    /// Reason: binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetVolatileField(
         ExpressionSyntax expression,
@@ -92,4 +104,6 @@ public sealed class VolatileFieldAccessAnalyzer : DiagnosticAnalyzer
         field = fieldSymbol;
         return true;
     }
+
+    #endregion
 }

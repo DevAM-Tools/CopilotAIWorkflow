@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Exit-point gap CLI entry point.</summary>
 public static class Program
 {
+    #region Public API
+
     /// <summary>Runs the exitpointgaps tool.</summary>
     /// <param name="args">Command-line arguments.</param>
     /// <returns>Process exit code.</returns>
@@ -12,6 +14,10 @@ public static class Program
     {
         return _MainAsync(args);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static async Task<int> _MainAsync(string[] args)
     {
@@ -74,4 +80,6 @@ public static class Program
             }
         }
     }
+
+    #endregion
 }

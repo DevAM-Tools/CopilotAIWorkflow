@@ -5,7 +5,13 @@ namespace ExitPointGaps;
 /// <summary>Formats exit-point manifests for <c>plan</c>.</summary>
 internal static class ExitManifestFormatter
 {
+    #region Fields
+
     private static readonly JsonSerializerOptions _JsonOptions = new() { WriteIndented = true };
+
+    #endregion
+
+    #region Public API
 
     public static string Format(IReadOnlyList<ExitPointEntry> exits, string format)
     {
@@ -18,6 +24,10 @@ internal static class ExitManifestFormatter
 
         return JsonSerializer.Serialize(exits, _JsonOptions);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static string _FormatText(IReadOnlyList<ExitPointEntry> exits)
     {
@@ -40,4 +50,6 @@ internal static class ExitManifestFormatter
 
         return builder.ToString();
     }
+
+    #endregion
 }

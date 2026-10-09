@@ -25,7 +25,7 @@ internal sealed class GapMultiProjectWorkspace : IAsyncDisposable
     {
         string repositoryRoot = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        string rootPath = Path.Combine(Path.GetTempPath(), $"gap-multi-{Guid.NewGuid():N}");
+        string rootPath = Path.Combine(Path.GetTempPath(), Invariant($"gap-multi-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(rootPath);
         await File.WriteAllTextAsync(
             Path.Combine(rootPath, "global.json"),
@@ -36,15 +36,15 @@ internal sealed class GapMultiProjectWorkspace : IAsyncDisposable
 
         for (int projectIndex = 1; projectIndex <= projectCount; projectIndex++)
         {
-            string libraryName = $"PerfLib{projectIndex}";
-            string testsName = $"{libraryName}.Tests";
+            string libraryName = Invariant($"PerfLib{projectIndex}");
+            string testsName = Invariant($"{libraryName}.Tests");
             string libraryDirectory = Path.Combine(rootPath, libraryName);
             string testsDirectory = Path.Combine(rootPath, testsName);
             Directory.CreateDirectory(libraryDirectory);
             Directory.CreateDirectory(testsDirectory);
 
-            string libraryProject = Path.Combine(libraryDirectory, $"{libraryName}.csproj");
-            string testsProject = Path.Combine(testsDirectory, $"{testsName}.csproj");
+            string libraryProject = Path.Combine(libraryDirectory, Invariant($"{libraryName}.csproj"));
+            string testsProject = Path.Combine(testsDirectory, Invariant($"{testsName}.csproj"));
             await File.WriteAllTextAsync(
                 libraryProject,
                 GapSampleWorkspace.LibraryProjectXml.Replace("GapSample", libraryName, StringComparison.Ordinal));
@@ -52,7 +52,7 @@ internal sealed class GapMultiProjectWorkspace : IAsyncDisposable
                 testsProject,
                 GapSampleWorkspace.TestsProjectXml
                     .Replace("GapSample.Tests", testsName, StringComparison.Ordinal)
-                    .Replace("GapSample\\GapSample.csproj", $"{libraryName}\\{libraryName}.csproj", StringComparison.Ordinal));
+                    .Replace("GapSample\\GapSample.csproj", Invariant($"{libraryName}\\{libraryName}.csproj"), StringComparison.Ordinal));
             await File.WriteAllTextAsync(
                 Path.Combine(libraryDirectory, "Calculator.cs"),
                 GapSampleWorkspace.CalculatorSource.Replace("GapSample", libraryName, StringComparison.Ordinal));
@@ -71,10 +71,10 @@ internal sealed class GapMultiProjectWorkspace : IAsyncDisposable
         string solutionPath = Path.Combine(rootPath, "PerfBench.slnx");
         await File.WriteAllTextAsync(solutionPath, solutionBuilder.ToString());
 
-        int restoreCode = await _RunDotNetAsync($"restore \"{solutionPath}\"", rootPath);
+        int restoreCode = await _RunDotNetAsync(Invariant($"restore \"{solutionPath}\""), rootPath);
         await Assert.That(restoreCode).IsEqualTo(0);
 
-        int buildCode = await _RunDotNetAsync($"build \"{solutionPath}\" -c Release --no-restore", rootPath);
+        int buildCode = await _RunDotNetAsync(Invariant($"build \"{solutionPath}\" -c Release --no-restore"), rootPath);
         await Assert.That(buildCode).IsEqualTo(0);
 
         string workDirectory = RunIsolation.CreateDefaultWorkDirectory();
@@ -102,7 +102,7 @@ internal sealed class GapMultiProjectWorkspace : IAsyncDisposable
         if (result.ExitCode != 0)
         {
             string details = string.IsNullOrWhiteSpace(result.StandardError) ? result.StandardOutput : result.StandardError;
-            throw new InvalidOperationException($"dotnet {arguments} failed ({result.ExitCode}): {details}");
+            throw new InvalidOperationException(Invariant($"dotnet {arguments} failed ({result.ExitCode}): {details}"));
         }
 
         return result.ExitCode;

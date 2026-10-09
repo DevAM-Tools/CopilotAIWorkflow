@@ -2,14 +2,25 @@
 
 namespace ExitPointGaps.Analysis;
 
-/// <summary>Reads Cobertura XML into <see cref="Models.CoberturaDocument"/>. 
+/// <summary>Reads Cobertura XML into <see cref="Models.CoberturaDocument"/>.
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class CoberturaReader
+internal static class CoberturaReader
 {
+    #region Fields
+
     private const long _MaxFileSizeBytes = 50L * 1024L * 1024L;
+    private static readonly IReadOnlyList<double> _EmptyConditions = Array.Empty<double>();
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Attempts to read a Cobertura file.</summary>
+    /// <remarks>
+    /// Rejects files larger than 50 MiB (52_428_800 bytes). This limit is a compile-time constant,
+    /// not a CLI option. Split or filter coverage output if the file exceeds the cap.
+    /// </remarks>
     /// <param name="path">Path to Cobertura XML.</param>
     /// <param name="document">Parsed document when successful.</param>
     /// <param name="error">Error message when unsuccessful.</param>
@@ -20,6 +31,10 @@ public static class CoberturaReader
     }
 
     /// <summary>Attempts to read a Cobertura file retaining only scoped package lines.</summary>
+    /// <remarks>
+    /// Rejects files larger than 50 MiB (52_428_800 bytes). This limit is a compile-time constant,
+    /// not a CLI option. Split or filter coverage output if the file exceeds the cap.
+    /// </remarks>
     /// <param name="path">Path to Cobertura XML.</param>
     /// <param name="scope">Package scope filter.</param>
     /// <param name="document">Parsed scoped document when successful.</param>
@@ -30,6 +45,10 @@ public static class CoberturaReader
         ArgumentNullException.ThrowIfNull(scope);
         return _TryReadCore(path, scope, out document, out error);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static bool _TryReadCore(string path, BranchGapScope? scope, out Models.CoberturaDocument? document, out string? error)
     {
@@ -44,14 +63,14 @@ public static class CoberturaReader
 
         if (!File.Exists(path))
         {
-            error = $"Cobertura file not found: {path}";
+            error = Invariant($"Cobertura file not found: {path}");
             return false;
         }
 
         FileInfo fileInfo = new FileInfo(path);
         if (fileInfo.Length > _MaxFileSizeBytes)
         {
-            error = $"Cobertura file exceeds maximum size of {_MaxFileSizeBytes} bytes.";
+            error = Invariant($"Cobertura file exceeds maximum size of {_MaxFileSizeBytes} bytes.");
             return false;
         }
 
@@ -69,12 +88,12 @@ public static class CoberturaReader
         }
         catch (XmlException ex)
         {
-            error = $"Malformed Cobertura XML: {ex.Message}";
+            error = Invariant($"Malformed Cobertura XML: {ex.Message}");
             return false;
         }
         catch (IOException ex)
         {
-            error = $"Failed to read Cobertura file: {ex.Message}";
+            error = Invariant($"Failed to read Cobertura file: {ex.Message}");
             return false;
         }
     }
@@ -155,7 +174,22 @@ public static class CoberturaReader
                     int lineNumber = _ReadInt(reader, "number");
                     int hits = _ReadInt(reader, "hits");
                     bool isBranch = string.Equals(reader.GetAttribute("branch"), "True", StringComparison.OrdinalIgnoreCase);
-                    List<double> conditions = _ReadConditions(reader);
+                    string? conditionCoverage = reader.GetAttribute("condition-coverage");
+                    IReadOnlyList<double> conditions;
+                    if (isBranch || !string.IsNullOrEmpty(conditionCoverage))
+                    {
+                        conditions = _ReadConditions(reader, conditionCoverage);
+                    }
+                    else if (!reader.IsEmptyElement)
+                    {
+                        _SkipElementContent(reader);
+                        conditions = _EmptyConditions;
+                    }
+                    else
+                    {
+                        conditions = _EmptyConditions;
+                    }
+
                     if (!lineMap.TryGetValue(lineNumber, out Models.CoberturaLineInfo? existing) || hits > existing.Hits)
                     {
                         lineMap[lineNumber] = new Models.CoberturaLineInfo(hits, isBranch, conditions, currentMethod);
@@ -220,24 +254,14 @@ public static class CoberturaReader
         return 0;
     }
 
-    private static List<double> _ReadConditions(XmlReader reader)
+    private static IReadOnlyList<double> _ReadConditions(XmlReader reader, string? lineCoverage)
     {
-        List<double> conditions = [];
-        string? lineCoverage = reader.GetAttribute("condition-coverage");
         if (reader.IsEmptyElement)
         {
-            if (!string.IsNullOrEmpty(lineCoverage))
-            {
-                double parsed = _ParsePercentage(lineCoverage);
-                if (parsed >= 0 && parsed < 1d)
-                {
-                    conditions.Add(parsed);
-                }
-            }
-
-            return conditions;
+            return _ParseLineCoverageConditions(lineCoverage);
         }
 
+        List<double> conditions = [];
         int depth = reader.Depth;
         while (reader.Read())
         {
@@ -260,16 +284,45 @@ public static class CoberturaReader
             }
         }
 
-        if (conditions.Count == 0 && !string.IsNullOrEmpty(lineCoverage))
+        if (conditions.Count == 0)
         {
-            double parsed = _ParsePercentage(lineCoverage);
-            if (parsed >= 0 && parsed < 1d)
-            {
-                conditions.Add(parsed);
-            }
+            return _ParseLineCoverageConditions(lineCoverage);
         }
 
         return conditions;
+    }
+
+    private static IReadOnlyList<double> _ParseLineCoverageConditions(string? lineCoverage)
+    {
+        if (string.IsNullOrEmpty(lineCoverage))
+        {
+            return _EmptyConditions;
+        }
+
+        double parsed = _ParsePercentage(lineCoverage);
+        if (parsed >= 0 && parsed < 1d)
+        {
+            return [parsed];
+        }
+
+        return _EmptyConditions;
+    }
+
+    private static void _SkipElementContent(XmlReader reader)
+    {
+        if (reader.IsEmptyElement)
+        {
+            return;
+        }
+
+        int depth = reader.Depth;
+        while (reader.Read())
+        {
+            if (reader.NodeType == XmlNodeType.EndElement && reader.Depth == depth)
+            {
+                break;
+            }
+        }
     }
 
     private static double _ParsePercentage(string value)
@@ -293,4 +346,6 @@ public static class CoberturaReader
 
         return -1;
     }
+
+    #endregion
 }

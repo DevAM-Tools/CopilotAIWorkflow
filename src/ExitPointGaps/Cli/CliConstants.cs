@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>CLI contract constants.</summary>
 internal static class CliConstants
 {
+    #region Fields
+
     public const string RunCommand = "run";
 
     public const string PlanCommand = "plan";
@@ -26,4 +28,6 @@ internal static class CliConstants
     public const int ExitGateOrToolFailure = 1;
 
     public const int ExitUsageError = 2;
+
+    #endregion
 }

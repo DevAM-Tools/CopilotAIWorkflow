@@ -10,7 +10,7 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task CoberturaReader_OversizedFile_ReturnsError()
     {
-        string path = Path.Combine(Path.GetTempPath(), $"cobertura-big-{Guid.NewGuid():N}.xml");
+        string path = Path.Combine(Path.GetTempPath(), Invariant($"cobertura-big-{Guid.NewGuid():N}.xml"));
         using (FileStream stream = File.Create(path))
         {
             stream.SetLength(_OversizedCoberturaBytes);
@@ -237,12 +237,12 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task ExitCoverageComparer_WithSnippets_IncludesSnippetText()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"exit-snippet-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"exit-snippet-{Guid.NewGuid():N}"));
         string sourceDir = Path.Combine(root, "src", "Sample");
         Directory.CreateDirectory(sourceDir);
         await File.WriteAllLinesAsync(
             Path.Combine(sourceDir, "Foo.cs"),
-            Enumerable.Range(1, 19).Select(static i => $"// {i}").Append("return 42;"));
+            Enumerable.Range(1, 19).Select(static i => Invariant($"// {i}")).Append("return 42;"));
 
         string xml = CoberturaFixtures.ExitGapXml.Replace(@"C:\repo", root, StringComparison.Ordinal);
         string path = CoberturaFixtures.WriteTemporaryFile(xml);
@@ -308,7 +308,7 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task FindNewestCoberturaInDirectory_ReturnsNullForUnrelatedDirectory()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"discovery-filter-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"discovery-filter-{Guid.NewGuid():N}"));
         string otherDir = Path.Combine(root, "Other", "output");
         Directory.CreateDirectory(otherDir);
         await File.WriteAllTextAsync(Path.Combine(otherDir, "run.cobertura.xml"), CoberturaFixtures.FullCoverageXml);
@@ -330,7 +330,7 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task CoberturaReader_LockedFile_ReturnsIoError()
     {
-        string path = Path.Combine(Path.GetTempPath(), $"locked-{Guid.NewGuid():N}.xml");
+        string path = Path.Combine(Path.GetTempPath(), Invariant($"locked-{Guid.NewGuid():N}.xml"));
         await File.WriteAllTextAsync(path, CoberturaFixtures.FullCoverageXml);
         using FileStream locked = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 
@@ -444,7 +444,7 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task PathNormalizer_TryReadSnippet_LockedFile_ReturnsNull()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"snippet-lock-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"snippet-lock-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string file = Path.Combine(root, "Sample.cs");
         await File.WriteAllTextAsync(file, "locked line");
@@ -458,7 +458,7 @@ public sealed class ExitPointGapApiCoverageTests
     [Test]
     public async Task CoberturaDiscovery_ReadTestProjectName_ReturnsNullForShallowPath()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"shallow-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"shallow-{Guid.NewGuid():N}"));
         string shallowDir = Path.Combine(root, "TestResults");
         Directory.CreateDirectory(shallowDir);
         string file = Path.Combine(shallowDir, "orphan.cobertura.xml");

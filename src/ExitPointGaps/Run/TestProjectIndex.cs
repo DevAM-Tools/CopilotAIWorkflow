@@ -8,12 +8,22 @@ namespace ExitPointGaps;
 /// </summary>
 internal sealed class TestProjectIndex
 {
+    #region Fields
+
     private readonly Dictionary<string, string> _TestByProduction;
+
+    #endregion
+
+    #region Lifecycle
 
     private TestProjectIndex(Dictionary<string, string> testByProduction)
     {
         _TestByProduction = testByProduction;
     }
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Builds the index by scanning all test projects once.</summary>
     /// <param name="repositoryRoot">Repository root.</param>
@@ -55,4 +65,6 @@ internal sealed class TestProjectIndex
 
         return null;
     }
+
+    #endregion
 }

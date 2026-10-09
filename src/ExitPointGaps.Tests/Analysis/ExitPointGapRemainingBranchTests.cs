@@ -356,7 +356,7 @@ public sealed class ExitPointGapRemainingBranchTests
         string path = CoberturaFixtures.WriteTemporaryFile(CoberturaFixtures.ExitGapXml);
         CoberturaReader.TryRead(path, out CoberturaDocument? document, out string? _);
 
-        string repositoryRoot = Path.Combine(Path.GetTempPath(), $"relative-root-{Guid.NewGuid():N}");
+        string repositoryRoot = Path.Combine(Path.GetTempPath(), Invariant($"relative-root-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(repositoryRoot);
 
         ExitPointEntry exit = new ExitPointEntry(
@@ -380,7 +380,7 @@ public sealed class ExitPointGapRemainingBranchTests
     [Test]
     public async Task PathNormalizer_TryReadSnippet_LineBeyondEnd_ReturnsNull()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"snippet-beyond-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"snippet-beyond-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         await File.WriteAllTextAsync(Path.Combine(root, "Sample.cs"), "only");
 
@@ -483,7 +483,7 @@ public sealed class ExitPointGapRemainingBranchTests
     [Test]
     public async Task CoberturaDiscovery_ShallowTestResults_FindsCoberturaInDirectory()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"drive-root-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"drive-root-{Guid.NewGuid():N}"));
         string testResults = Path.Combine(root, "TestResults");
         Directory.CreateDirectory(testResults);
         string file = Path.Combine(testResults, "drive.cobertura.xml");

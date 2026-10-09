@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Writes aggregated gate output without shared overwrite paths.</summary>
 internal static class AggregatedGapReportWriter
 {
+    #region Public API
+
     public static async Task WriteAsync(
         AggregatedGapReport report,
         CliOptions options,
@@ -25,7 +27,7 @@ internal static class AggregatedGapReportWriter
                 project.Report.Summary.ExitGapCount,
                 project.Report.Summary.BranchGapCount,
                 project.TestExitCode,
-                $"{Path.GetFileNameWithoutExtension(project.ProjectPath)}.json",
+                Invariant($"{Path.GetFileNameWithoutExtension(project.ProjectPath)}.json"),
                 false));
         }
 
@@ -63,6 +65,10 @@ internal static class AggregatedGapReportWriter
         await File.WriteAllTextAsync(resolvedOutput, summaryPayload, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static bool _IsDirectoryOutput(string? outputPath, string resolvedOutput)
     {
         if (!string.IsNullOrWhiteSpace(outputPath)
@@ -73,4 +79,6 @@ internal static class AggregatedGapReportWriter
 
         return Directory.Exists(resolvedOutput);
     }
+
+    #endregion
 }

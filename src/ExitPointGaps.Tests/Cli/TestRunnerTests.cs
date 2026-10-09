@@ -28,7 +28,7 @@ public sealed class TestRunnerTests
     [Test]
     public async Task CoberturaPathFinder_PicksNewestInDirectory()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"cobertura-find-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"cobertura-find-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string older = Path.Combine(root, "older.cobertura.xml");
         string newer = Path.Combine(root, "nested", "newer.cobertura.xml");
@@ -81,7 +81,7 @@ public sealed class TestRunnerTests
     [Test]
     public async Task TryReserveWorkDirectory_ExplicitPath_OnlyOneParallelReservationSucceeds()
     {
-        string workDirectory = Path.Combine(Path.GetTempPath(), $"gap-lock-{Guid.NewGuid():N}");
+        string workDirectory = Path.Combine(Path.GetTempPath(), Invariant($"gap-lock-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(workDirectory);
 
         int successCount = 0;

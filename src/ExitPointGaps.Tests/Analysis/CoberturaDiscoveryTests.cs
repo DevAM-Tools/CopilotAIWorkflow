@@ -8,7 +8,7 @@ public sealed class CoberturaDiscoveryTests
     [Test]
     public async Task FindNewestCoberturaInDirectory_PicksNewestFile()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"discovery-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"discovery-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
 
         string older = Path.Combine(root, "older.cobertura.xml");
@@ -25,7 +25,7 @@ public sealed class CoberturaDiscoveryTests
     [Test]
     public async Task ReadTestProjectDirectory_ReturnsNullWhenNotUnderTestsProject()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"shallow-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"shallow-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         DirectoryInfo directory = new DirectoryInfo(root);
 
@@ -37,7 +37,7 @@ public sealed class CoberturaDiscoveryTests
     [Test]
     public async Task ReadTestProjectDirectory_ReturnsTestsFolderName()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"tests-dir-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"tests-dir-{Guid.NewGuid():N}"));
         string projectDir = Path.Combine(root, "ExitPointGaps.Tests");
         Directory.CreateDirectory(projectDir);
         DirectoryInfo directory = new DirectoryInfo(projectDir);
@@ -50,7 +50,7 @@ public sealed class CoberturaDiscoveryTests
     [Test]
     public async Task ReadTestProjectName_ReturnsTestsFolderFromCoberturaPath()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"tests-name-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"tests-name-{Guid.NewGuid():N}"));
         string coberturaPath = Path.Combine(root, "ExitPointGaps.Tests", "TestResults", "x.cobertura.xml");
         Directory.CreateDirectory(Path.GetDirectoryName(coberturaPath)!);
         await File.WriteAllTextAsync(coberturaPath, "<coverage/>");
@@ -64,7 +64,7 @@ public sealed class CoberturaDiscoveryTests
     public async Task FindNewestCoberturaInDirectory_ReturnsNullForMissingDirectory()
     {
         string? path = CoberturaDiscovery.FindNewestCoberturaInDirectory(
-            Path.Combine(Path.GetTempPath(), $"missing-{Guid.NewGuid():N}"));
+            Path.Combine(Path.GetTempPath(), Invariant($"missing-{Guid.NewGuid():N}")));
 
         await Assert.That(path).IsNull();
     }

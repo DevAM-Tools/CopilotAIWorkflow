@@ -81,7 +81,7 @@ internal static class CoberturaFixtures
 
     internal static string WriteTemporaryFile(string content)
     {
-        string path = Path.Combine(Path.GetTempPath(), $"cobertura-{Guid.NewGuid():N}.xml");
+        string path = Path.Combine(Path.GetTempPath(), Invariant($"cobertura-{Guid.NewGuid():N}.xml"));
         File.WriteAllText(path, content);
         return path;
     }

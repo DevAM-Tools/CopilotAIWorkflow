@@ -3,7 +3,7 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>Unified exit-point gap report with exit gaps before branch gaps.</summary>
-public sealed record ExitPointGapReport(
+internal sealed record ExitPointGapReport(
     ExitPointGapSummary Summary,
     IReadOnlyList<ExitCoverageGap> ExitGaps,
     IReadOnlyList<BranchGap> BranchGaps);

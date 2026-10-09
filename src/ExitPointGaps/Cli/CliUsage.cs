@@ -6,6 +6,8 @@ namespace ExitPointGaps;
 [ExcludeFromCodeCoverage]
 internal static class CliUsage
 {
+    #region Public API
+
     public static async Task WriteAsync()
     {
         await Console.Error.WriteLineAsync(
@@ -39,4 +41,6 @@ internal static class CliUsage
               --no-stream               Disable default stdout streaming
             """).ConfigureAwait(false);
     }
+
+    #endregion
 }

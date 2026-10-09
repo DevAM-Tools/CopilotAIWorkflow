@@ -4,6 +4,8 @@ namespace CSharpStyleChecker;
 
 internal static class AnalyzerGuard
 {
+    #region Private helpers
+
     internal static void RequireContext(Microsoft.CodeAnalysis.Diagnostics.AnalysisContext context)
     {
         if (context is null)
@@ -11,4 +13,6 @@ internal static class AnalyzerGuard
             throw new System.ArgumentNullException(nameof(context));
         }
     }
+
+    #endregion
 }

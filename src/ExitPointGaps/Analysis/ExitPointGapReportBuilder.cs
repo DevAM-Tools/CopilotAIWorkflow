@@ -5,8 +5,10 @@ namespace ExitPointGaps.Analysis;
 /// <summary>Builds unified exit-point gap reports.
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class ExitPointGapReportBuilder
+internal static class ExitPointGapReportBuilder
 {
+    #region Public API
+
     /// <summary>Builds a report from exit points and scoped Cobertura documents.</summary>
     /// <param name="exits">Exit points from Roslyn collection.</param>
     /// <param name="allDocuments">All Cobertura documents for line-hit merging.</param>
@@ -30,9 +32,12 @@ public static class ExitPointGapReportBuilder
             ExitCoverageComparer.Compare(exits, allDocuments, repositoryRoot, includeSnippets);
 
         IReadOnlyList<Models.BranchGap> branchGaps =
-            BranchGapAnalyzer.FindUncoveredBranches(scopedDocuments, repositoryRoot, includeSnippets);
+            BranchGapAnalyzer.FindUncoveredBranches(
+                scopedDocuments,
+                repositoryRoot,
+                includeSnippets,
+                out double branchRate);
 
-        double branchRate = BranchGapAnalyzer.GetMinimumScopedBranchRate(scopedDocuments);
         int exitGapCount = exitGaps.Count;
         int branchGapCount = branchGaps.Count;
         int totalGapCount = exitGapCount + branchGapCount;
@@ -49,4 +54,6 @@ public static class ExitPointGapReportBuilder
 
         return new Models.ExitPointGapReport(summary, exitGaps, branchGaps);
     }
+
+    #endregion
 }

@@ -5,6 +5,10 @@ namespace ExitPoints;
 /// <summary>Options controlling exit point collection.</summary>
 public sealed class ExitPointCollectorOptions
 {
+    #region Public API
+
     /// <summary>When <see langword="true"/>, includes local function exit points.</summary>
     public bool IncludeLocalFunctions { get; init; }
+
+    #endregion
 }

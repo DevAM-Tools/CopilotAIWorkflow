@@ -3,7 +3,7 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>An uncovered branch condition in source.</summary>
-public sealed record BranchGap(
+internal sealed record BranchGap(
     int Priority,
     string Package,
     string ClassName,

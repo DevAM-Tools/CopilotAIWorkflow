@@ -10,141 +10,188 @@ namespace CSharpStyleChecker.Tests.Helpers;
 internal sealed class LineMaskingTests
 {
     [Test]
-    public async Task MaskLine_Null_Throws()
+    public async Task MaskLineNullThrows()
     {
-        await Assert.That(() => LineMasking.MaskLine(null!, false)).Throws<ArgumentNullException>();
+        await Assert.That(() => LineMasking.MaskLine(null!, default)).Throws<ArgumentNullException>();
     }
 
     [Test]
-    public async Task MaskLine_LongStringLiteral_DoesNotCountStringContent()
+    public async Task MaskLineLongStringLiteralDoesNotCountStringContent()
     {
         string line = "int x = \"" + new string('a', 200) + "\";";
-        (string masked, _) = LineMasking.MaskLine(line, false);
+        (string masked, _) = LineMasking.MaskLine(line, default);
 
         await Assert.That(masked.TrimEnd().Length).IsLessThanOrEqualTo(20);
     }
 
     [Test]
-    public async Task MaskLine_LineComment_MasksRemainder()
+    public async Task MaskLineLineCommentCountsRemainder()
     {
-        (string masked, _) = LineMasking.MaskLine("int x = 1; // comment with var keyword", false);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("int x = 1; // comment with var keyword", default);
 
-        await Assert.That(masked.Contains("var", System.StringComparison.Ordinal)).IsFalse();
+        await Assert.That(masked).IsEqualTo("int x = 1; // comment with var keyword");
+        await Assert.That(state.InBlockComment).IsFalse();
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
     }
 
     [Test]
-    public async Task MaskLine_BlockComment_RemovesContent()
+    public async Task MaskLineBlockCommentKeepsContent()
     {
-        (string masked, bool inBlock) = LineMasking.MaskLine("int x = 1; /* block */ int y = 2;", false);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("int x = 1; /* block */ int y = 2;", default);
 
-        await Assert.That(masked).IsEqualTo("int x = 1;  int y = 2;");
-        await Assert.That(inBlock).IsFalse();
+        await Assert.That(masked).IsEqualTo("int x = 1; /* block */ int y = 2;");
+        await Assert.That(state.InBlockComment).IsFalse();
     }
 
     [Test]
-    public async Task MaskLine_BlockCommentContinues_FromPriorLine()
+    public async Task MaskLineBlockCommentContinuesFromPriorLine()
     {
-        (string masked, bool inBlock) = LineMasking.MaskLine("still comment */ int x = 1;", true);
+        LineMaskState prior = new LineMaskState(inBlockComment: true, LineStringKind.None, rawDelimiterLength: 0);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("still comment */ int x = 1;", prior);
 
-        await Assert.That(masked).IsEqualTo(" int x = 1;");
-        await Assert.That(inBlock).IsFalse();
+        await Assert.That(masked).IsEqualTo("still comment */ int x = 1;");
+        await Assert.That(state.InBlockComment).IsFalse();
     }
 
     [Test]
-    public async Task MaskLine_BlockCommentSpansLines_LeavesInBlock()
+    public async Task MaskLineBlockCommentSpansLinesLeavesInBlock()
     {
-        (string masked, bool inBlock) = LineMasking.MaskLine("before /* start", false);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("before /* start", default);
 
-        await Assert.That(masked).IsEqualTo("before ");
-        await Assert.That(inBlock).IsTrue();
+        await Assert.That(masked).IsEqualTo("before /* start");
+        await Assert.That(state.InBlockComment).IsTrue();
     }
 
     [Test]
-    public async Task MaskLine_VerbatimString_CollapsesContent()
+    public async Task MaskLineVerbatimStringCollapsesContent()
     {
-        (string masked, _) = LineMasking.MaskLine(@"int x = @""hello"";", false);
+        (string masked, _) = LineMasking.MaskLine(@"int x = @""hello"";", default);
 
         await Assert.That(masked.Length).IsLessThanOrEqualTo(12);
     }
 
     [Test]
-    public async Task MaskLine_VerbatimDoubledQuote_CollapsesContent()
+    public async Task MaskLineVerbatimDoubledQuoteCollapsesContent()
     {
-        (string masked, _) = LineMasking.MaskLine(@"int x = @"""""";", false);
+        (string masked, _) = LineMasking.MaskLine(@"int x = @"""""";", default);
 
         await Assert.That(masked.Length).IsLessThanOrEqualTo(12);
     }
 
     [Test]
-    public async Task MaskLine_InterpolatedString_CollapsesContent()
+    public async Task MaskLineInterpolatedStringCountsHoleContent()
     {
-        (string masked, _) = LineMasking.MaskLine("int x = $\"{1}\";", false);
+        (string masked, _) = LineMasking.MaskLine("int x = $\"{1}\";", default);
 
-        await Assert.That(masked).IsEqualTo("int x = $\"\";");
+        await Assert.That(masked).IsEqualTo("int x = $\"{1}\";");
     }
 
     [Test]
-    public async Task MaskLine_VerbatimInterpolated_CollapsesContent()
+    public async Task MaskLineVerbatimInterpolatedCountsHoleContent()
     {
-        (string masked, _) = LineMasking.MaskLine("int x = @$\"{1}\";", false);
+        (string masked, _) = LineMasking.MaskLine("int x = @$\"{1}\";", default);
 
-        await Assert.That(masked).IsEqualTo("int x = @$\"\";");
+        await Assert.That(masked).IsEqualTo("int x = @$\"{1}\";");
     }
 
     [Test]
-    public async Task MaskLine_CharLiteral_CollapsesContent()
+    public async Task MaskLineInterpolatedStringDoesNotCountLiteralPayload()
     {
-        (string masked, _) = LineMasking.MaskLine("char c = 'a';", false);
+        string line = "int x = $\"" + new string('a', 200) + "\";";
+        (string masked, _) = LineMasking.MaskLine(line, default);
+
+        await Assert.That(masked.TrimEnd().Length).IsLessThanOrEqualTo(20);
+    }
+
+    [Test]
+    public async Task MaskLineCharLiteralCollapsesContent()
+    {
+        (string masked, _) = LineMasking.MaskLine("char c = 'a';", default);
 
         await Assert.That(masked).IsEqualTo("char c = '';");
     }
 
     [Test]
-    public async Task MaskLine_EscapedString_SkipsEscapeSequence()
+    public async Task MaskLineEscapedStringSkipsEscapeSequence()
     {
-        (string masked, _) = LineMasking.MaskLine("string s = \"a\\t\";", false);
+        (string masked, _) = LineMasking.MaskLine("string s = \"a\\t\";", default);
 
         await Assert.That(masked).IsEqualTo("string s = \"\";");
     }
 
     [Test]
-    public async Task MaskLine_AtWithoutString_AppendsAt()
+    public async Task MaskLineAtWithoutStringAppendsAt()
     {
-        (string masked, _) = LineMasking.MaskLine("int x = @;", false);
+        (string masked, _) = LineMasking.MaskLine("int x = @;", default);
 
         await Assert.That(masked).IsEqualTo("int x = @;");
     }
 
     [Test]
-    public async Task MaskLine_EscapeAtEndOfString_ClosesString()
+    public async Task MaskLineEscapeAtEndOfStringClosesString()
     {
-        (string masked, _) = LineMasking.MaskLine("string s = \"a\\", false);
+        (string masked, _) = LineMasking.MaskLine("string s = \"a\\", default);
 
         await Assert.That(masked).IsEqualTo("string s = \"");
     }
 
     [Test]
-    public async Task MaskLine_UnclosedVerbatimString_LeavesOpenState()
+    public async Task MaskLineUnclosedVerbatimStringLeavesOpenState()
     {
-        (string masked, _) = LineMasking.MaskLine("string s = @\"open", false);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("string s = @\"open", default);
 
         await Assert.That(masked).IsEqualTo("string s = @\"");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.Verbatim);
     }
 
     [Test]
-    public async Task MaskLine_AtEndOfLine_UsesDefaultNextChar()
+    public async Task MaskLineAtEndOfLineUsesDefaultNextChar()
     {
-        (string masked, _) = LineMasking.MaskLine("int x = @", false);
+        (string masked, _) = LineMasking.MaskLine("int x = @", default);
 
         await Assert.That(masked).IsEqualTo("int x = @");
     }
 
     [Test]
-    public async Task MaskLine_UnclosedBlockComment_LeavesInBlock()
+    public async Task MaskLineUnclosedBlockCommentLeavesInBlock()
     {
-        (string masked, bool inBlock) = LineMasking.MaskLine("code /* unclosed", false);
+        (string masked, LineMaskState state) = LineMasking.MaskLine("code /* unclosed", default);
 
-        await Assert.That(masked).IsEqualTo("code ");
-        await Assert.That(inBlock).IsTrue();
+        await Assert.That(masked).IsEqualTo("code /* unclosed");
+        await Assert.That(state.InBlockComment).IsTrue();
+    }
+
+    [Test]
+    public async Task MaskLineVerbatimContinuesSecondLineIsNotCode()
+    {
+        (string firstMasked, LineMaskState state) = LineMasking.MaskLine("string s = @\"", default);
+        await Assert.That(firstMasked).IsEqualTo("string s = @\"");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.Verbatim);
+
+        string secondLine = new string('a', 200);
+        (string secondMasked, LineMaskState secondState) = LineMasking.MaskLine(secondLine, state);
+
+        await Assert.That(secondMasked.TrimEnd().Length).IsLessThanOrEqualTo(20);
+        await Assert.That(secondState.OpenString).IsEqualTo(LineStringKind.Verbatim);
+    }
+
+    [Test]
+    public async Task MaskLineRawStringCollapsesContent()
+    {
+        string line = "string s = \"\"\"" + new string('a', 200) + "\"\"\";";
+        (string masked, LineMaskState state) = LineMasking.MaskLine(line, default);
+
+        await Assert.That(masked.TrimEnd().Length).IsLessThanOrEqualTo(20);
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+    }
+
+    [Test]
+    public async Task MaskLineQuoteInsideBlockCommentDoesNotOpenString()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("/* \"not a string\" */ int x = 1;", default);
+
+        await Assert.That(masked).IsEqualTo("/* \"not a string\" */ int x = 1;");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+        await Assert.That(state.InBlockComment).IsFalse();
     }
 }

@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Loads project and solution XML with hardened reader settings.</summary>
 internal static class ProjectXmlLoader
 {
+    #region Public API
+
     /// <summary>Loads an XML document from a project or solution file.</summary>
     /// <param name="path">Absolute or relative path to the XML file.</param>
     /// <param name="document">Loaded document on success.</param>
@@ -18,7 +20,7 @@ internal static class ProjectXmlLoader
 
         if (!File.Exists(path))
         {
-            error = $"XML file not found: {path}";
+            error = Invariant($"XML file not found: {path}");
             return false;
         }
 
@@ -37,13 +39,15 @@ internal static class ProjectXmlLoader
         }
         catch (XmlException xmlException)
         {
-            error = $"Failed to read XML file: {xmlException.Message}";
+            error = Invariant($"Failed to read XML file: {xmlException.Message}");
             return false;
         }
         catch (IOException ioException)
         {
-            error = $"Failed to read XML file: {ioException.Message}";
+            error = Invariant($"Failed to read XML file: {ioException.Message}");
             return false;
         }
     }
+
+    #endregion
 }

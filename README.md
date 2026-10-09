@@ -6,7 +6,7 @@ Structured AI agent workflow for **GitHub Copilot** and **Cursor**, plus NuGet p
 [![CSharpStyleChecker](https://img.shields.io/nuget/v/CSharpStyleChecker)](https://www.nuget.org/packages/CSharpStyleChecker/)
 [![ExitPointGaps](https://img.shields.io/nuget/v/ExitPointGaps)](https://www.nuget.org/packages/ExitPointGaps/)
 
-**Release 1.0.0** — two public packages replace the former three-package layout. **CSharpStyleChecker** and **ExitPointGaps** cover the same scope as the deprecated **CSharpStyleValidator**, **CoverageGap.Tool**, and **CoverageGapAnalysis** (no separate analysis library). See [Migration](#migration-from-deprecated-packages).
+**Release 1.1.0** — **CSharpStyleChecker** adds **CSC009** (invariant culture for interpolations / culture-sensitive `ToString`) and tightens CSC001–CSC008; **ExitPointGaps** aligns with CSC009. Package histories: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
 
 ---
 
@@ -38,7 +38,7 @@ Or in `.csproj`:
 <PackageReference Include="CSharpStyleChecker" Version="1.*" />
 ```
 
-Rebuild. Violations surface as compiler errors (CSC001–CSC008). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
+Rebuild. Violations surface as compiler errors (CSC001–CSC009). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
 
 [Rule reference](#csharpstylechecker) · [Demo sample](samples/CSharpStyleChecker.Demo/README.md)
 
@@ -75,7 +75,7 @@ CLI options: [ExitPointGaps](#exitpointgaps).
 
 | Package | Consumer TFM | Usage | Role |
 |---------|--------------|-------|------|
-| [CSharpStyleChecker](https://www.nuget.org/packages/CSharpStyleChecker/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSC001–CSC008); bundles `ExitPoints` |
+| [CSharpStyleChecker](https://www.nuget.org/packages/CSharpStyleChecker/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSC001–CSC009); bundles `ExitPoints` |
 | [ExitPointGaps](https://www.nuget.org/packages/ExitPointGaps/) | N/A (CLI) | Local `dotnet tool install` | `dotnet tool run exitpointgaps` — lists exit-point gaps |
 
 `ExitPoints` is not published separately; it is included in **CSharpStyleChecker**.
@@ -88,7 +88,7 @@ CLI options: [ExitPointGaps](#exitpointgaps).
 | `CoverageGap.Tool` | `ExitPointGaps` | CLI: `dotnet tool run exitpointgaps` (was `coveragegap`) |
 | `CoverageGapAnalysis` | `ExitPointGaps` | Analysis merged into the tool assembly — no `PackageReference` |
 
-Version line restarts at **1.0.0** (not a continuation of 2.x). Full history: [CHANGELOG.md](CHANGELOG.md).
+Version line restarts at **1.0.0** (not a continuation of 2.x). Package histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md). Repo / workflow: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -190,9 +190,14 @@ Stages live in workflow skills only. Prompts do not repeat them.
 
 - **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`); context prose has no IDs; skip reinventing when the user already supplied them
 - **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
-- **Implement:** `workflow-implement.md` — read the plan in full, execute steps and `TEST-<AREA>-<TOPIC>` content, verify requirements at step close (tick `Met` in the linked requirements file), extensive **briefing** (file cards are Section 4.6 links), Closing Exam
+- **Implement:** `workflow-implement.md` — read the plan in full, execute steps
+  and `TEST-<AREA>-<TOPIC>` content, verify requirements at step close (tick
+  `Met` in the linked requirements file), tick accepted finding Status in the
+  review Summary together with the finding Status line, extensive **briefing**
+  (file cards are Section 4.6 links), Closing Exam
 - **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
-  public-release verdict for the **scope**; Summary is a findings table plus a
+  public-release verdict for the **scope**; Summary Findings table has a
+  Status column (`⬜` at write time; `/implement` ticks it) plus a
   hunt-results table; ignore prior `reviews/review_*.md`
   unless named; Section 3 skill load; locked finding `How` with Problem/Fix
   before/after code (extra illustration snippets welcome); Section 4.6 links;
@@ -245,7 +250,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 
 | Project | Role |
 |---------|------|
-| [`CSharpStyleChecker`](src/CSharpStyleChecker/) | Roslyn analyzer NuGet (CSC001–CSC008) |
+| [`CSharpStyleChecker`](src/CSharpStyleChecker/) | Roslyn analyzer NuGet (CSC001–CSC009) |
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
 | [`ExitPointGaps`](src/ExitPointGaps/) | CLI + analysis — `dotnet tool run exitpointgaps` (`run` / `plan`; lists exit-point gaps) |
 | [`samples/CSharpStyleChecker.Demo`](samples/CSharpStyleChecker.Demo/) | `netstandard2.0` analyzer demo (CSC*), source generator, packed NuGet verification |
@@ -258,14 +263,15 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 
 | ID | Rule |
 |----|------|
-| CSC001 | Line length ≤ 160 (strings/comments masked) |
+| CSC001 | Line length ≤ 160 (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
 | CSC002 | No `var` |
 | CSC003 | Private `_PascalCase` (exempt: private nested types, explicit interface impl, local functions) |
-| CSC004 | No `.Result` / `.Wait()` on `Task` |
+| CSC004 | No `.Result` / `.Wait()` / `GetAwaiter().GetResult()` on `Task` / `Task<T>` / `ValueTask` / `ValueTask<T>`; no `Task.WaitAll` / `Task.WaitAny` |
 | CSC005 | `using` only in `GlobalUsings.cs` |
-| CSC006 | At most one exit point per source line per callable; `?:`, switch, `??`, `??=` allowed when arms are on separate lines |
+| CSC006 | At most one exit point per source line per callable; `?:`, switch, `??`, `??=` allowed when arms are on separate lines. Covers methods, constructors, destructors, operators, conversions, accessors, expression-bodied properties and indexers, and local functions. Does not cover lambdas or anonymous methods. |
 | CSC007 | `volatile` fields: plain read/write allowed; `++`/`--`/`+=` require `Interlocked` |
 | CSC008 | Target-typed `new()` and `[]` (exempt: interface/base targets, polymorphic construction, ctor args, throw, non-collection-expression targets such as `ReadOnlyMemory<T>`) |
+| CSC009 | Interpolated strings must use `FormattableString.Invariant` / `Invariant($"…")` (or `string.Create` / `StringBuilder.Append` with `CultureInfo.InvariantCulture`); culture-sensitive `ToString` must pass `CultureInfo.InvariantCulture` |
 
 XML documentation on public APIs is enforced by built-in **CS1591** when `GenerateDocumentationFile` and `TreatWarningsAsErrors` are enabled.
 
@@ -329,4 +335,4 @@ Copyright © 2026 DevAM. Licensed under MIT. See [LICENSE](LICENSE).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release history.
+See [CHANGELOG.md](CHANGELOG.md) (repo / workflow), [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), and [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md).

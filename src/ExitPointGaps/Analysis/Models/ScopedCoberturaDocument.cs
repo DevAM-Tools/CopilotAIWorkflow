@@ -3,4 +3,4 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>A Cobertura document with package scope for branch analysis.</summary>
-public sealed record ScopedCoberturaDocument(CoberturaDocument Document, BranchGapScope Scope);
+internal sealed record ScopedCoberturaDocument(CoberturaDocument Document, BranchGapScope Scope);

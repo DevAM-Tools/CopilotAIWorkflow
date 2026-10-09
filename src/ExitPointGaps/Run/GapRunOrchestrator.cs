@@ -5,14 +5,19 @@ namespace ExitPointGaps;
 /// <summary>Orchestrates multi-project gate runs.</summary>
 internal static class GapRunOrchestrator
 {
+    #region Public API
+
     public static async Task<int> RunAsync(CliOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
 
+        // Drop stale assets from a prior CLI/test invocation in this process.
+        CompilationAssetsCache.Clear();
+
         if (!CliParser.IsValidReportFormat(options.Format))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(
-                $"Unknown report format: {options.Format}. Use agent, text, or compact.",
+                Invariant($"Unknown report format: {options.Format}. Use agent, text, or compact."),
                 cancellationToken).ConfigureAwait(false);
             return CliConstants.ExitUsageError;
         }
@@ -80,7 +85,7 @@ internal static class GapRunOrchestrator
                                 1,
                                 null,
                                 true),
-                            $"Failed to run gap analysis for {project.ProjectPath}.");
+                            Invariant($"Failed to run gap analysis for {project.ProjectPath}."));
                     }
 
                     string reportFile = await writer.WriteProjectAsync(result, outputDirectory, projectCancellationToken)
@@ -103,7 +108,7 @@ internal static class GapRunOrchestrator
                 .ConfigureAwait(false);
 
             AggregatedGapSummary summary = accumulator.ToSummary(projects.Count);
-            if (!options.NoFail && (!summary.GatePassed || accumulator.HasToolFailure))
+            if (!options.NoFail && (!summary.GatePassed || accumulator.HasFailure))
             {
                 return CliConstants.ExitGateOrToolFailure;
             }
@@ -115,6 +120,10 @@ internal static class GapRunOrchestrator
             RunIsolation.TryCleanupWorkDirectory(workDirectory, options.KeepWorkDir);
         }
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static async Task<int> _RunSingleProjectAsync(
         ProductionProjectRecord project,
@@ -201,4 +210,6 @@ internal static class GapRunOrchestrator
 
         return projectCount > 1 && string.IsNullOrWhiteSpace(options.OutputPath);
     }
+
+    #endregion
 }

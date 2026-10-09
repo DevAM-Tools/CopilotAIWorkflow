@@ -4,19 +4,21 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ExitPoints;
 
-/// <summary>Collects callable exit points from a Roslyn compilation. 
+/// <summary>
+/// Collects callable exit points from a Roslyn compilation.
 /// Thread-safe; caches per <see cref="Compilation"/> with concurrent lookups.
 /// </summary>
 public static class ExitPointCollector
 {
+    #region Fields
+
     private static readonly ConditionalWeakTable<Compilation, CachedCompilationResults> ResultsByCompilation = new();
 
     private static readonly SymbolDisplayFormat MethodIdFormat = new(
@@ -27,11 +29,19 @@ public static class ExitPointCollector
         parameterOptions: SymbolDisplayParameterOptions.IncludeType,
         miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
+    #endregion
+
+    #region Public API
+
     /// <summary>Collects all exit points in <paramref name="compilation"/>.</summary>
     /// <param name="compilation">The compilation to analyze.</param>
     /// <param name="options">Optional collection options.</param>
+    /// <param name="cancellationToken">Cancels tree walks.</param>
     /// <returns>Collected exit points.</returns>
-    public static IReadOnlyList<ExitPointEntry> Collect(Compilation compilation, ExitPointCollectorOptions? options = null)
+    public static IReadOnlyList<ExitPointEntry> Collect(
+        Compilation compilation,
+        ExitPointCollectorOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         if (compilation is null)
         {
@@ -40,27 +50,34 @@ public static class ExitPointCollector
 
         ExitPointCollectorOptions effectiveOptions = options ?? new ExitPointCollectorOptions();
         CachedCompilationResults cache = ResultsByCompilation.GetValue(compilation, static _ => new CachedCompilationResults());
-        return cache.GetOrAdd(effectiveOptions.IncludeLocalFunctions, () => CollectCore(compilation, effectiveOptions));
+        return cache.GetOrAdd(
+            effectiveOptions.IncludeLocalFunctions,
+            () => CollectCore(compilation, effectiveOptions, cancellationToken));
     }
 
-    private static List<ExitPointEntry> CollectCore(Compilation compilation, ExitPointCollectorOptions effectiveOptions)
+    #endregion
+
+    #region Private helpers
+
+    private static List<ExitPointEntry> CollectCore(
+        Compilation compilation,
+        ExitPointCollectorOptions effectiveOptions,
+        CancellationToken cancellationToken)
     {
         List<ExitPointEntry> results = [];
 
         foreach (SyntaxTree tree in compilation.SyntaxTrees)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (ShouldSkipTree(tree))
             {
                 continue;
             }
 
-            SemanticModel? model = compilation.GetSemanticModel(tree);
-            if (model is null)
-            {
-                continue;
-            }
+            SemanticModel model = compilation.GetSemanticModel(tree)
+                ?? throw new InvalidOperationException("Semantic model is unavailable for a compilation syntax tree.");
 
-            CollectFromTree(tree, model, effectiveOptions, results);
+            CollectFromTree(tree, model, effectiveOptions, results, cancellationToken);
         }
 
         return results;
@@ -80,63 +97,101 @@ public static class ExitPointCollector
         SyntaxTree tree,
         SemanticModel model,
         ExitPointCollectorOptions options,
-        List<ExitPointEntry> results)
+        List<ExitPointEntry> results,
+        CancellationToken cancellationToken)
     {
-        SyntaxNode root = tree.GetRoot();
+        SyntaxNode root = tree.GetRoot(cancellationToken);
+        CollectDeclarations(root, model, options, results, cancellationToken);
+    }
 
-        foreach (MethodDeclarationSyntax method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+    /// <summary>
+    /// Declaration kinds live on types, namespaces, and accessor lists.
+    /// Method bodies are not scanned here because local functions are collected while walking the body.
+    /// One walk replaces seven <c>DescendantNodes</c> passes.
+    /// </summary>
+    private static void CollectDeclarations(
+        SyntaxNode node,
+        SemanticModel model,
+        ExitPointCollectorOptions options,
+        List<ExitPointEntry> results,
+        CancellationToken cancellationToken)
+    {
+        foreach (SyntaxNode child in node.ChildNodes())
         {
-            CollectFromCallable(method, method.Body, method.ExpressionBody, method.Identifier, model, results, options);
-        }
-
-        foreach (ConstructorDeclarationSyntax constructor in root.DescendantNodes().OfType<ConstructorDeclarationSyntax>())
-        {
-            CollectFromCallable(constructor, constructor.Body, constructor.ExpressionBody, constructor.Identifier, model, results, options);
-        }
-
-        foreach (DestructorDeclarationSyntax destructor in root.DescendantNodes().OfType<DestructorDeclarationSyntax>())
-        {
-            CollectFromCallable(destructor, destructor.Body, null, destructor.TildeToken, model, results, options);
-        }
-
-        foreach (OperatorDeclarationSyntax operatorDeclaration in root.DescendantNodes().OfType<OperatorDeclarationSyntax>())
-        {
-            CollectFromCallable(
-                operatorDeclaration,
-                operatorDeclaration.Body,
-                operatorDeclaration.ExpressionBody,
-                operatorDeclaration.OperatorKeyword,
-                model,
-                results,
-                options);
-        }
-
-        foreach (ConversionOperatorDeclarationSyntax conversion in root.DescendantNodes().OfType<ConversionOperatorDeclarationSyntax>())
-        {
-            CollectFromCallable(
-                conversion,
-                conversion.Body,
-                conversion.ExpressionBody,
-                conversion.ImplicitOrExplicitKeyword,
-                model,
-                results,
-                options);
-        }
-
-        foreach (AccessorDeclarationSyntax accessor in root.DescendantNodes().OfType<AccessorDeclarationSyntax>())
-        {
-            SyntaxToken nameToken = accessor.Keyword;
-            CollectFromCallable(accessor, accessor.Body, accessor.ExpressionBody, nameToken, model, results, options);
-        }
-
-        foreach (PropertyDeclarationSyntax property in root.DescendantNodes().OfType<PropertyDeclarationSyntax>())
-        {
-            if (property.ExpressionBody is null)
+            cancellationToken.ThrowIfCancellationRequested();
+            switch (child)
             {
-                continue;
-            }
+                case MethodDeclarationSyntax method:
+                    CollectFromCallable(method, method.Body, method.ExpressionBody, method.Identifier, model, results, options);
+                    break;
+                case ConstructorDeclarationSyntax constructor:
+                    CollectFromCallable(constructor, constructor.Body, constructor.ExpressionBody, constructor.Identifier, model, results, options);
+                    break;
+                case DestructorDeclarationSyntax destructor:
+                    CollectFromCallable(destructor, destructor.Body, null, destructor.TildeToken, model, results, options);
+                    break;
+                case OperatorDeclarationSyntax operatorDeclaration:
+                    CollectFromCallable(
+                        operatorDeclaration,
+                        operatorDeclaration.Body,
+                        operatorDeclaration.ExpressionBody,
+                        operatorDeclaration.OperatorKeyword,
+                        model,
+                        results,
+                        options);
+                    break;
+                case ConversionOperatorDeclarationSyntax conversion:
+                    CollectFromCallable(
+                        conversion,
+                        conversion.Body,
+                        conversion.ExpressionBody,
+                        conversion.ImplicitOrExplicitKeyword,
+                        model,
+                        results,
+                        options);
+                    break;
+                case AccessorDeclarationSyntax accessor:
+                    CollectFromCallable(accessor, accessor.Body, accessor.ExpressionBody, accessor.Keyword, model, results, options);
+                    break;
+                case PropertyDeclarationSyntax property:
+                    CollectExpressionBody(property, property.ExpressionBody, property.Identifier, property.AccessorList, model, results, options, cancellationToken);
+                    break;
+                case IndexerDeclarationSyntax indexer:
+                    CollectExpressionBody(indexer, indexer.ExpressionBody, indexer.ThisKeyword, indexer.AccessorList, model, results, options, cancellationToken);
+                    break;
+                case EventDeclarationSyntax eventDeclaration:
+                    if (eventDeclaration.AccessorList is not null)
+                    {
+                        CollectDeclarations(eventDeclaration.AccessorList, model, options, results, cancellationToken);
+                    }
 
-            CollectFromCallable(property, null, property.ExpressionBody, property.Identifier, model, results, options);
+                    break;
+                case BaseNamespaceDeclarationSyntax:
+                case BaseTypeDeclarationSyntax:
+                    CollectDeclarations(child, model, options, results, cancellationToken);
+                    break;
+            }
+        }
+    }
+
+    private static void CollectExpressionBody(
+        SyntaxNode callableNode,
+        ArrowExpressionClauseSyntax? expressionBody,
+        SyntaxToken nameToken,
+        AccessorListSyntax? accessorList,
+        SemanticModel model,
+        List<ExitPointEntry> results,
+        ExitPointCollectorOptions options,
+        CancellationToken cancellationToken)
+    {
+        if (expressionBody is not null)
+        {
+            CollectFromCallable(callableNode, null, expressionBody, nameToken, model, results, options);
+        }
+
+        if (accessorList is not null)
+        {
+            CollectDeclarations(accessorList, model, options, results, cancellationToken);
         }
     }
 
@@ -195,6 +250,6 @@ public static class ExitPointCollector
     [ExcludeFromCodeCoverage]
     private static string ResolveMethodDisplayName(ISymbol? symbol, SyntaxToken nameToken) =>
         symbol?.Name ?? nameToken.Text;
+
+    #endregion
 }
-
-

@@ -5,9 +5,15 @@ namespace ExitPointGaps.Analysis;
 /// <summary>Discovers Cobertura files within explicit directories.
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class CoberturaDiscovery
+internal static class CoberturaDiscovery
 {
+    #region Fields
+
     private const int _MaxParentHops = 32;
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Finds the newest Cobertura file under a single results directory.</summary>
     /// <param name="resultsDirectory">Directory that contains Cobertura output.</param>
@@ -20,9 +26,27 @@ public static class CoberturaDiscovery
             return null;
         }
 
-        return Directory.EnumerateFiles(resultsDirectory, "*.cobertura.xml", SearchOption.AllDirectories)
-            .OrderByDescending(static path => File.GetLastWriteTimeUtc(path))
-            .FirstOrDefault();
+        return FindNewestCoberturaPath(resultsDirectory);
+    }
+
+    /// <summary>Tracks the newest Cobertura file under a directory in one pass.</summary>
+    /// <param name="resultsDirectory">Directory that contains Cobertura output.</param>
+    /// <returns>Newest path, or <see langword="null"/> when none exist.</returns>
+    internal static string? FindNewestCoberturaPath(string resultsDirectory)
+    {
+        string? newest = null;
+        DateTime newestWrite = DateTime.MinValue;
+        foreach (string path in Directory.EnumerateFiles(resultsDirectory, "*.cobertura.xml", SearchOption.AllDirectories))
+        {
+            DateTime write = File.GetLastWriteTimeUtc(path);
+            if (newest is null || write > newestWrite)
+            {
+                newest = path;
+                newestWrite = write;
+            }
+        }
+
+        return newest;
     }
 
     /// <summary>Test seam for resolving a Cobertura path to a test project name.</summary>
@@ -33,6 +57,18 @@ public static class CoberturaDiscovery
         return _ReadTestProjectName(coberturaPath);
     }
 
+    /// <summary>Test seam for walking from a known directory to a test project folder.</summary>
+    /// <param name="directory">Starting directory.</param>
+    /// <returns>Test project folder name when found.</returns>
+    internal static string? ReadTestProjectDirectoryForTests(DirectoryInfo directory)
+    {
+        return _ReadTestProjectDirectory(directory);
+    }
+
+    #endregion
+
+    #region Private helpers
+
     [ExcludeFromCodeCoverage(Justification = "Directory is always present for absolute Cobertura paths supplied by the tool.")]
     private static string? _ReadTestProjectName(string coberturaPath)
     {
@@ -42,14 +78,6 @@ public static class CoberturaDiscovery
             return null;
         }
 
-        return _ReadTestProjectDirectory(directory);
-    }
-
-    /// <summary>Test seam for walking from a known directory to a test project folder.</summary>
-    /// <param name="directory">Starting directory.</param>
-    /// <returns>Test project folder name when found.</returns>
-    internal static string? ReadTestProjectDirectoryForTests(DirectoryInfo directory)
-    {
         return _ReadTestProjectDirectory(directory);
     }
 
@@ -69,4 +97,6 @@ public static class CoberturaDiscovery
 
         return null;
     }
+
+    #endregion
 }

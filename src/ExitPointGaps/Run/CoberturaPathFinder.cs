@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Finds Cobertura files inside an isolated results directory.</summary>
 internal static class CoberturaPathFinder
 {
+    #region Public API
+
     /// <summary>Finds the newest Cobertura file under a results directory.</summary>
     /// <param name="resultsDirectory">Directory passed to MTP <c>--results-directory</c>.</param>
     /// <param name="coberturaPath">Resolved Cobertura file path.</param>
@@ -18,21 +20,20 @@ internal static class CoberturaPathFinder
 
         if (!Directory.Exists(resultsDirectory))
         {
-            error = $"Results directory not found: {resultsDirectory}";
+            error = Invariant($"Results directory not found: {resultsDirectory}");
             return false;
         }
 
-        string? newest = Directory.EnumerateFiles(resultsDirectory, "*.cobertura.xml", SearchOption.AllDirectories)
-            .OrderByDescending(static path => File.GetLastWriteTimeUtc(path))
-            .FirstOrDefault();
-
+        string? newest = CoberturaDiscovery.FindNewestCoberturaPath(resultsDirectory);
         if (string.IsNullOrEmpty(newest))
         {
-            error = $"No Cobertura file found under {resultsDirectory}.";
+            error = Invariant($"No Cobertura file found under {resultsDirectory}.");
             return false;
         }
 
         coberturaPath = newest;
         return true;
     }
+
+    #endregion
 }

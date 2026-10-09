@@ -2,12 +2,18 @@
 
 namespace ExitPointGaps.Analysis;
 
-/// <summary>Compares exit points against Cobertura line hits. 
+/// <summary>Compares exit points against Cobertura line hits.
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class ExitCoverageComparer
+internal static class ExitCoverageComparer
 {
+    #region Fields
+
     private const int _ExitPriority = 1;
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Finds exit points without line coverage.</summary>
     /// <remarks>
@@ -31,25 +37,33 @@ public static class ExitCoverageComparer
 
         Dictionary<string, Dictionary<int, int>> mergedHits = _MergeLineHits(documents, repositoryRoot);
         List<Models.ExitCoverageGap> gaps = [];
+        Dictionary<string, string[]?>? snippetCache = includeSnippets
+            ? new Dictionary<string, string[]?>(StringComparer.OrdinalIgnoreCase)
+            : null;
 
         for (int exitIndex = 0; exitIndex < exits.Count; exitIndex++)
         {
             ExitPoints.ExitPointEntry exit = exits[exitIndex];
             string relativeFile = PathNormalizer.ToRepositoryRelative(exit.FilePath, repositoryRoot);
-            if (!_IsLineInstrumented(mergedHits, relativeFile, exit.FilePath, exit.Line))
+            if (!_TryGetLineHits(mergedHits, relativeFile, exit.Line, out int hits))
             {
                 continue;
             }
 
-            int hits = _GetHits(mergedHits, relativeFile, exit.FilePath, exit.Line);
             if (hits > 0)
             {
                 continue;
             }
 
-            string? snippet = includeSnippets
-                ? PathNormalizer.TryReadSnippet(repositoryRoot, relativeFile, exit.Line)
-                : null;
+            string? snippet = null;
+            if (snippetCache is not null)
+            {
+                snippet = PathNormalizer.TryReadSnippetCached(
+                    repositoryRoot,
+                    relativeFile,
+                    exit.Line,
+                    snippetCache);
+            }
 
             gaps.Add(new Models.ExitCoverageGap(
                 _ExitPriority,
@@ -63,12 +77,29 @@ public static class ExitCoverageComparer
                 snippet));
         }
 
-        return gaps
-            .OrderBy(static gap => gap.FilePath, StringComparer.Ordinal)
-            .ThenBy(static gap => gap.Line)
-            .ThenBy(static gap => gap.Column)
-            .ToList();
+        gaps.Sort(static (left, right) =>
+        {
+            int fileCompare = StringComparer.Ordinal.Compare(left.FilePath, right.FilePath);
+            if (fileCompare != 0)
+            {
+                return fileCompare;
+            }
+
+            int lineCompare = left.Line.CompareTo(right.Line);
+            if (lineCompare != 0)
+            {
+                return lineCompare;
+            }
+
+            return left.Column.CompareTo(right.Column);
+        });
+
+        return gaps;
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static Dictionary<string, Dictionary<int, int>> _MergeLineHits(
         IReadOnlyList<Models.CoberturaDocument> documents,
@@ -96,54 +127,10 @@ public static class ExitCoverageComparer
                         lineHits[lineEntry.Key] = lineEntry.Value.Hits;
                     }
                 }
-
-                string absoluteKey = fileEntry.Key.Replace('\\', '/');
-                if (!merged.ContainsKey(absoluteKey))
-                {
-                    Dictionary<int, int> absoluteHits = [];
-                    foreach (KeyValuePair<int, Models.CoberturaLineInfo> lineEntry in fileEntry.Value)
-                    {
-                        absoluteHits[lineEntry.Key] = lineEntry.Value.Hits;
-                    }
-
-                    merged[absoluteKey] = absoluteHits;
-                }
             }
         }
 
         return merged;
-    }
-
-    private static int _GetHits(
-        Dictionary<string, Dictionary<int, int>> mergedHits,
-        string relativeFile,
-        string originalFile,
-        int line)
-    {
-        if (_TryGetLineHits(mergedHits, relativeFile, line, out int count))
-        {
-            return count;
-        }
-
-        string normalizedOriginal = originalFile.Replace('\\', '/');
-        _TryGetLineHits(mergedHits, normalizedOriginal, line, out count);
-        return count;
-    }
-
-    /// <remarks>Skips exits when the line is not present in any Cobertura document.</remarks>
-    private static bool _IsLineInstrumented(
-        Dictionary<string, Dictionary<int, int>> mergedHits,
-        string relativeFile,
-        string originalFile,
-        int line)
-    {
-        if (_TryGetLineHits(mergedHits, relativeFile, line, out int _))
-        {
-            return true;
-        }
-
-        string normalizedOriginal = originalFile.Replace('\\', '/');
-        return _TryGetLineHits(mergedHits, normalizedOriginal, line, out int _);
     }
 
     private static bool _TryGetLineHits(
@@ -156,4 +143,6 @@ public static class ExitCoverageComparer
         return mergedHits.TryGetValue(fileKey, out Dictionary<int, int>? lineHits)
             && lineHits.TryGetValue(line, out hits);
     }
+
+    #endregion
 }

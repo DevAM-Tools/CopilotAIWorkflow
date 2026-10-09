@@ -5,14 +5,20 @@ namespace ExitPointGaps.Analysis;
 /// <summary>Formats exit-point gap reports for agents and humans. 
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class ExitPointGapReportFormatter
+internal static class ExitPointGapReportFormatter
 {
+    #region Fields
+
     private static readonly JsonSerializerOptions _JsonOptions = new()
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Serializes a report as agent JSON.</summary>
     /// <param name="report">Exit-point gap report.</param>
@@ -174,6 +180,10 @@ public static class ExitPointGapReportFormatter
         return builder.ToString();
     }
 
+    #endregion
+
+    #region Private helpers
+
     private sealed class AgentReportDto
     {
         public int SchemaVersion { get; init; }
@@ -237,4 +247,6 @@ public static class ExitPointGapReportFormatter
 
         public string? Snippet { get; init; }
     }
+
+    #endregion
 }

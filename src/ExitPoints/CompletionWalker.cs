@@ -17,6 +17,8 @@ namespace ExitPoints;
 /// </remarks>
 internal static class CompletionWalker
 {
+    #region Fields
+
     private static readonly SymbolDisplayFormat MethodIdFormat = new(
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
@@ -25,6 +27,10 @@ internal static class CompletionWalker
         parameterOptions: SymbolDisplayParameterOptions.IncludeType,
         miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
+    #endregion
+
+    #region Public API
+
     public static void WalkCompletionExpression(
         ExpressionSyntax expression,
         string methodId,
@@ -32,105 +38,6 @@ internal static class CompletionWalker
         List<ExitPointEntry> results)
     {
         WalkCompletionExpression(expression, methodId, methodDisplayName, results, ExitKind.ExpressionCompletion);
-    }
-
-    /// <remarks>Walks completion expressions for exit-point collection.</remarks>
-    [ExcludeFromCodeCoverage]
-    private static void WalkCompletionExpression(
-        ExpressionSyntax expression,
-        string methodId,
-        string methodDisplayName,
-        List<ExitPointEntry> results,
-        ExitKind leafKind,
-        OperatorGroup? operatorGroup = null)
-    {
-        switch (expression)
-        {
-            case ConditionalExpressionSyntax conditional:
-                OperatorGroup conditionalGroup = CreateOperatorGroup(methodId, GetQuestionMarkToken(conditional));
-                WalkCompletionExpression(
-                    conditional.WhenTrue,
-                    methodId,
-                    methodDisplayName,
-                    results,
-                    ExitKind.ConditionalArmCompletion,
-                    conditionalGroup);
-                WalkCompletionExpression(
-                    conditional.WhenFalse,
-                    methodId,
-                    methodDisplayName,
-                    results,
-                    ExitKind.ConditionalArmCompletion,
-                    conditionalGroup);
-                break;
-
-            case SwitchExpressionSyntax switchExpression:
-                OperatorGroup switchGroup = CreateOperatorGroup(methodId, switchExpression.SwitchKeyword);
-                foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
-                {
-                    WalkCompletionExpression(
-                        arm.Expression,
-                        methodId,
-                        methodDisplayName,
-                        results,
-                        ExitKind.SwitchArmCompletion,
-                        switchGroup);
-                }
-
-                break;
-
-            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
-                OperatorGroup coalesceGroup = CreateOperatorGroup(methodId, coalesce.OperatorToken);
-                WalkCompletionExpression(
-                    coalesce.Left,
-                    methodId,
-                    methodDisplayName,
-                    results,
-                    ExitKind.CoalesceArmCompletion,
-                    coalesceGroup);
-                if (coalesce.Right is ThrowExpressionSyntax rightThrow)
-                {
-                    AddExit(rightThrow.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
-                }
-                else
-                {
-                    WalkCompletionExpression(
-                        coalesce.Right,
-                        methodId,
-                        methodDisplayName,
-                        results,
-                        ExitKind.CoalesceArmCompletion,
-                        coalesceGroup);
-                }
-
-                break;
-
-            case AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceAssignmentExpression } coalesceAssignment:
-                OperatorGroup coalesceAssignmentGroup = CreateOperatorGroup(methodId, coalesceAssignment.OperatorToken);
-                WalkCompletionExpression(
-                    coalesceAssignment.Left,
-                    methodId,
-                    methodDisplayName,
-                    results,
-                    ExitKind.CoalesceArmCompletion,
-                    coalesceAssignmentGroup);
-                WalkCompletionExpression(
-                    coalesceAssignment.Right,
-                    methodId,
-                    methodDisplayName,
-                    results,
-                    ExitKind.CoalesceArmCompletion,
-                    coalesceAssignmentGroup);
-                break;
-
-            case ThrowExpressionSyntax throwExpression:
-                AddExit(throwExpression.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
-                break;
-
-            default:
-                AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results, operatorGroup);
-                break;
-        }
     }
 
     public static void WalkBlockStatements(
@@ -272,6 +179,110 @@ internal static class CompletionWalker
         }
     }
 
+    #endregion
+
+    #region Private helpers
+
+    /// <remarks>Walks completion expressions for exit-point collection.</remarks>
+    [ExcludeFromCodeCoverage]
+    private static void WalkCompletionExpression(
+        ExpressionSyntax expression,
+        string methodId,
+        string methodDisplayName,
+        List<ExitPointEntry> results,
+        ExitKind leafKind,
+        OperatorGroup? operatorGroup = null)
+    {
+        switch (expression)
+        {
+            case ConditionalExpressionSyntax conditional:
+                OperatorGroup conditionalGroup = CreateOperatorGroup(methodId, conditional.QuestionToken);
+                WalkCompletionExpression(
+                    conditional.WhenTrue,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.ConditionalArmCompletion,
+                    conditionalGroup);
+                WalkCompletionExpression(
+                    conditional.WhenFalse,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.ConditionalArmCompletion,
+                    conditionalGroup);
+                break;
+
+            case SwitchExpressionSyntax switchExpression:
+                OperatorGroup switchGroup = CreateOperatorGroup(methodId, switchExpression.SwitchKeyword);
+                foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
+                {
+                    WalkCompletionExpression(
+                        arm.Expression,
+                        methodId,
+                        methodDisplayName,
+                        results,
+                        ExitKind.SwitchArmCompletion,
+                        switchGroup);
+                }
+
+                break;
+
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
+                OperatorGroup coalesceGroup = CreateOperatorGroup(methodId, coalesce.OperatorToken);
+                WalkCompletionExpression(
+                    coalesce.Left,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceGroup);
+                if (coalesce.Right is ThrowExpressionSyntax rightThrow)
+                {
+                    AddExit(rightThrow.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
+                }
+                else
+                {
+                    WalkCompletionExpression(
+                        coalesce.Right,
+                        methodId,
+                        methodDisplayName,
+                        results,
+                        ExitKind.CoalesceArmCompletion,
+                        coalesceGroup);
+                }
+
+                break;
+
+            case AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceAssignmentExpression } coalesceAssignment:
+                OperatorGroup coalesceAssignmentGroup = CreateOperatorGroup(methodId, coalesceAssignment.OperatorToken);
+                WalkCompletionExpression(
+                    coalesceAssignment.Left,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceAssignmentGroup);
+                WalkCompletionExpression(
+                    coalesceAssignment.Right,
+                    methodId,
+                    methodDisplayName,
+                    results,
+                    ExitKind.CoalesceArmCompletion,
+                    coalesceAssignmentGroup);
+                break;
+
+            case ThrowExpressionSyntax throwExpression:
+                AddExit(throwExpression.ThrowKeyword, methodId, methodDisplayName, ExitKind.ThrowExpression, results);
+                break;
+
+            default:
+                AddExitFromExpression(expression, methodId, methodDisplayName, leafKind, results, operatorGroup);
+                break;
+        }
+    }
+
+
     private static (string MethodId, string DisplayName) ResolveCallableIds(
         SyntaxNode callableNode,
         SyntaxToken nameToken,
@@ -363,26 +374,6 @@ internal static class CompletionWalker
             operatorColumn));
     }
 
-    /// <remarks>Locates the <c>?</c> token for operator grouping; fallback path handles malformed trees only.</remarks>
-    [ExcludeFromCodeCoverage]
-    private static SyntaxToken GetQuestionMarkToken(ConditionalExpressionSyntax conditional)
-    {
-        foreach (SyntaxToken token in conditional.DescendantTokens(descendIntoTrivia: false))
-        {
-            if (token.IsKind(SyntaxKind.QuestionToken))
-            {
-                return token;
-            }
-        }
-
-        return GetQuestionMarkTokenFallback(conditional);
-    }
-
-    /// <remarks>Defensive fallback when no <c>?</c> token appears in descendants (malformed or synthesized trees).</remarks>
-    [ExcludeFromCodeCoverage]
-    private static SyntaxToken GetQuestionMarkTokenFallback(ConditionalExpressionSyntax conditional) =>
-        conditional.WhenTrue.GetFirstToken();
-
     private static OperatorGroup CreateOperatorGroup(string methodId, SyntaxToken operatorToken)
     {
         FileLinePositionSpan span = operatorToken.GetLocation().GetLineSpan();
@@ -414,4 +405,6 @@ internal static class CompletionWalker
 
         public int Column { get; } = column;
     }
+
+    #endregion
 }

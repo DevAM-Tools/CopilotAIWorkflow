@@ -5,14 +5,20 @@ namespace ExitPointGaps;
 /// <summary>Aggregated exit-point gap report across multiple production projects.</summary>
 internal sealed class AggregatedGapReport
 {
+    #region Public API
+
     public required AggregatedGapSummary Summary { get; init; }
 
     public required IReadOnlyList<ProjectGapResult> Projects { get; init; }
+
+    #endregion
 }
 
 /// <summary>Summary metrics for an aggregated exit-point gap report.</summary>
 internal sealed class AggregatedGapSummary
 {
+    #region Public API
+
     public int ProjectCount { get; init; }
 
     public int CompletedProjectCount { get; init; }
@@ -22,4 +28,6 @@ internal sealed class AggregatedGapSummary
     public int ExitGapCount { get; init; }
 
     public int BranchGapCount { get; init; }
+
+    #endregion
 }

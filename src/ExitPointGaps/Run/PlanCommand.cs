@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Runs the <c>plan</c> command.</summary>
 internal static class PlanCommand
 {
+    #region Public API
+
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         if (!CliParser.TryParse(_PrependPlan(args), out CliOptions? options, out string? parseError) || options is null)
@@ -28,6 +30,10 @@ internal static class PlanCommand
         return await PlanOrchestrator.RunAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static string[] _PrependPlan(string[] args)
     {
         if (args.Length > 0 && string.Equals(args[0], CliConstants.PlanCommand, StringComparison.OrdinalIgnoreCase))
@@ -40,4 +46,6 @@ internal static class PlanCommand
         Array.Copy(args, 0, withPlan, 1, args.Length);
         return withPlan;
     }
+
+    #endregion
 }

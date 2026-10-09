@@ -5,14 +5,19 @@ namespace ExitPointGaps;
 /// <summary>Exports exit-point manifests without running tests.</summary>
 internal static class PlanOrchestrator
 {
+    #region Public API
+
     public static async Task<int> RunAsync(CliOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
 
+        // Drop stale assets from a prior CLI/test invocation in this process.
+        CompilationAssetsCache.Clear();
+
         if (!CliParser.IsValidPlanFormat(options.Format))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(
-                $"Unknown manifest format: {options.Format}. Use agent or text.",
+                Invariant($"Unknown manifest format: {options.Format}. Use agent or text."),
                 cancellationToken).ConfigureAwait(false);
             return CliConstants.ExitUsageError;
         }
@@ -70,11 +75,11 @@ internal static class PlanOrchestrator
                                 1,
                                 null,
                                 true),
-                            $"Failed to load exits for {project.ProjectPath}.");
+                            Invariant($"Failed to load exits for {project.ProjectPath}."));
                     }
 
                     string output = ExitManifestFormatter.Format(exits, options.Format);
-                    string projectFile = Path.Combine(outputDirectory, $"{project.Name}-exits.json");
+                    string projectFile = Path.Combine(outputDirectory, Invariant($"{project.Name}-exits.json"));
                     await File.WriteAllTextAsync(projectFile, output, Encoding.UTF8, projectCancellationToken).ConfigureAwait(false);
 
                     ProjectSummaryEntry entry = new ProjectSummaryEntry(
@@ -96,7 +101,7 @@ internal static class PlanOrchestrator
                 await Console.Out.WriteLineAsync(outputDirectory).ConfigureAwait(false);
             }
 
-            if (accumulator.HasToolFailure)
+            if (accumulator.HasFailure)
             {
                 return CliConstants.ExitGateOrToolFailure;
             }
@@ -108,6 +113,10 @@ internal static class PlanOrchestrator
             RunIsolation.TryCleanupWorkDirectory(workDirectory, options.KeepWorkDir);
         }
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static async Task<int> _WriteSingleProjectAsync(
         ProductionProjectRecord project,
@@ -131,4 +140,6 @@ internal static class PlanOrchestrator
         await OutputWriter.WriteAsync(output, resolvedOutput, appendNewLine: true, cancellationToken).ConfigureAwait(false);
         return CliConstants.ExitSuccess;
     }
+
+    #endregion
 }

@@ -4,6 +4,8 @@ namespace ExitPointGaps;
 
 internal static class OutputWriter
 {
+    #region Public API
+
     public static async Task WriteAsync(
         string output,
         string? outputPath,
@@ -29,4 +31,6 @@ internal static class OutputWriter
 
         await File.WriteAllTextAsync(outputPath, output, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
     }
+
+    #endregion
 }

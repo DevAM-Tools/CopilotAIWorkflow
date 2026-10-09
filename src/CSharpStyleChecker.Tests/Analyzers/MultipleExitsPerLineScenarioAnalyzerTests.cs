@@ -226,7 +226,7 @@ public sealed class MultipleExitsPerLineScenarioAnalyzerTests
     }
 
     [Test]
-    public async Task MultipleExitsPerLine_ExcludeFromCodeCoverageTypeLevel_NoDiagnostic()
+    public async Task MultipleExitsPerLineExcludeFromCodeCoverageTypeLevelReportsCsc006()
     {
         const string source = """
             using System.Diagnostics.CodeAnalysis;
@@ -238,11 +238,15 @@ public sealed class MultipleExitsPerLineScenarioAnalyzerTests
             }
             """;
 
-        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(source);
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(6, 43, 6, 43)
+                .WithArguments("M", "4", "6", "Return, Return, Return, ImplicitEnd"));
     }
 
     [Test]
-    public async Task MultipleExitsPerLine_ExcludeFromCodeCoverageAsyncMethod_NoDiagnostic()
+    public async Task MultipleExitsPerLineExcludeFromCodeCoverageAsyncMethodReportsCsc006()
     {
         const string source = """
             using System.Diagnostics.CodeAnalysis;
@@ -255,11 +259,15 @@ public sealed class MultipleExitsPerLineScenarioAnalyzerTests
             }
             """;
 
-        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(source);
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(7, 55, 7, 55)
+                .WithArguments("M", "4", "7", "Return, Return, Return, ImplicitEnd"));
     }
 
     [Test]
-    public async Task MultipleExitsPerLine_ExcludeFromCodeCoverageLocalFunction_NoDiagnostic()
+    public async Task MultipleExitsPerLineExcludeFromCodeCoverageLocalFunctionReportsCsc006()
     {
         const string source = """
             using System.Diagnostics.CodeAnalysis;
@@ -275,7 +283,11 @@ public sealed class MultipleExitsPerLineScenarioAnalyzerTests
             }
             """;
 
-        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(source);
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(8, 44, 8, 44)
+                .WithArguments("Local", "3", "8", "Return, Return, Return"));
     }
 
     [Test]

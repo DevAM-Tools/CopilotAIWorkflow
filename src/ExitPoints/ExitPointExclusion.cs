@@ -12,6 +12,8 @@ namespace ExitPoints;
 /// </summary>
 public static class ExitPointExclusion
 {
+    #region Public API
+
     /// <summary>Returns whether an exit at the given position is excluded by attribute.</summary>
     /// <param name="tree">Syntax tree containing the exit.</param>
     /// <param name="line">One-based line of the exit.</param>
@@ -80,6 +82,10 @@ public static class ExitPointExclusion
         return _HasExcludeAttribute(attributeLists);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static bool _HasExcludeAttribute(SyntaxList<AttributeListSyntax> attributeLists)
     {
         for (int listIndex = 0; listIndex < attributeLists.Count; listIndex++)
@@ -97,5 +103,7 @@ public static class ExitPointExclusion
 
         return false;
     }
+
+    #endregion
 }
 

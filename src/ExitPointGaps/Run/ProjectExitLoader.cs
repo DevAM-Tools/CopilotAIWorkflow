@@ -4,6 +4,8 @@ namespace ExitPointGaps;
 
 internal static class ProjectExitLoader
 {
+    #region Public API
+
     /// <summary>Loads filtered exit points for a project.</summary>
     /// <param name="projectPath">Path to the project file.</param>
     /// <param name="options">Parsed CLI options.</param>
@@ -45,8 +47,12 @@ internal static class ProjectExitLoader
             return null;
         }
 
-        IReadOnlyList<ExitPointEntry> exits = ExitPointCollector.Collect(compilation);
+        IReadOnlyList<ExitPointEntry> exits = ExitPointCollector.Collect(
+            compilation,
+            cancellationToken: cancellationToken);
         exits = ExitPointFilter.RemoveExcluded(exits, compilation);
         return exits;
     }
+
+    #endregion
 }

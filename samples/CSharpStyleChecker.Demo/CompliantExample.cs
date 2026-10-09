@@ -2,7 +2,7 @@
 
 namespace CSharpStyleChecker.Demo;
 
-/// <summary>Example code that satisfies CSC001–CSC008.</summary>
+/// <summary>Example code that satisfies CSC001–CSC009.</summary>
 internal static class CompliantExample
 {
     private static int _Seed = 1;
@@ -12,6 +12,8 @@ internal static class CompliantExample
     {
         StringBuilder builder = new();
         builder.Append(_Seed);
+        _ = Invariant($"seed={_Seed}");
+        _ = _Seed.ToString(CultureInfo.InvariantCulture);
         return left + right + _Seed + _Values.Count;
     }
 

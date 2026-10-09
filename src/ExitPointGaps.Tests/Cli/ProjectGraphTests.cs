@@ -80,11 +80,11 @@ public sealed class ProjectGraphTests
         await File.WriteAllTextAsync(projectPath, "<Project Sdk=\"Microsoft.NET.Sdk\" />");
         await File.WriteAllTextAsync(
             solutionPath,
-            $"""
+            Invariant($"""
             <Solution>
               <Project Path="src/Demo/Demo.csproj" />
             </Solution>
-            """);
+            """));
 
         IReadOnlyList<string> projects = SolutionParser.TryReadProjectPaths(solutionPath, root, out IReadOnlyList<string> parsed, out string? _)
             ? parsed

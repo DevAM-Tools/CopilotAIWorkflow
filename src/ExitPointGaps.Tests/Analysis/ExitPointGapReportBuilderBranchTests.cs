@@ -72,12 +72,12 @@ public sealed class ExitPointGapReportBuilderBranchTests
     [Test]
     public async Task Build_WithSnippets_PopulatesSnippetFields()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"snippet-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"snippet-{Guid.NewGuid():N}"));
         string sourceDir = Path.Combine(root, "src", "Sample");
         Directory.CreateDirectory(sourceDir);
         await File.WriteAllLinesAsync(
             Path.Combine(sourceDir, "Foo.cs"),
-            Enumerable.Range(1, 9).Select(static i => $"// line {i}").Append("partial line"));
+            Enumerable.Range(1, 9).Select(static i => Invariant($"// line {i}")).Append("partial line"));
 
         string xml = CoberturaFixtures.PartialBranchXml.Replace(@"C:\repo", root, StringComparison.Ordinal);
         string cobertura = CoberturaFixtures.WriteTemporaryFile(xml);

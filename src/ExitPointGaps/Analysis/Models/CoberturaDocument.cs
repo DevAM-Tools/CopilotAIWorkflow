@@ -3,8 +3,10 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>Parsed Cobertura coverage document.</summary>
-public sealed class CoberturaDocument
+internal sealed class CoberturaDocument
 {
+    #region Public API
+
     /// <summary>Initializes a parsed document.</summary>
     /// <param name="sourcePath">Original file path.</param>
     /// <param name="branchRate">Root branch coverage ratio.</param>
@@ -39,4 +41,6 @@ public sealed class CoberturaDocument
 
     /// <summary>Line map keyed by file path then one-based line number.</summary>
     public IReadOnlyDictionary<string, IReadOnlyDictionary<int, CoberturaLineInfo>> Lines { get; }
+
+    #endregion
 }

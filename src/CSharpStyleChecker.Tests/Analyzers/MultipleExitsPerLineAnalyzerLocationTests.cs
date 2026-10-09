@@ -5,6 +5,7 @@ using CSharpStyleChecker.Analyzers;
 using ExitPoints;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 using TUnit.Assertions;
 
 namespace CSharpStyleChecker.Tests.Analyzers;
@@ -13,7 +14,7 @@ namespace CSharpStyleChecker.Tests.Analyzers;
 internal sealed class MultipleExitsPerLineAnalyzerLocationTests
 {
     [Test]
-    public async Task TryCreateLocation_MissingTree_ReturnsNull()
+    public async Task TryCreateLocationMissingTreeReturnsNull()
     {
         const string source = "namespace N; public class C { public int M() => 1; }";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: @"C:\proj\Main.cs");
@@ -37,7 +38,7 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
     }
 
     [Test]
-    public async Task TryCreateLocation_LineOutOfRange_ReturnsNull()
+    public async Task TryCreateLocationLineOutOfRangeReturnsNull()
     {
         const string source = "namespace N; public class C { public int M() => 1; }";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: @"C:\proj\Main.cs");
@@ -61,7 +62,7 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
     }
 
     [Test]
-    public async Task TryCreateLocation_ColumnBeyondLineLength_UsesLineStart()
+    public async Task TryCreateLocationColumnBeyondLineLengthUsesLineStart()
     {
         const string source = "namespace N; public class C { public int M() => 1; }";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: @"C:\proj\Main.cs");
@@ -69,6 +70,8 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
             "TestAssembly",
             new[] { tree },
             new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
+        SourceText text = tree.GetText();
+        int lineStart = text.Lines[0].Start;
 
         ExitPointEntry entry = new ExitPointEntry(
             "M:1:999:Return",
@@ -82,10 +85,12 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
         Location location = MultipleExitsPerLineAnalyzer.TryCreateLocation(compilation, entry);
 
         await Assert.That(location).IsNotNull();
+        await Assert.That(location!.SourceSpan.Start).IsEqualTo(lineStart);
+        await Assert.That(location.SourceSpan.Length).IsEqualTo(0);
     }
 
     [Test]
-    public async Task TryCreateLocation_PositionBeyondTextLength_UsesLineStart()
+    public async Task TryCreateLocationPositionBeyondTextLengthUsesLineStart()
     {
         const string source = "x";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: @"C:\proj\Main.cs");
@@ -93,6 +98,8 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
             "TestAssembly",
             new[] { tree },
             new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
+        SourceText text = tree.GetText();
+        int lineStart = text.Lines[0].Start;
 
         ExitPointEntry entry = new ExitPointEntry(
             "M:1:99:Return",
@@ -106,5 +113,7 @@ internal sealed class MultipleExitsPerLineAnalyzerLocationTests
         Location location = MultipleExitsPerLineAnalyzer.TryCreateLocation(compilation, entry);
 
         await Assert.That(location).IsNotNull();
+        await Assert.That(location!.SourceSpan.Start).IsEqualTo(lineStart);
+        await Assert.That(location.SourceSpan.Length).IsEqualTo(0);
     }
 }

@@ -5,7 +5,13 @@ namespace ExitPointGaps;
 /// <summary>Runs test projects with isolated coverage output.</summary>
 internal static class TestRunner
 {
+    #region Fields
+
     private const int _MtpNoTestsExitCode = 8;
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Runs tests and returns the Cobertura path from the isolated results directory.</summary>
     /// <param name="testProjectPath">Absolute test project path.</param>
@@ -29,7 +35,7 @@ internal static class TestRunner
 
         if (!File.Exists(testProjectPath))
         {
-            await Console.Error.WriteLineAsync($"Test project not found: {testProjectPath}").ConfigureAwait(false);
+            await Console.Error.WriteLineAsync(Invariant($"Test project not found: {testProjectPath}")).ConfigureAwait(false);
             return null;
         }
 
@@ -42,7 +48,7 @@ internal static class TestRunner
             : "-- --coverage --coverage-output-format cobertura";
 
         string arguments =
-            $"test \"{testProjectPath}\" -c {configuration}{noBuildFlag} --results-directory \"{resultsDirectory}\" {coverageArgs}";
+            Invariant($"test \"{testProjectPath}\" -c {configuration}{noBuildFlag} --results-directory \"{resultsDirectory}\" {coverageArgs}");
 
         DotNetProcessResult processResult = await DotNetProcess.RunAsync(arguments, testDirectory, cancellationToken)
             .ConfigureAwait(false);
@@ -66,6 +72,8 @@ internal static class TestRunner
 
         return new TestRunResult(coberturaPath!, processResult.ExitCode, processResult.StandardError);
     }
+
+    #endregion
 }
 
 /// <summary>Result of an isolated test run.</summary>

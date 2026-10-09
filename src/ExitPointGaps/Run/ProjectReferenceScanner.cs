@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Scans project files for references and package markers.</summary>
 internal static class ProjectReferenceScanner
 {
+    #region Public API
+
     /// <summary>Finds project reference paths declared in a <c>.csproj</c> file.</summary>
     /// <param name="projectPath">Absolute project path.</param>
     /// <returns>Absolute paths to referenced projects.</returns>
@@ -65,5 +67,7 @@ internal static class ProjectReferenceScanner
             .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    #endregion
 }
 

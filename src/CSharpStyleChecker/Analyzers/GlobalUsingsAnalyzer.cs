@@ -14,6 +14,8 @@ namespace CSharpStyleChecker.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GlobalUsingsAnalyzer : DiagnosticAnalyzer
 {
+    #region Lifecycle
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(DiagnosticDescriptors.GlobalUsingsOnly);
@@ -26,6 +28,10 @@ public sealed class GlobalUsingsAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeUsing, Microsoft.CodeAnalysis.CSharp.SyntaxKind.UsingDirective);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static void AnalyzeUsing(SyntaxNodeAnalysisContext context)
     {
@@ -61,4 +67,6 @@ public sealed class GlobalUsingsAnalyzer : DiagnosticAnalyzer
             || path.Contains("/bin/", StringComparison.OrdinalIgnoreCase)
             || path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase);
     }
+
+    #endregion
 }

@@ -2,11 +2,11 @@
 
 NuGet packages from [CopilotAIWorkflow](https://github.com/DevAM/CopilotAIWorkflow) — agent workflow tooling with mechanical quality gates.
 
-**Release 1.0.0** — two packages replace the deprecated **CSharpStyleValidator**, **CoverageGap.Tool**, and **CoverageGapAnalysis**. Same purpose and scope; version line restarts at 1.0.0.
+**Release 1.1.0** — **CSharpStyleChecker** ships **CSC009** plus CSC001–CSC008 fixes; **ExitPointGaps** aligns with CSC009. Version line restarted at 1.0.0 (not a continuation of the pre-rebrand 2.x line).
 
 ## CSharpStyleChecker
 
-Roslyn analyzer enforcing C# style as **compiler errors** (CSC001–CSC008). Add as a development dependency:
+Roslyn analyzer enforcing C# style as **compiler errors** (CSC001–CSC009). Add as a development dependency:
 
 ```xml
 <PackageReference Include="CSharpStyleChecker" Version="1.*" />
@@ -37,7 +37,7 @@ Requires .NET SDK 10.0, MTP + TUnit in test projects. Gate: `summary.exitGapCoun
 - Scoped Cobertura parse, streaming writes, Roslyn `Compilation` dropped after exit collection
 - Benchmark (this repo, Release, `--no-build`): serial ~22.8s → parallel ~12.0s (~47% faster)
 
-Details: [CHANGELOG.md](CHANGELOG.md).
+Details: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md), repo [CHANGELOG.md](CHANGELOG.md).
 
 ## Migration
 
@@ -46,7 +46,7 @@ Details: [CHANGELOG.md](CHANGELOG.md).
 | `PackageReference CSharpStyleValidator` | `CSharpStyleChecker` |
 | `dotnet tool install CoverageGap.Tool` | `dotnet tool install ExitPointGaps` |
 | `PackageReference CoverageGapAnalysis` | `ExitPointGaps` CLI only |
-| Analyzer IDs `CSV001–CSV008` | `CSC001–CSC008` |
+| Analyzer IDs `CSV001–CSV008` | `CSC001–CSC009` |
 | `dotnet tool run coveragegap` | `dotnet tool run exitpointgaps` |
 
 ## Requirements

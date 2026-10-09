@@ -2,7 +2,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using System.Globalization;
 using CSharpStyleChecker.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -13,7 +13,7 @@ namespace CSharpStyleChecker.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly Regex ValidPrivateName = new(@"^_[A-Z][\w]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    #region Lifecycle
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
@@ -28,9 +28,14 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
         context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.Field, SymbolKind.Method, SymbolKind.Property);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static void AnalyzeSymbol(SymbolAnalysisContext context)
     {
-        if (ShouldSkipPrivateSymbol(context.Symbol, context.Symbol.Locations[0]))
+        ImmutableArray<Location> locations = context.Symbol.Locations;
+        if (locations.Length == 0 || ShouldSkipPrivateSymbol(context.Symbol, locations[0]))
         {
             return;
         }
@@ -43,15 +48,16 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
 
         context.ReportDiagnostic(Diagnostic.Create(
             DiagnosticDescriptors.PrivateNaming,
-            context.Symbol.Locations[0],
+            locations[0],
             memberKind,
             context.Symbol.Name));
     }
 
-    /// <remarks>
+    /// <summary>
     /// Filters symbols outside CSC003 scope, including metadata-only and implicit declarations.
     /// Exempt: members inside private nested types, explicit interface implementations, and local functions.
-    /// </remarks>
+    /// Reason: skip branches are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool ShouldSkipPrivateSymbol(ISymbol symbol, Location location)
     {
@@ -96,9 +102,49 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
-        return ValidPrivateName.IsMatch(symbol.Name);
+        return IsValidPrivateName(symbol.Name);
     }
 
+    /// <summary>
+    /// Matches <c>_PascalCase</c>: underscore, ASCII A–Z, then word characters
+    /// (letter, digit, <c>_</c>, or connector punctuation — the non-ECMAScript <c>\w</c> set).
+    /// </summary>
+    private static bool IsValidPrivateName(string name)
+    {
+        if (name.Length < 2 || name[0] != '_')
+        {
+            return false;
+        }
+
+        char second = name[1];
+        if (second < 'A' || second > 'Z')
+        {
+            return false;
+        }
+
+        for (int index = 2; index < name.Length; index++)
+        {
+            char ch = name[index];
+            if (ch == '_' || char.IsLetter(ch) || char.IsDigit(ch))
+            {
+                continue;
+            }
+
+            if (char.GetUnicodeCategory(ch) == UnicodeCategory.ConnectorPunctuation)
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Detects members declared inside a private nested type.
+    /// Reason: skip branches are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool IsInsidePrivateNestedType(ISymbol symbol)
     {
@@ -106,4 +152,6 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
             && containingType.ContainingType is not null
             && containingType.DeclaredAccessibility == Accessibility.Private;
     }
+
+    #endregion
 }

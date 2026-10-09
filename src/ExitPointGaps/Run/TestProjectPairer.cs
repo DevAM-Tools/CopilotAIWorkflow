@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Pairs production projects with test projects using conventions.</summary>
 internal static class TestProjectPairer
 {
+    #region Public API
+
     /// <summary>Finds the paired test project for a production project.</summary>
     /// <param name="productionProjectPath">Absolute production project path.</param>
     /// <param name="repositoryRoot">Repository root for reference scans.</param>
@@ -45,19 +47,23 @@ internal static class TestProjectPairer
         return _TryReferenceScan(productionProjectPath, repositoryRoot);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static string? _TrySiblingConvention(string productionProjectPath)
     {
         string productionDirectory = Path.GetDirectoryName(productionProjectPath) ?? ".";
         string productionName = Path.GetFileNameWithoutExtension(productionProjectPath);
         string parentDirectory = Path.GetDirectoryName(productionDirectory) ?? productionDirectory;
 
-        string underParent = Path.Combine(parentDirectory, $"{productionName}.Tests", $"{productionName}.Tests.csproj");
+        string underParent = Path.Combine(parentDirectory, Invariant($"{productionName}.Tests"), Invariant($"{productionName}.Tests.csproj"));
         if (File.Exists(underParent))
         {
             return Path.GetFullPath(underParent);
         }
 
-        string underSame = Path.Combine(productionDirectory, $"{productionName}.Tests", $"{productionName}.Tests.csproj");
+        string underSame = Path.Combine(productionDirectory, Invariant($"{productionName}.Tests"), Invariant($"{productionName}.Tests.csproj"));
         if (File.Exists(underSame))
         {
             return Path.GetFullPath(underSame);
@@ -85,4 +91,6 @@ internal static class TestProjectPairer
 
         return null;
     }
+
+    #endregion
 }

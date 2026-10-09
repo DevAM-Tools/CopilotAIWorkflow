@@ -5,7 +5,13 @@ namespace ExitPointGaps;
 /// <summary>Per-invocation isolated directories and output paths for parallel-safe runs.</summary>
 internal static class RunIsolation
 {
+    #region Fields
+
     private const string _LockFileName = ".exitpointgaps.lock";
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Creates or reserves a work directory for this invocation.</summary>
     /// <param name="requestedWorkDirectory">Optional user <c>--work-dir</c>; unique temp path when null.</param>
@@ -35,7 +41,7 @@ internal static class RunIsolation
         string path = Path.Combine(
             Path.GetTempPath(),
             CliConstants.WorkDirFolderName,
-            $"{Environment.ProcessId}-{Guid.NewGuid():N}");
+            Invariant($"{Environment.ProcessId}-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(path);
         return path;
     }
@@ -158,6 +164,10 @@ internal static class RunIsolation
         }
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static bool _TryCreateLockFileExclusive(string workDirectory, out string? error)
     {
         error = null;
@@ -183,7 +193,7 @@ internal static class RunIsolation
     private static bool _TryWriteLockExclusive(string lockPath, out string? error)
     {
         error = null;
-        string payload = $"{Environment.ProcessId}{Environment.NewLine}{DateTimeOffset.UtcNow:O}";
+        string payload = Invariant($"{Environment.ProcessId}{Environment.NewLine}{DateTimeOffset.UtcNow:O}");
         try
         {
             using FileStream stream = new FileStream(lockPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
@@ -196,13 +206,13 @@ internal static class RunIsolation
             string? directory = Path.GetDirectoryName(lockPath);
             if (string.IsNullOrEmpty(directory))
             {
-                error = $"Failed to reserve work directory: {lockPath}";
+                error = Invariant($"Failed to reserve work directory: {lockPath}");
                 return false;
             }
 
             if (_TryReadLockOwnerPid(directory, out int ownerPid) && _IsProcessRunning(ownerPid))
             {
-                error = $"Work directory is in use by another exitpointgaps instance (PID {ownerPid}): {directory}";
+                error = Invariant($"Work directory is in use by another exitpointgaps instance (PID {ownerPid}): {directory}");
                 return false;
             }
 
@@ -210,7 +220,7 @@ internal static class RunIsolation
         }
         catch (UnauthorizedAccessException accessException)
         {
-            error = $"Failed to reserve work directory: {accessException.Message}";
+            error = Invariant($"Failed to reserve work directory: {accessException.Message}");
             return false;
         }
     }
@@ -245,4 +255,6 @@ internal static class RunIsolation
             return false;
         }
     }
+
+    #endregion
 }

@@ -2,6 +2,96 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.1.0
+
+Package release notes (full detail):
+
+| Package | Changelog |
+|---------|-----------|
+| CSharpStyleChecker | [src/CSharpStyleChecker/CHANGELOG.md](src/CSharpStyleChecker/CHANGELOG.md) |
+| ExitPointGaps | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
+
+### CSharpStyleChecker
+
+- **CSC009** (new): bare interpolated strings and culture-sensitive `ToString` require invariant culture (`Invariant($"…")`, `string.Create` / `StringBuilder.Append` with `CultureInfo.InvariantCulture`).
+- **CSC001–CSC008** coverage and masking fixes (verbatim/raw string line length, more `var` sites, `ValueTask` / `WaitAll` / `WaitAny`, indexers, `[ExcludeFromCodeCoverage]` no longer waives CSC006).
+- Repo clone: no nested MSBuild of the checker per `CoreCompile`; `ExitPoints.dll` wired as analyzer dependency after project references resolve.
+
+### ExitPointGaps
+
+- Builds clean under CSC009 (`Invariant($"…")`).
+- Exit-point collection: `ExitPointEntry` is a `readonly record struct`; `Collect` takes optional `CancellationToken`; ternary groups use `QuestionToken`.
+- CLI surface unchanged (`run` / `plan`, schema v3).
+
+### Agent workflow
+
+- Plan test content IDs are `TEST-<AREA>-<TOPIC>`. The ID names the case.
+  A case that proves a requirement reuses that requirement’s area and, when
+  it is that one claim, its topic (`REQ-EXPORT-NO-DUPLICATE` →
+  `TEST-EXPORT-NO-DUPLICATE`).
+- `/plan` writes **API and interfaces** immediately before the steps: schematic snippets of the public API and of interfaces, traits, or equivalent contract types.
+- `/review` Summary is structured: release line, counts, a findings table, a checks table (one row per hunt), and a priority list.
+- `/review` Summary **Findings** has a Status column (Section 5 legend). A new
+  review starts each row at `⬜`. `/implement` sets that cell and the finding
+  Status line together (`⚠️` before the edit, `✅` after Verify). **Release**
+  and **Counts** stay the review-time verdict. A deferred finding stays `⬜`.
+- `/requirements` IDs are `REQ-<AREA>-<TOPIC>` (the ID names the subject). The artifact is an atomic, contradiction-free list. Headings, context, and notes do not get IDs.
+- Plan and review artifacts welcome extra illustrative code. Plans prefer snippets over a prose-only `How` or Target Solution. Review findings keep fenced Problem/Fix (before/after) as the primary handoff.
+- Section 4.6: file references in plans, briefings, reviews (and other non-temp docs) are clickable Markdown links with a relative target that opens. Bare backticks and absolute paths are not enough.
+- Chat handover is not global. Each workflow skill’s Completion (or Output Modes) defines the ending.
+- `/review-loop` default is full clean: remediate every bucket, then stop only when the latest review has zero open findings (or explicit deferrals). `/complex-task` still defers Cosmetic, Refactoring, and Performance so the plan can finish and Exam can run.
+- `/review` file mode is the default for standalone `/review` as well as
+  `/review-loop` and `/complex-task`. Chat-only only when the user says
+  `chat only` / `ohne Review-Datei`.
+- `/illustrate`: if the user allows libraries, download pinned allowlist files
+  into `vendor/` at create time. Shipped HTML uses relative paths only and works
+  offline (no CDN). Playwright verifies during create; it is not part of the
+  illustration. Illustrations are not product web UIs: not responsive-by-default,
+  and `tech-web.md` does not apply.
+- README does not publish instruction line counts (they go stale). Terms (Grill Me,
+  Step `{n}R`, Shared Block, MTP, …) live in `copilot-instructions.md` §5.1.
+- `/review` Perspective Sweep is two views (Skeptic, Outsider). Plan Sweep stays
+  five views. Do not paste the plan fence into a review file.
+- Tool commands that set env vars show Unix (`NAME=value`) and PowerShell
+  (`$env:NAME = "value"`). Illustration Verify uses the stack CLI in
+  `tech-playwright.md`, not a `pnpm`-only fence.
+- `tech-rust.md` UTF-8 console sample has `// SAFETY:` on the `unsafe` block.
+- `tech-blazor.md` `[EditorRequired]` sample uses `required string` with no
+  empty-string default.
+- `/commit-message` writes a complete English message to `commit_message.md` and stops. Git commit/push after that file is out of scope.
+- `/review` is a skeptical auditor new to the project: trust nothing, hunt the hair in the soup, check with absolute precision. Findings lock `How` plus Problem/Fix for a weaker agent. Ignore existing `reviews/review_*.md` unless the user names one. Load skills from the Section 3 table for the confirmed scope. The review **must** answer whether that scope is ready for public release (`Ready for public release` or `Blocked by {IDs}`). Leading criteria: `custom_instructions.md` when present, loaded skills, Section 4. Compact always-on distillate (security, races, docs, orphans). No second closer.
+- C# UI tests live in `{App}.UiTest` (TUnit + `TUnit.Playwright`), not `{App}.E2E`. Playwright asserts named UI requirements, not smoke-only.
+- Design apps and libraries so an agent can debug them (smallest command, filterable tests, traces).
+- C# tests (unit, bUnit, Playwright UI) are TUnit only (`TUnit.Playwright` in `{App}.UiTest`). Playwright, web, Blazor, and test skills no longer duplicate journey/viewport/runner rules.
+- Try* APIs surface failure as code, message, or type (`out` preferred; documented TLS last-error only when `out` cannot be added). Prefer auto-properties; explicit `volatile` fields; least visibility and least setter.
+- Profile C# hot paths with `dotnet-trace` (Release only) when the user asks or the step is hot-path optimization. GC counts belong in that session, not production.
+- Section 6 is the workflow router (load skill; `/implement` after plan approval). Stages stay in the skill.
+- 100% exit-path coverage is a C# / TUnit gate (`tech-csharp.md`, `tech-tunit.md`), not an always-on rule.
+- Trust-boundary limits (size, count, range, time, rate) must be agreed with the user; record constant vs configurable.
+- `/requirements` records required behavior and expected properties (shall / shall not / shall exhibit). Tests in plans are `TEST-<AREA>-<TOPIC>`. Implementation stays in `/plan`. `/plan` links an existing requirements file; otherwise it runs requirements first.
+- Plans lock implementation (`How` + Before/After) for a weaker executing agent, with first-class test **content** (`TEST-<AREA>-<TOPIC>` cards: scenarios, edges, constellations, contradictions, gaps), step experience, and public-API snippets. Class and Layer may be named. Test code in the plan is allowed; it does not replace Content. Extra tests at implement time are allowed.
+- Plans **link** the requirements file (real Markdown path) and do not copy the requirement list. Tick `Met` in that file.
+- Requirements are verified at step close (Done-when runs). IDs stay out of product code.
+- Council runs in the same agent. No subagent advisors or peer-review round.
+- Section 3 Tech Load maps `GlobalUsings.cs` to `tech-csharp.md` + `tech-solution.md`, `.editorconfig` to `tech-solution.md`, `global.json` to `tech-tunit.md`, and C# tests as `*Tests.cs` in `{Project}.Tests/` (not `*.Tests.cs`). C# copyright syntax lives in `tech-csharp.md` so it applies when only `.cs` files are in scope.
+- `/commit-message` writes a specific message (named outcomes, before/after, examples), not a slogan. Updates `CHANGELOG.md` when the scope is a release.
+- Briefings (not “review briefs”) are the post-implement packet (try-this, acceptance evidence, walkthrough, per-file Look at).
+- Shared product web UI rules live in `tech-web.md` (phone-first layout, locked breakpoints, CSS/JS placement, a11y). Blazor keeps stack mechanics in `tech-blazor.md`. Playwright stays journeys and debug.
+- Read and write files with stream/reader APIs. Do not slurp unbounded files into a single string or byte array.
+- Performance is a feature: general rules in always-on instructions; GC, SIMD, and pools in the language skills. Gen-1 survival costs more than gen-0 on .NET hot paths. `ref struct` is a special-case stack tool, not a default.
+- Dependencies need approval (what, why, license, alternatives). No shell/PowerShell/Python scripts in repo or chat except last resort with explanation.
+- Test strategy lives in `tech-test.md`; TUnit, pytest, Rust, and Playwright skills hold runner mechanics only (no duplicated case-design rules). C# test methods are PascalCase without underscores (`PairEmptyRepoReturnsNone`).
+- Warning suppressions always need user approval and a tech-skill template (rule id, reason, scope). Global C# `NoWarn` needs one comment per id, including why it is global (`tech-csharp.md`). `IDE1006` naming is EditorConfig-only (`tech-solution.md`); `NoWarn` does not clear the IDE squiggle.
+- Non-temporary documents are English. Chat may follow the user.
+- After writing a plan, walk it twice: requirements coverage and conversation coverage.
+
+### Documentation
+
+- `README.md` and `AGENTS.md` list the new workflows and tech skills.
+- `tech-web.md` locks phone-first responsive layout (320px floor; 768 / 1024 / 1280 bands), CSS layers, and JS-vs-CSS rules. Playwright product journeys use those viewports.
+
+---
+
 ## 1.0.0
 
 ### ExitPointGaps performance

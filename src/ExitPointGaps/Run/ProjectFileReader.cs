@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Reads lightweight facts from project files without MSBuild.</summary>
 internal static class ProjectFileReader
 {
+    #region Public API
+
     /// <summary>Detects whether a project is an executable host rather than a coverage-gated library.</summary>
     /// <param name="projectPath">Absolute project path.</param>
     /// <returns><see langword="true"/> when <c>OutputType</c> is <c>Exe</c>.</returns>
@@ -21,4 +23,6 @@ internal static class ProjectFileReader
             .FirstOrDefault();
         return string.Equals(outputType, "Exe", StringComparison.OrdinalIgnoreCase);
     }
+
+    #endregion
 }

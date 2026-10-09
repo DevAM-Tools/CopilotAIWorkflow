@@ -5,9 +5,15 @@ namespace ExitPointGaps;
 /// <summary>Writes per-project reports incrementally and emits schema v3 summaries.</summary>
 internal sealed class StreamingGapReportWriter
 {
+    #region Fields
+
     private static readonly object _StdoutLock = new();
     private readonly bool _StreamToStdout;
     private readonly string _Format;
+
+    #endregion
+
+    #region Lifecycle
 
     /// <summary>Initializes the streaming writer.</summary>
     /// <param name="format">Report format.</param>
@@ -18,6 +24,10 @@ internal sealed class StreamingGapReportWriter
         _Format = format;
         _StreamToStdout = streamToStdout;
     }
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Writes one per-project report file immediately.</summary>
     /// <param name="result">Project gap result.</param>
@@ -32,7 +42,7 @@ internal sealed class StreamingGapReportWriter
         ArgumentNullException.ThrowIfNull(result);
         ArgumentException.ThrowIfNullOrEmpty(outputDirectory);
 
-        string reportFileName = $"{Path.GetFileNameWithoutExtension(result.ProjectPath)}.json";
+        string reportFileName = Invariant($"{Path.GetFileNameWithoutExtension(result.ProjectPath)}.json");
         string projectPayload = GapReportFormatter.Format(result.Report, _Format);
         string projectFile = Path.Combine(outputDirectory, reportFileName);
         await File.WriteAllTextAsync(projectFile, projectPayload, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
@@ -120,6 +130,10 @@ internal sealed class StreamingGapReportWriter
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private async Task _WriteStdoutProjectLineAsync(
         ProjectGapResult result,
         string projectPayload,
@@ -139,4 +153,6 @@ internal sealed class StreamingGapReportWriter
 
         await Task.CompletedTask.ConfigureAwait(false);
     }
+
+    #endregion
 }

@@ -1,6 +1,7 @@
 // Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.
 
 using System.Collections.Immutable;
+using System.Globalization;
 using CSharpStyleChecker.Diagnostics;
 using CSharpStyleChecker.Helpers;
 using Microsoft.CodeAnalysis;
@@ -9,11 +10,23 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace CSharpStyleChecker.Analyzers;
 
-/// <summary>Reports lines exceeding the configured maximum visible length.</summary>
+/// <summary>
+/// Reports lines exceeding the configured maximum visible length.
+/// String and character literal content is masked; comments and holes in <c>$"..."</c> / <c>@$"..."</c> / <c>$@"..."</c> count toward the limit.
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LineLengthAnalyzer : DiagnosticAnalyzer
 {
+    #region Fields
+
     private const string MaxLineLengthKey = "build_property.csc_max_line_length";
+
+    /// <summary>Default matches the repository line-length limit; editorconfig may override.</summary>
+    private const int DefaultMaxLineLength = 160;
+
+    #endregion
+
+    #region Lifecycle
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
@@ -28,52 +41,43 @@ public sealed class LineLengthAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxTreeAction(AnalyzeSyntaxTree);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static void AnalyzeSyntaxTree(SyntaxTreeAnalysisContext context)
     {
         AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.Tree);
-        int maxLength = 160;
+        int maxLength = DefaultMaxLineLength;
         if (options.TryGetValue(MaxLineLengthKey, out string value)
-            && int.TryParse(value, out int parsed)
+            && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed)
             && parsed > 0)
         {
             maxLength = parsed;
         }
 
         SourceText text = context.Tree.GetText(context.CancellationToken);
-        bool inBlock = false;
+        LineMaskState state = default;
 
         for (int lineIndex = 0; lineIndex < text.Lines.Count; lineIndex++)
         {
+            context.CancellationToken.ThrowIfCancellationRequested();
             TextLine textLine = text.Lines[lineIndex];
-            string raw = textLine.ToString();
-            string visible = raw.TrimEnd();
-            if (visible.Length == 0)
-            {
-                (string _, inBlock) = LineMasking.MaskLine(raw, inBlock);
-                continue;
-            }
 
-            string trimmedStart = visible.TrimStart();
-            if (trimmedStart.StartsWith("//", System.StringComparison.Ordinal)
-                || trimmedStart.StartsWith("*", System.StringComparison.Ordinal))
-            {
-                (string _, inBlock) = LineMasking.MaskLine(raw, inBlock);
-                continue;
-            }
-
-            (string masked, inBlock) = LineMasking.MaskLine(raw, inBlock);
-            int maskedVisibleLength = masked.TrimEnd().Length;
-            if (maskedVisibleLength > maxLength)
+            // Always measure so open string / block-comment state advances on blank lines too.
+            int visible = LineMasking.MeasureVisibleLength(text, textLine, ref state);
+            if (visible > maxLength)
             {
                 Location location = Location.Create(context.Tree, textLine.Span);
                 Diagnostic diagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.LineLength,
                     location,
                     maxLength,
-                    maskedVisibleLength);
+                    visible);
                 context.ReportDiagnostic(diagnostic);
             }
         }
     }
-}
 
+    #endregion
+}

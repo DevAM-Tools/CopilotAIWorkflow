@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Builds the production project graph for a CLI invocation.</summary>
 internal static class ProjectGraphBuilder
 {
+    #region Public API
+
     /// <summary>Builds production project records for the current CLI options.</summary>
     /// <param name="options">Parsed CLI options.</param>
     /// <param name="projects">Resolved production projects.</param>
@@ -35,7 +37,7 @@ internal static class ProjectGraphBuilder
 
             if (!File.Exists(candidatePath))
             {
-                error = $"Project file not found: {candidatePath}";
+                error = Invariant($"Project file not found: {candidatePath}");
                 return false;
             }
 
@@ -50,7 +52,7 @@ internal static class ProjectGraphBuilder
             {
                 if (!options.SkipNoTests && options.IsRunCommand)
                 {
-                    error = $"No paired test project found for {candidatePath}. Use --skip-no-tests or --test-project.";
+                    error = Invariant($"No paired test project found for {candidatePath}. Use --skip-no-tests or --test-project.");
                     return false;
                 }
 
@@ -77,6 +79,10 @@ internal static class ProjectGraphBuilder
         projects = records;
         return true;
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static IReadOnlyList<string> _ResolveCandidatePaths(CliOptions options, string repositoryRoot, out string? error)
     {
@@ -110,8 +116,8 @@ internal static class ProjectGraphBuilder
         }
 
         string relative = Path.GetRelativePath(repositoryRoot, projectPath);
-        if (relative.StartsWith($"samples{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-            || relative.StartsWith($"samples{Path.AltDirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+        if (relative.StartsWith(Invariant($"samples{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
+            || relative.StartsWith(Invariant($"samples{Path.AltDirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -137,8 +143,8 @@ internal static class ProjectGraphBuilder
             }
 
             string relative = Path.GetRelativePath(repositoryRoot, candidatePath);
-            if (relative.StartsWith($"samples{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
-                || relative.StartsWith($"samples{Path.AltDirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+            if (relative.StartsWith(Invariant($"samples{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
+                || relative.StartsWith(Invariant($"samples{Path.AltDirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -157,4 +163,6 @@ internal static class ProjectGraphBuilder
 
         return anyGateCandidate;
     }
+
+    #endregion
 }

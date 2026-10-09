@@ -2,9 +2,11 @@
 
 namespace CSharpStyleChecker.Diagnostics;
 
-/// <summary>Diagnostic identifier constants.</summary>
-public static class DiagnosticIds
+/// <summary>Diagnostic identifier constants. No mutable state; safe to read from concurrent analyzer actions.</summary>
+internal static class DiagnosticIds
 {
+    #region Fields
+
     /// <summary>Line exceeds maximum length.</summary>
     public const string LineLength = "CSC001";
 
@@ -28,4 +30,9 @@ public static class DiagnosticIds
 
     /// <summary>Redundant explicit type in object or collection creation.</summary>
     public const string TargetTypedCreation = "CSC008";
+
+    /// <summary>Culture-sensitive formatting without invariant culture.</summary>
+    public const string InvariantCultureFormatting = "CSC009";
+
+    #endregion
 }

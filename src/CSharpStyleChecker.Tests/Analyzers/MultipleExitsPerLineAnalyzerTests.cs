@@ -509,7 +509,7 @@ public sealed class MultipleExitsPerLineAnalyzerTests
     }
 
     [Test]
-    public async Task MultipleExitsPerLine_ExcludeFromCodeCoverageSameLine_NoDiagnostic()
+    public async Task MultipleExitsPerLineExcludeFromCodeCoverageSameLineReportsCsc006()
     {
         const string source = """
             using System.Diagnostics.CodeAnalysis;
@@ -521,7 +521,11 @@ public sealed class MultipleExitsPerLineAnalyzerTests
             }
             """;
 
-        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(source);
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(6, 43, 6, 43)
+                .WithArguments("M", "4", "6", "Return, Return, Return, ImplicitEnd"));
     }
 
     [Test]
@@ -560,4 +564,36 @@ public sealed class MultipleExitsPerLineAnalyzerTests
                 .WithSpan(7, 31, 7, 31)
                 .WithArguments("N", "2", "7", "ConditionalArmCompletion, ConditionalArmCompletion"));
     }
+
+    [Test]
+    public async Task MultipleExitsPerLineQuestionInConditionAnchorsOuterQuestion()
+    {
+        const string source =
+            "using System;\nnamespace N;\npublic class C\n{\n    public int M(bool a, bool b, bool c) => (a\n        ? b\n        : c) ? 1 : 2;\n}\n";
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(7, 14, 7, 14)
+                .WithArguments("M", "2", "7", "ConditionalArmCompletion, ConditionalArmCompletion"));
+    }
+
+    [Test]
+    public async Task MultipleExitsPerLineExpressionBodiedIndexerSameLineReportsCsc006()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int this[bool b] => b ? 1 : 2;
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<MultipleExitsPerLineAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.MultipleExitsPerLine)
+                .WithSpan(5, 34, 5, 34)
+                .WithArguments("this[]", "2", "5", "ConditionalArmCompletion, ConditionalArmCompletion"));
+    }
 }
+

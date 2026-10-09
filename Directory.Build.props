@@ -16,8 +16,15 @@
     <Company>DevAM</Company>
     <Authors>DevAM</Authors>
     <Copyright>Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.</Copyright>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
   </PropertyGroup>
+  <!-- Id: CA1707. Why: TUnit test method names and some CLI identifiers use underscores that CA1707 rejects. Why global: applies to every test method and the ExitPointGaps tool project; a pragma per member is not viable. User approved. -->
+  <!-- Id: CA1515. Why: ExitPointGaps is a PackAsTool executable; Program and related entry types must stay public for the host. Why global: project-wide tool entry surface, not a single method. User approved. -->
+  <!-- Id: CA2007. Why: ConfigureAwait(false) noise in CLI/test async paths where there is no SynchronizationContext. Why global: every async call in tool and test projects. User approved. -->
+  <!-- Id: CA1826. Why: First/Last/Count on IEnumerable in setup/test helpers is clearer than manual enumeration. Why global: test and tool projects share the same helper patterns. User approved. -->
+  <!-- Id: CS1591. Why: XML docs on every test member and some internal CLI helpers add noise without consumer value. Why global: entire test and ExitPointGaps tool assemblies. User approved. -->
+  <!-- Id: IDE0005. Why: Unused usings appear transiently during analyzer/refactor churn in tests and the tool; EnforceCodeStyleInBuild would fail builds. Why global: not expressible as a single-file pragma. User approved. -->
+  <!-- Note: IDE1006 stays in .editorconfig (tech-solution.md), not NoWarn. -->
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests')) or $(MSBuildProjectName.EndsWith('.UiTest')) or $(MSBuildProjectName) == 'ExitPointGaps'">
     <NoWarn>$(NoWarn);CA1707;CA1515;CA2007;CA1826;CS1591;IDE0005</NoWarn>
   </PropertyGroup>

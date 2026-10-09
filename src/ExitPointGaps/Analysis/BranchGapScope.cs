@@ -3,8 +3,10 @@
 namespace ExitPointGaps.Analysis;
 
 /// <summary>Filters Cobertura packages included in branch analysis.</summary>
-public sealed class BranchGapScope
+internal sealed class BranchGapScope
 {
+    #region Public API
+
     /// <summary>Initializes scope with package suffix filters.</summary>
     /// <param name="packageSuffixes">Package name suffixes to include.</param>
     public BranchGapScope(IReadOnlyList<string> packageSuffixes)
@@ -47,4 +49,6 @@ public sealed class BranchGapScope
 
         return false;
     }
+
+    #endregion
 }

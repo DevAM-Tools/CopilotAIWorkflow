@@ -6,7 +6,10 @@
     <ApplyCSharpStyleChecker Condition="'$(ApplyCSharpStyleChecker)' == '' and '$(_CscConsumerTargetFramework)' == 'true' and '$(MSBuildProjectName)' != 'CSharpStyleChecker' and '$(MSBuildProjectName)' != 'CSharpStyleChecker.Tests' and '$(MSBuildProjectName)' != 'ExitPoints' and '$(MSBuildProjectName)' != 'ExitPoints.Tests'">true</ApplyCSharpStyleChecker>
     <CSharpStyleCheckerProjectPath>$(MSBuildThisFileDirectory)src\CSharpStyleChecker\CSharpStyleChecker.csproj</CSharpStyleCheckerProjectPath>
   </PropertyGroup>
-  <!-- Repo clone: wire local analyzer project; PrivateAssets blocks flow to downstream ProjectReferences. -->
+  <!--
+    One ProjectReference builds the analyzer once and passes CSharpStyleChecker.dll to the compiler.
+    A nested MSBuild task before CoreCompile would repeat that build for every consumer.
+  -->
   <ItemGroup Condition="'$(ApplyCSharpStyleChecker)' == 'true'">
     <ProjectReference
       Include="$(CSharpStyleCheckerProjectPath)"
@@ -14,9 +17,24 @@
       ReferenceOutputAssembly="false"
       PrivateAssets="all" />
   </ItemGroup>
-  <Import
-    Project="$(MSBuildThisFileDirectory)src\CSharpStyleChecker\build\CSharpStyleChecker.Local.targets"
-    Condition="'$(ApplyCSharpStyleChecker)' == 'true'" />
+  <!--
+    ProjectReference OutputItemType=Analyzer passes only CSharpStyleChecker.dll.
+    After the checker project builds, ExitPoints.dll sits beside it; add that
+    path as an Analyzer so the load context finds the dependency without a
+    nested MSBuild rebuild of the checker.
+  -->
+  <Target
+    Name="AddExitPointsAnalyzerDependency"
+    Condition="'$(ApplyCSharpStyleChecker)' == 'true'"
+    DependsOnTargets="ResolveProjectReferences"
+    BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_ExitPointsAnalyzerPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)src\CSharpStyleChecker\bin\$(Configuration)\netstandard2.0\ExitPoints.dll'))</_ExitPointsAnalyzerPath>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(_ExitPointsAnalyzerPath)')">
+      <Analyzer Include="$(_ExitPointsAnalyzerPath)" />
+    </ItemGroup>
+  </Target>
   <PropertyGroup Condition="'$(PackageId)' != ''">
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>

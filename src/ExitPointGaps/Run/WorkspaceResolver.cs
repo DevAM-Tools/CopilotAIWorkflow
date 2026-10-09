@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Resolves repository root and solution files.</summary>
 internal static class WorkspaceResolver
 {
+    #region Public API
+
     /// <summary>Finds the first <c>.slnx</c> or <c>.sln</c> in the repository root.</summary>
     /// <param name="repositoryRoot">Repository root directory.</param>
     /// <returns>Absolute solution path, or <see langword="null"/> when none exists.</returns>
@@ -53,7 +55,7 @@ internal static class WorkspaceResolver
             solutionPath = Path.GetFullPath(options.SolutionPath, repositoryRoot);
             if (!File.Exists(solutionPath))
             {
-                error = $"Solution file not found: {solutionPath}";
+                error = Invariant($"Solution file not found: {solutionPath}");
                 return false;
             }
 
@@ -75,4 +77,6 @@ internal static class WorkspaceResolver
         error = "Solution resolution is not applicable for project targets.";
         return false;
     }
+
+    #endregion
 }

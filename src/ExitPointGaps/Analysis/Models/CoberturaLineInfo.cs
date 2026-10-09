@@ -3,8 +3,10 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>Runtime coverage for a single source line in Cobertura.</summary>
-public sealed class CoberturaLineInfo
+internal sealed class CoberturaLineInfo
 {
+    #region Public API
+
     /// <summary>Initializes line coverage metadata.</summary>
     /// <param name="hits">Execution hit count.</param>
     /// <param name="isBranch">Whether the line records branch conditions.</param>
@@ -29,4 +31,6 @@ public sealed class CoberturaLineInfo
 
     /// <summary>Method name from Cobertura when available.</summary>
     public string? MethodName { get; }
+
+    #endregion
 }

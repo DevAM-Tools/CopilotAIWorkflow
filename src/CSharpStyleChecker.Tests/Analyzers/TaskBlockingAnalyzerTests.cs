@@ -192,4 +192,105 @@ public sealed class TaskBlockingAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.TaskBlocking).WithSpan(10, 15, 10, 19));
     }
+
+    [Test]
+    public async Task TaskBlockingValueTaskResultReportsCsc004()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public int M()
+                {
+                    ValueTask<int> work = new ValueTask<int>(1);
+                    return work.{|#0:Result|};
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TaskBlockingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.TaskBlocking).WithLocation(0));
+    }
+
+    [Test]
+    public async Task TaskBlockingGetAwaiterGetResultReportsCsc004()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    Task.Delay(1).GetAwaiter().{|#0:GetResult|}();
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TaskBlockingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.TaskBlocking).WithLocation(0));
+    }
+
+    [Test]
+    public async Task TaskBlockingWaitAllReportsCsc004()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    Task.{|#0:WaitAll|}(Task.CompletedTask);
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TaskBlockingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.TaskBlocking).WithLocation(0));
+    }
+
+    [Test]
+    public async Task TaskBlockingWaitAnyReportsCsc004()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    Task.{|#0:WaitAny|}(Task.CompletedTask);
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TaskBlockingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.TaskBlocking).WithLocation(0));
+    }
+
+    [Test]
+    public async Task TaskBlockingForeignGetResultNoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private sealed class Holder
+                {
+                    public Holder GetAwaiter() => this;
+                    public void GetResult() { }
+                }
+
+                public void M()
+                {
+                    new Holder().GetAwaiter().GetResult();
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<TaskBlockingAnalyzer>(source);
+    }
 }
+

@@ -10,10 +10,13 @@ public sealed class ParallelRunCoordinatorTests
     {
         int maxConcurrent = 0;
         int currentConcurrent = 0;
+        int enteredCount = 0;
         int itemCount = 12;
         int maxParallelism = 4;
+        TaskCompletionSource releaseGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource allSlotsEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        RunSummaryAccumulator accumulator = await ParallelRunCoordinator.RunAllAsync(
+        Task<RunSummaryAccumulator> runTask = ParallelRunCoordinator.RunAllAsync(
             Enumerable.Range(0, itemCount).ToList(),
             async (item, cancellationToken) =>
             {
@@ -25,23 +28,43 @@ public sealed class ParallelRunCoordinatorTests
                     observedMax = Volatile.Read(ref maxConcurrent);
                 }
 
-                await Task.Delay(25, cancellationToken).ConfigureAwait(false);
+                if (Interlocked.Increment(ref enteredCount) == maxParallelism)
+                {
+                    allSlotsEntered.TrySetResult();
+                }
+
+                await releaseGate.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
                 Interlocked.Decrement(ref currentConcurrent);
 
                 ProjectSummaryEntry entry = new ProjectSummaryEntry(
-                    $"project-{item}",
+                    Invariant($"project-{item}"),
                     null,
                     true,
                     0,
                     0,
                     0,
-                    $"project-{item}.json",
+                    Invariant($"project-{item}.json"),
                     false);
                 return new ProjectRunOutcome(entry, null);
             },
             maxParallelism,
             CancellationToken.None);
 
+        using CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        bool reachedCap = true;
+        try
+        {
+            await allSlotsEntered.Task.WaitAsync(timeout.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            reachedCap = false;
+        }
+
+        releaseGate.TrySetResult();
+        RunSummaryAccumulator accumulator = await runTask.ConfigureAwait(false);
+
+        await Assert.That(reachedCap).IsTrue();
         await Assert.That(accumulator.GetEntries().Count).IsEqualTo(itemCount);
         await Assert.That(maxConcurrent).IsLessThanOrEqualTo(maxParallelism);
         await Assert.That(maxConcurrent).IsGreaterThan(1);
@@ -64,13 +87,13 @@ public sealed class ParallelRunCoordinatorTests
                 }
 
                 return new ProjectRunOutcome(
-                    new ProjectSummaryEntry($"p{item}", null, true, 0, 0, 0, null, false),
+                    new ProjectSummaryEntry(Invariant($"p{item}"), null, true, 0, 0, 0, null, false),
                     null);
             },
             2,
             CancellationToken.None);
 
-        await Assert.That(accumulator.HasToolFailure).IsTrue();
+        await Assert.That(accumulator.HasFailure).IsTrue();
         await Assert.That(accumulator.GetEntries().Count).IsEqualTo(3);
     }
 }

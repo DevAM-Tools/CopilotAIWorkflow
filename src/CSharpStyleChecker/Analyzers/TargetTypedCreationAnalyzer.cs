@@ -14,6 +14,8 @@ namespace CSharpStyleChecker.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
 {
+    #region Lifecycle
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(DiagnosticDescriptors.TargetTypedCreation);
@@ -24,11 +26,27 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         AnalyzerGuard.RequireContext(context);
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression);
-        context.RegisterSyntaxNodeAction(AnalyzeArrayCreation, SyntaxKind.ArrayCreationExpression);
+        context.RegisterCompilationStartAction(static start =>
+        {
+            INamedTypeSymbol memory = start.Compilation.GetTypeByMetadataName("System.Memory`1");
+            INamedTypeSymbol readOnlyMemory = start.Compilation.GetTypeByMetadataName("System.ReadOnlyMemory`1");
+            start.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeObjectCreation(nodeContext, memory, readOnlyMemory),
+                SyntaxKind.ObjectCreationExpression);
+            start.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeArrayCreation(nodeContext, memory, readOnlyMemory),
+                SyntaxKind.ArrayCreationExpression);
+        });
     }
 
-    private static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context)
+    #endregion
+
+    #region Private helpers
+
+    private static void AnalyzeObjectCreation(
+        SyntaxNodeAnalysisContext context,
+        INamedTypeSymbol memory,
+        INamedTypeSymbol readOnlyMemory)
     {
         ObjectCreationExpressionSyntax creation = (ObjectCreationExpressionSyntax)context.Node;
 
@@ -48,7 +66,7 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         else if (creation.Initializer is InitializerExpressionSyntax collectionInitializer
             && collectionInitializer.IsKind(SyntaxKind.CollectionInitializerExpression))
         {
-            if (ShouldExemptCollectionReplacement(context.SemanticModel, creation))
+            if (ShouldExemptCollectionReplacement(context.SemanticModel, creation, memory, readOnlyMemory))
             {
                 return;
             }
@@ -70,7 +88,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         Report(context, creation.Type);
     }
 
-    private static void AnalyzeArrayCreation(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeArrayCreation(
+        SyntaxNodeAnalysisContext context,
+        INamedTypeSymbol memory,
+        INamedTypeSymbol readOnlyMemory)
     {
         ArrayCreationExpressionSyntax creation = (ArrayCreationExpressionSyntax)context.Node;
         if (creation.Initializer is null)
@@ -78,7 +99,7 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (ShouldExemptCollectionReplacement(context.SemanticModel, creation))
+        if (ShouldExemptCollectionReplacement(context.SemanticModel, creation, memory, readOnlyMemory))
         {
             return;
         }
@@ -95,7 +116,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
             typeName));
     }
 
-    /// <remarks><c>throw new X()</c> has no target-typed <c>new()</c> context.</remarks>
+    /// <summary>
+    /// <c>throw new X()</c> has no target-typed <c>new()</c> context.
+    /// Reason: exemption paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool IsNoTargetTypedContext(ObjectCreationExpressionSyntax creation)
     {
@@ -110,7 +134,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    /// <remarks>Skips polymorphic, interface-target, and type-parameter constructions.</remarks>
+    /// <summary>
+    /// Skips polymorphic, interface-target, and type-parameter constructions.
+    /// Reason: exemption paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool ShouldExemptTypeMismatch(SemanticModel semanticModel, ObjectCreationExpressionSyntax creation)
     {
@@ -129,12 +156,17 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         return !SymbolEqualityComparer.Default.Equals(creationType, targetType);
     }
 
-    /// <remarks>
+    /// <summary>
     /// Skips collection-to-<c>[]</c> suggestions when the contextual target cannot use a collection expression
-    /// (e.g. <c>ReadOnlyMemory&lt;byte&gt;</c>) or differs from the created type (e.g. <c>byte[]</c> to <c>ReadOnlyMemory&lt;byte&gt;</c>).
-    /// </remarks>
+    /// (e.g. <c>ReadOnlyMemory&lt;byte&gt;</c>) or differs from the created type.
+    /// Reason: exemption paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
-    private static bool ShouldExemptCollectionReplacement(SemanticModel semanticModel, ExpressionSyntax creation)
+    private static bool ShouldExemptCollectionReplacement(
+        SemanticModel semanticModel,
+        ExpressionSyntax creation,
+        INamedTypeSymbol memory,
+        INamedTypeSymbol readOnlyMemory)
     {
         ITypeSymbol creationType = semanticModel.GetTypeInfo(creation).Type;
         ITypeSymbol targetType = GetContextualTargetType(semanticModel, creation);
@@ -148,12 +180,18 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
-        return !SupportsCollectionExpressionTarget(targetType);
+        return !SupportsCollectionExpressionTarget(targetType, memory, readOnlyMemory);
     }
 
-    /// <remarks><c>Memory&lt;T&gt;</c> and <c>ReadOnlyMemory&lt;T&gt;</c> cannot be initialized with <c>[]</c>.</remarks>
+    /// <summary>
+    /// <c>Memory&lt;T&gt;</c> and <c>ReadOnlyMemory&lt;T&gt;</c> cannot be initialized with <c>[]</c>.
+    /// Reason: exemption paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
-    private static bool SupportsCollectionExpressionTarget(ITypeSymbol type)
+    private static bool SupportsCollectionExpressionTarget(
+        ITypeSymbol type,
+        INamedTypeSymbol memory,
+        INamedTypeSymbol readOnlyMemory)
     {
         if (type is IArrayTypeSymbol)
         {
@@ -166,8 +204,8 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         }
 
         INamedTypeSymbol original = named.OriginalDefinition;
-        if (original.ContainingNamespace?.ToDisplayString() == "System"
-            && (original.Name == "Memory" || original.Name == "ReadOnlyMemory"))
+        if (SymbolEqualityComparer.Default.Equals(original, memory)
+            || SymbolEqualityComparer.Default.Equals(original, readOnlyMemory))
         {
             return false;
         }
@@ -175,7 +213,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
-    /// <remarks>Resolves the type expected at the creation site from declaration, assignment, return, or argument context.</remarks>
+    /// <summary>
+    /// Resolves the type expected at the creation site from declaration, assignment, return, or argument context.
+    /// Reason: binder edge paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static ITypeSymbol GetContextualTargetType(SemanticModel semanticModel, ExpressionSyntax expression)
     {
@@ -203,6 +244,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         return null;
     }
 
+    /// <summary>
+    /// Resolves the declared type of a variable initialized by <c>=</c>.
+    /// Reason: binder edge paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static ITypeSymbol GetTypeFromEqualsValue(SemanticModel semanticModel, EqualsValueClauseSyntax equalsValue)
     {
@@ -219,6 +264,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         };
     }
 
+    /// <summary>
+    /// Resolves the parameter type for an argument in an invocation or object creation.
+    /// Reason: binder edge paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static ITypeSymbol GetTypeFromArgument(SemanticModel semanticModel, ArgumentSyntax argument)
     {
@@ -245,6 +294,10 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
         return null;
     }
 
+    /// <summary>
+    /// Walks out to the enclosing method return type for a <c>return</c> expression.
+    /// Reason: binder edge paths are covered by analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     private static ITypeSymbol GetEnclosingMethodReturnType(SemanticModel semanticModel, SyntaxNode node)
     {
@@ -259,4 +312,6 @@ public sealed class TargetTypedCreationAnalyzer : DiagnosticAnalyzer
 
         return null;
     }
+
+    #endregion
 }

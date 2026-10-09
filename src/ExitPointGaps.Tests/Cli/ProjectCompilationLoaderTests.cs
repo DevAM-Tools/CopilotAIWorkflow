@@ -8,7 +8,7 @@ public sealed class ProjectCompilationLoaderTests
     [Test]
     public async Task TryCreate_MissingAssets_ReturnsError()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-missing-assets-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-missing-assets-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string projectPath = Path.Combine(root, "Empty.csproj");
         await File.WriteAllTextAsync(projectPath, _MinimalProjectXml);
@@ -25,7 +25,7 @@ public sealed class ProjectCompilationLoaderTests
     [Test]
     public async Task TryCreate_NoSourceFiles_ReturnsError()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-no-src-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-no-src-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string projectPath = Path.Combine(root, "Empty.csproj");
         await File.WriteAllTextAsync(projectPath, _MinimalProjectXml);
@@ -52,7 +52,7 @@ public sealed class ProjectCompilationLoaderTests
     [Test]
     public async Task TryCreate_ValidProject_ReturnsCompilation()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-valid-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-valid-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string projectPath = Path.Combine(root, "Sample.csproj");
         await File.WriteAllTextAsync(projectPath, _MinimalProjectXml);
@@ -96,7 +96,7 @@ public sealed class ProjectCompilationLoaderTests
     [Test]
     public async Task TryCreate_MissingTargetFramework_ReturnsError()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-no-tfm-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-no-tfm-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string projectPath = Path.Combine(root, "Sample.csproj");
         await File.WriteAllTextAsync(
@@ -135,7 +135,7 @@ public sealed class ProjectCompilationLoaderTests
     [NotInParallel]
     public async Task TryCreate_WithBuild_SucceedsForTempProject()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-build-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-build-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         await File.WriteAllTextAsync(Path.Combine(root, "global.json"), await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
         string projectPath = Path.Combine(root, "Sample.csproj");
@@ -177,7 +177,7 @@ public sealed class ProjectCompilationLoaderTests
     [Test]
     public async Task TryCreate_InvalidProjectXml_ReturnsError()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-bad-xml-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-bad-xml-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string projectPath = Path.Combine(root, "Sample.csproj");
         await File.WriteAllTextAsync(projectPath, "<Project><NotClosed>");
@@ -205,7 +205,7 @@ public sealed class ProjectCompilationLoaderTests
     [NotInParallel]
     public async Task TryCreate_BuildFailure_ReturnsError()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"pcl-build-fail-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-build-fail-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         await File.WriteAllTextAsync(Path.Combine(root, "global.json"), await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
         string projectPath = Path.Combine(root, "Broken.csproj");

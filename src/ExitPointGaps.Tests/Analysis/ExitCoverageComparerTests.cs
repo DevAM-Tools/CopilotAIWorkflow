@@ -77,4 +77,61 @@ public sealed class ExitCoverageComparerTests
 
         await Assert.That(gaps.Count).IsEqualTo(0);
     }
+
+    [Test]
+    public async Task Compare_RelativeCoberturaFilename_WithForeignCwd_MatchesExit()
+    {
+        string repoRoot = Path.Combine(Path.GetTempPath(), Invariant($"gap-repo-{Guid.NewGuid():N}"));
+        string foreignCwd = Path.Combine(Path.GetTempPath(), Invariant($"gap-cwd-{Guid.NewGuid():N}"));
+        Directory.CreateDirectory(Path.Combine(repoRoot, "src", "Sample"));
+        Directory.CreateDirectory(foreignCwd);
+
+        string coberturaXml =
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <coverage branch-rate="1" line-rate="1" version="1.9">
+              <packages>
+                <package name="Sample" branch-rate="1" line-rate="1">
+                  <classes>
+                    <class name="Sample.Foo" filename="src/Sample/Foo.cs" branch-rate="1" line-rate="1">
+                      <lines>
+                        <line number="20" hits="0" branch="False" />
+                      </lines>
+                    </class>
+                  </classes>
+                </package>
+              </packages>
+            </coverage>
+            """;
+        string coberturaPath = CoberturaFixtures.WriteTemporaryFile(coberturaXml);
+        CoberturaReader.TryRead(coberturaPath, out CoberturaDocument? document, out string? _);
+
+        string previousCwd = Environment.CurrentDirectory;
+        try
+        {
+            Environment.CurrentDirectory = foreignCwd;
+
+            ExitPointEntry exit = new ExitPointEntry(
+                "Foo.Bar:20:Return",
+                Path.Combine(repoRoot, "src", "Sample", "Foo.cs"),
+                20,
+                4,
+                "Foo.Bar()",
+                "Bar",
+                ExitKind.Return);
+
+            IReadOnlyList<ExitCoverageGap> gaps = ExitCoverageComparer.Compare(
+                [exit],
+                [document!],
+                repoRoot,
+                false);
+
+            await Assert.That(gaps.Count).IsEqualTo(1);
+            await Assert.That(gaps[0].FilePath).IsEqualTo("src/Sample/Foo.cs");
+        }
+        finally
+        {
+            Environment.CurrentDirectory = previousCwd;
+        }
+    }
 }

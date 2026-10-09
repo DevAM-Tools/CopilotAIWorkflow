@@ -24,7 +24,7 @@ internal sealed class GapSolutionWorkspace : IAsyncDisposable
     {
         string repositoryRoot = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        string rootPath = Path.Combine(Path.GetTempPath(), $"gap-solution-{Guid.NewGuid():N}");
+        string rootPath = Path.Combine(Path.GetTempPath(), Invariant($"gap-solution-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(rootPath);
         await File.WriteAllTextAsync(
             Path.Combine(rootPath, "global.json"),
@@ -109,10 +109,10 @@ internal sealed class GapSolutionWorkspace : IAsyncDisposable
         string solutionPath = Path.Combine(rootPath, "GapSample.slnx");
         await File.WriteAllTextAsync(solutionPath, solutionContent);
 
-        int restoreCode = await _RunDotNetAsync($"restore \"{solutionPath}\"", rootPath);
+        int restoreCode = await _RunDotNetAsync(Invariant($"restore \"{solutionPath}\""), rootPath);
         await Assert.That(restoreCode).IsEqualTo(0);
 
-        int buildCode = await _RunDotNetAsync($"build \"{solutionPath}\" -c Release --no-restore", rootPath);
+        int buildCode = await _RunDotNetAsync(Invariant($"build \"{solutionPath}\" -c Release --no-restore"), rootPath);
         await Assert.That(buildCode).IsEqualTo(0);
 
         string workDirectory = RunIsolation.CreateDefaultWorkDirectory();
@@ -140,7 +140,7 @@ internal sealed class GapSolutionWorkspace : IAsyncDisposable
         if (result.ExitCode != 0)
         {
             string details = string.IsNullOrWhiteSpace(result.StandardError) ? result.StandardOutput : result.StandardError;
-            throw new InvalidOperationException($"dotnet {arguments} failed ({result.ExitCode}): {details}");
+            throw new InvalidOperationException(Invariant($"dotnet {arguments} failed ({result.ExitCode}): {details}"));
         }
 
         return result.ExitCode;

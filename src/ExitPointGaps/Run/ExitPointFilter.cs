@@ -7,16 +7,28 @@ namespace ExitPointGaps;
 [ExcludeFromCodeCoverage]
 internal static class ExitPointFilter
 {
+    #region Public API
+
     public static IReadOnlyList<ExitPointEntry> RemoveExcluded(IReadOnlyList<ExitPointEntry> exits, Compilation compilation)
     {
         ArgumentNullException.ThrowIfNull(exits);
         ArgumentNullException.ThrowIfNull(compilation);
 
+        Dictionary<string, SyntaxTree> treesByPath = new Dictionary<string, SyntaxTree>(StringComparer.OrdinalIgnoreCase);
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            if (!string.IsNullOrEmpty(tree.FilePath))
+            {
+                treesByPath[tree.FilePath] = tree;
+            }
+        }
+
         List<ExitPointEntry> filtered = new List<ExitPointEntry>(exits.Count);
         for (int exitIndex = 0; exitIndex < exits.Count; exitIndex++)
         {
             ExitPointEntry exit = exits[exitIndex];
-            if (_IsExcluded(exit, compilation))
+            if (treesByPath.TryGetValue(exit.FilePath, out SyntaxTree? tree)
+                && ExitPointExclusion.IsExcludedAtPosition(tree, exit.Line, exit.Column))
             {
                 continue;
             }
@@ -27,18 +39,5 @@ internal static class ExitPointFilter
         return filtered;
     }
 
-    /// <remarks>When no syntax tree matches the exit file path, the exit is not filtered out.</remarks>
-    private static bool _IsExcluded(ExitPointEntry exit, Compilation compilation)
-    {
-        SyntaxTree? tree = compilation.SyntaxTrees.FirstOrDefault(
-            candidate => string.Equals(candidate.FilePath, exit.FilePath, StringComparison.OrdinalIgnoreCase));
-
-        if (tree is null)
-        {
-            return false;
-        }
-
-        return ExitPointExclusion.IsExcludedAtPosition(tree, exit.Line, exit.Column);
-    }
+    #endregion
 }
-

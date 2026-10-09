@@ -5,9 +5,11 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpStyleChecker.Diagnostics;
 
-/// <summary>Diagnostic descriptors for CSharpStyleChecker rules.</summary>
-public static class DiagnosticDescriptors
+/// <summary>Diagnostic descriptors for CSharpStyleChecker rules. No mutable state; safe to read from concurrent analyzer actions.</summary>
+internal static class DiagnosticDescriptors
 {
+    #region Fields
+
     /// <summary>CSC001 line length.</summary>
     public static readonly DiagnosticDescriptor LineLength = new(
         DiagnosticIds.LineLength,
@@ -16,7 +18,9 @@ public static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Source lines must not exceed the configured maximum visible length.");
+        description: "Source lines must not exceed the configured maximum visible length. "
+            + "String and character literal content does not count; comments do. "
+            + "Interpolation holes inside $\"...\" / @$\"...\" / $@\"...\" count; raw string content (including raw interpolations) does not.");
 
     /// <summary>CSC002 no var.</summary>
     public static readonly DiagnosticDescriptor NoVar = new(
@@ -43,11 +47,12 @@ public static class DiagnosticDescriptors
     public static readonly DiagnosticDescriptor TaskBlocking = new(
         DiagnosticIds.TaskBlocking,
         "Blocking task usage",
-        "Do not use .Wait() or .Result on Task; use async and await",
+        "Do not block on tasks with .Wait(), .Result, GetAwaiter().GetResult(), WaitAll, or WaitAny; use async and await",
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Blocking on tasks with .Wait() or .Result is not allowed.");
+        description: "Blocking on Task / Task<T> / ValueTask / ValueTask<T> via .Wait(), .Result, "
+            + "GetAwaiter().GetResult(), Task.WaitAll, or Task.WaitAny is not allowed.");
 
     /// <summary>CSC005 global usings only.</summary>
     public static readonly DiagnosticDescriptor GlobalUsingsOnly = new(
@@ -91,6 +96,18 @@ public static class DiagnosticDescriptors
         description: "Prefer target-typed new() or [] over repeating the type name when the type is known from context. "
             + "Exempt when the target cannot use a collection expression (e.g. ReadOnlyMemory<T>) or differs from the created type.");
 
+    /// <summary>CSC009 invariant culture formatting.</summary>
+    public static readonly DiagnosticDescriptor InvariantCultureFormatting = new(
+        DiagnosticIds.InvariantCultureFormatting,
+        "Culture-sensitive formatting requires invariant culture",
+        "{0}",
+        "Style",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Interpolated strings must use FormattableString.Invariant (or string.Create / "
+            + "StringBuilder.Append with CultureInfo.InvariantCulture). Culture-sensitive ToString must "
+            + "pass CultureInfo.InvariantCulture.");
+
     /// <summary>All rule descriptors.</summary>
     public static IReadOnlyList<DiagnosticDescriptor> All { get; } = new DiagnosticDescriptor[]
     {
@@ -102,5 +119,8 @@ public static class DiagnosticDescriptors
         MultipleExitsPerLine,
         VolatileFieldAccess,
         TargetTypedCreation,
+        InvariantCultureFormatting,
     };
+
+    #endregion
 }

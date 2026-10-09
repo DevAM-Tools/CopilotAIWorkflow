@@ -3,7 +3,7 @@
 namespace ExitPointGaps.Analysis.Models;
 
 /// <summary>An exit point with insufficient line coverage.</summary>
-public sealed record ExitCoverageGap(
+internal sealed record ExitCoverageGap(
     int Priority,
     string ExitPointId,
     string FilePath,

@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Reads project paths from solution files.</summary>
 internal static class SolutionParser
 {
+    #region Public API
+
     /// <summary>Reads project paths from a <c>.slnx</c> or <c>.sln</c> file.</summary>
     /// <param name="solutionPath">Absolute solution path.</param>
     /// <param name="repositoryRoot">Repository root for resolving relative paths.</param>
@@ -27,6 +29,10 @@ internal static class SolutionParser
 
         return _TryReadSlnProjectPaths(solutionPath, repositoryRoot, out paths, out error);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static bool _TryReadSlnxProjectPaths(
         string solutionPath,
@@ -93,12 +99,14 @@ internal static class SolutionParser
         }
         catch (IOException ioException)
         {
-            error = $"Failed to read solution file: {ioException.Message}";
+            error = Invariant($"Failed to read solution file: {ioException.Message}");
             return false;
         }
 
         paths = projectPaths;
         return true;
     }
+
+    #endregion
 }
-
+

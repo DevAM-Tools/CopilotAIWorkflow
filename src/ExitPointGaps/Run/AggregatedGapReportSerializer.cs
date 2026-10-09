@@ -5,12 +5,18 @@ namespace ExitPointGaps;
 /// <summary>Serializes aggregated gate reports.</summary>
 internal static class AggregatedGapReportSerializer
 {
+    #region Fields
+
     private static readonly JsonSerializerOptions _JsonOptions = new()
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Serializes schema v3 summary with external per-project report files.</summary>
     /// <param name="accumulator">Thread-safe summary accumulator.</param>
@@ -93,6 +99,10 @@ internal static class AggregatedGapReportSerializer
         return JsonSerializer.Serialize(dto, _JsonOptions);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private sealed class AggregatedGapReportV3Dto
     {
         public int SchemaVersion { get; init; }
@@ -149,4 +159,6 @@ internal static class AggregatedGapReportSerializer
 
         public AggregatedGapSummaryV3Dto Summary { get; init; } = new();
     }
+
+    #endregion
 }

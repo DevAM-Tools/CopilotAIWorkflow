@@ -5,7 +5,13 @@ namespace ExitPointGaps;
 /// <summary>Executes per-project work with bounded parallelism.</summary>
 internal static class ParallelRunCoordinator
 {
+    #region Fields
+
     private static readonly object _StderrLock = new();
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Runs all items with bounded concurrency and accumulates summaries.</summary>
     /// <typeparam name="TRecord">Project record type.</typeparam>
@@ -61,6 +67,10 @@ internal static class ParallelRunCoordinator
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static async Task _RunOneAsync<TRecord>(
         TRecord item,
         Func<TRecord, CancellationToken, Task<ProjectRunOutcome?>> runOneAsync,
@@ -102,4 +112,6 @@ internal static class ParallelRunCoordinator
             semaphore.Release();
         }
     }
+
+    #endregion
 }

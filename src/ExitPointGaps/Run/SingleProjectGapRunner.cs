@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Runs the exit-point gate for one production project.</summary>
 internal static class SingleProjectGapRunner
 {
+    #region Public API
+
     /// <summary>Runs gap analysis for one production project.</summary>
     /// <param name="project">Production project record.</param>
     /// <param name="options">Parsed CLI options.</param>
@@ -31,7 +33,7 @@ internal static class SingleProjectGapRunner
             if (string.IsNullOrEmpty(project.TestProjectPath))
             {
                 await ParallelRunCoordinator.WriteErrorLineAsync(
-                    $"No test project paired for {project.ProjectPath}.",
+                    Invariant($"No test project paired for {project.ProjectPath}."),
                     cancellationToken).ConfigureAwait(false);
                 return null;
             }
@@ -99,6 +101,10 @@ internal static class SingleProjectGapRunner
             testExitCode);
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static CoberturaLoadResult? _TryLoadCobertura(
         IReadOnlyList<string> coberturaPaths,
         string productionProjectName,
@@ -122,6 +128,8 @@ internal static class SingleProjectGapRunner
         List<CoberturaDocument> AllDocuments,
         List<ScopedCoberturaDocument> ScopedDocuments,
         string? Error);
+
+    #endregion
 }
 
 /// <summary>Gap-run outcome for one production project.</summary>

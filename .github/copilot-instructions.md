@@ -234,6 +234,9 @@ for `illustrations/**`.
 - `⚠️` At risk / Blocked
 - `⬜` Not started / Open
 - Tick every plan status surface together: Step Overview, Shared Block, Task Checklist. Never leave the overview stale.
+- Tick every review finding status surface together: the Summary **Findings**
+  Status column and the finding Shared Block `Status` line. Never leave the
+  summary table stale.
 
 ## 5.1 Terms
 

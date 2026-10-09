@@ -5,12 +5,18 @@ namespace ExitPointGaps;
 /// <summary>Thread-safe rolling summary for multi-project runs.</summary>
 internal sealed class RunSummaryAccumulator
 {
+    #region Fields
+
     private readonly object _EntriesLock = new();
     private readonly List<ProjectSummaryEntry> _Entries = [];
     private int _ExitGapCount;
     private int _BranchGapCount;
     private int _CompletedProjectCount;
     private int _HasFailure;
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Records a completed project summary entry.</summary>
     /// <param name="entry">Per-project summary.</param>
@@ -61,8 +67,10 @@ internal sealed class RunSummaryAccumulator
         };
     }
 
-    /// <summary>Whether any project failed tool execution.</summary>
-    public bool HasToolFailure => Volatile.Read(ref _HasFailure) == 1;
+    /// <summary>Whether any project failed the gate or tool execution.</summary>
+    public bool HasFailure => Volatile.Read(ref _HasFailure) == 1;
+
+    #endregion
 }
 
 /// <summary>Per-project summary metadata for streaming output.</summary>

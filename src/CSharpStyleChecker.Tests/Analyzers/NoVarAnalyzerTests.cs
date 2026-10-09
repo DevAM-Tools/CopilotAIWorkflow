@@ -88,4 +88,88 @@ public sealed class NoVarAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.NoVar).WithSpan(8, 9, 8, 12));
     }
+
+    [Test]
+    public async Task NoVarForVarReportsCsc002()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    for ({|#0:var|} i = 0; i < 1; i++)
+                    {
+                    }
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<NoVarAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.NoVar).WithLocation(0));
+    }
+
+    [Test]
+    public async Task NoVarUsingVarReportsCsc002()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    using ({|#0:var|} stream = new System.IO.MemoryStream())
+                    {
+                    }
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<NoVarAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.NoVar).WithLocation(0));
+    }
+
+    [Test]
+    public async Task NoVarAwaitUsingVarReportsCsc002()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public async System.Threading.Tasks.Task M()
+                {
+                    await using ({|#0:var|} stream = new System.IO.MemoryStream())
+                    {
+                    }
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<NoVarAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.NoVar).WithLocation(0));
+    }
+
+    [Test]
+    public async Task NoVarForeachDeconstructionVarReportsCsc002()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public void M()
+                {
+                    foreach ({|#0:var|} (a, b) in new List<(int, int)>())
+                    {
+                    }
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<NoVarAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.NoVar).WithLocation(0));
+    }
 }

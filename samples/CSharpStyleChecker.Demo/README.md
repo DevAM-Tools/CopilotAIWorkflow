@@ -1,6 +1,6 @@
 # CSharpStyleChecker Demo
 
-Single `netstandard2.0` sample covering **CSharpStyleChecker** (CSC001–CSC008), a Roslyn source generator, repo wiring, and packed NuGet consumption.
+Single `netstandard2.0` sample covering **CSharpStyleChecker** (CSC001–CSC009), a Roslyn source generator, repo wiring, and packed NuGet consumption.
 
 ## Compliant build (default)
 
@@ -10,7 +10,7 @@ Single `netstandard2.0` sample covering **CSharpStyleChecker** (CSC001–CSC008)
 dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c Release
 ```
 
-## Rule violations (CSC001–CSC008)
+## Rule violations (CSC001–CSC009)
 
 Enable all files under `Violations/` and rebuild. The build should fail with analyzer errors:
 
@@ -20,14 +20,15 @@ dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c R
 
 | File | Rule | What it demonstrates |
 |------|------|----------------------|
-| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 160 visible characters |
+| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 160 visible characters (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
 | `Violations/Csc002_NoVar.cs` | CSC002 | `var` in a local declaration |
 | `Violations/Csc003_PrivateNaming.cs` | CSC003 | Private field without `_PascalCase` |
-| `Violations/Csc004_TaskBlocking.cs` | CSC004 | `.Result` on `Task<T>` |
+| `Violations/Csc004_TaskBlocking.cs` | CSC004 | Blocking `.Result` / `.Wait()` / `GetAwaiter().GetResult()` / `WaitAll` / `WaitAny` on task types |
 | `Violations/Csc005_GlobalUsings.cs` | CSC005 | `using` outside `GlobalUsings.cs` |
 | `Violations/Csc006_MultipleExits.cs` | CSC006 | Multiple `return` statements on one line |
 | `Violations/Csc007_VolatileAccess.cs` | CSC007 | Non-atomic `++` on a `volatile` field |
 | `Violations/Csc008_TargetTypedCreation.cs` | CSC008 | Redundant explicit type (`new List<int>()`) |
+| `Violations/Csc009_InvariantCulture.cs` | CSC009 | Bare `$"…"` interpolation or culture-sensitive `ToString()` without `CultureInfo.InvariantCulture` |
 
 To test a single rule, temporarily remove the other `.cs` files from `Violations/` or add a more specific `<Compile Remove="..."/>` in the `.csproj`.
 

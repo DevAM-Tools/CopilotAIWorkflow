@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Formats exit-point gap reports for CLI output.</summary>
 internal static class GapReportFormatter
 {
+    #region Public API
+
     public static string Format(ExitPointGapReport report, string format)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -21,4 +23,6 @@ internal static class GapReportFormatter
 
         return ExitPointGapReportFormatter.ToAgentJson(report);
     }
+
+    #endregion
 }

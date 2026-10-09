@@ -2,32 +2,54 @@
 
 namespace ExitPointGaps.Analysis;
 
-/// <summary>Finds uncovered branch conditions in Cobertura documents. 
+/// <summary>Finds uncovered branch conditions in Cobertura documents.
 /// Thread-safe; all members are stateless.
 /// </summary>
-public static class BranchGapAnalyzer
+internal static class BranchGapAnalyzer
 {
+    #region Fields
+
     private const int _BranchPriority = 2;
+
+    #endregion
+
+    #region Public API
 
     /// <summary>Finds branch gaps for packages matching each scoped document.</summary>
     /// <param name="scopedDocuments">Cobertura documents with package scope.</param>
     /// <param name="repositoryRoot">Repository root for path normalization.</param>
     /// <param name="includeSnippets">Whether to read source snippets.</param>
+    /// <param name="minimumScopedBranchRate">Minimum scoped package branch rate computed in the same pass.</param>
     /// <returns>Deduplicated branch gaps.</returns>
     public static IReadOnlyList<Models.BranchGap> FindUncoveredBranches(
         IReadOnlyList<Models.ScopedCoberturaDocument> scopedDocuments,
         string repositoryRoot,
-        bool includeSnippets)
+        bool includeSnippets,
+        out double minimumScopedBranchRate)
     {
         ArgumentNullException.ThrowIfNull(scopedDocuments);
         ArgumentException.ThrowIfNullOrEmpty(repositoryRoot);
 
+        minimumScopedBranchRate = 1d;
+        bool foundScopedRate = false;
+
         Dictionary<(string File, int Line, int ConditionIndex), Models.BranchGap> gaps = [];
+        Dictionary<string, string> packageByFile = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string[]?>? snippetCache = includeSnippets
+            ? new Dictionary<string, string[]?>(StringComparer.OrdinalIgnoreCase)
+            : null;
 
         for (int scopedIndex = 0; scopedIndex < scopedDocuments.Count; scopedIndex++)
         {
             Models.ScopedCoberturaDocument scoped = scopedDocuments[scopedIndex];
-            if (_GetMinimumScopedBranchRate(scoped.Document, scoped.Scope) >= 1d)
+            double documentMinimum = _GetMinimumScopedBranchRate(scoped.Document, scoped.Scope);
+            foundScopedRate = true;
+            if (documentMinimum < minimumScopedBranchRate)
+            {
+                minimumScopedBranchRate = documentMinimum;
+            }
+
+            if (documentMinimum >= 1d)
             {
                 continue;
             }
@@ -38,7 +60,11 @@ public static class BranchGapAnalyzer
             foreach (KeyValuePair<string, IReadOnlyDictionary<int, Models.CoberturaLineInfo>> fileEntry in document.Lines)
             {
                 string relativeFile = PathNormalizer.ToRepositoryRelative(fileEntry.Key, repositoryRoot);
-                string packageName = _ResolvePackageName(fileEntry.Key, document);
+                if (!packageByFile.TryGetValue(fileEntry.Key, out string? packageName))
+                {
+                    packageName = _ResolvePackageName(fileEntry.Key, document);
+                    packageByFile[fileEntry.Key] = packageName;
+                }
 
                 if (!scope.IncludesPackage(packageName))
                 {
@@ -67,9 +93,15 @@ public static class BranchGapAnalyzer
                             continue;
                         }
 
-                        string? snippet = includeSnippets
-                            ? PathNormalizer.TryReadSnippet(repositoryRoot, relativeFile, lineEntry.Key)
-                            : null;
+                        string? snippet = null;
+                        if (snippetCache is not null)
+                        {
+                            snippet = PathNormalizer.TryReadSnippetCached(
+                                repositoryRoot,
+                                relativeFile,
+                                lineEntry.Key,
+                                snippetCache);
+                        }
 
                         gaps[key] = new Models.BranchGap(
                             _BranchPriority,
@@ -87,11 +119,43 @@ public static class BranchGapAnalyzer
             }
         }
 
-        return gaps.Values
-            .OrderBy(static gap => gap.FilePath, StringComparer.Ordinal)
-            .ThenBy(static gap => gap.Line)
-            .ThenBy(static gap => gap.ConditionIndex)
-            .ToList();
+        if (!foundScopedRate)
+        {
+            minimumScopedBranchRate = 1d;
+        }
+
+        List<Models.BranchGap> ordered = [.. gaps.Values];
+        ordered.Sort(static (left, right) =>
+        {
+            int fileCompare = StringComparer.Ordinal.Compare(left.FilePath, right.FilePath);
+            if (fileCompare != 0)
+            {
+                return fileCompare;
+            }
+
+            int lineCompare = left.Line.CompareTo(right.Line);
+            if (lineCompare != 0)
+            {
+                return lineCompare;
+            }
+
+            return left.ConditionIndex.CompareTo(right.ConditionIndex);
+        });
+
+        return ordered;
+    }
+
+    /// <summary>Finds branch gaps for packages matching each scoped document.</summary>
+    /// <param name="scopedDocuments">Cobertura documents with package scope.</param>
+    /// <param name="repositoryRoot">Repository root for path normalization.</param>
+    /// <param name="includeSnippets">Whether to read source snippets.</param>
+    /// <returns>Deduplicated branch gaps.</returns>
+    public static IReadOnlyList<Models.BranchGap> FindUncoveredBranches(
+        IReadOnlyList<Models.ScopedCoberturaDocument> scopedDocuments,
+        string repositoryRoot,
+        bool includeSnippets)
+    {
+        return FindUncoveredBranches(scopedDocuments, repositoryRoot, includeSnippets, out double _);
     }
 
     /// <summary>Returns the minimum scoped package branch rate across scoped documents.</summary>
@@ -122,6 +186,10 @@ public static class BranchGapAnalyzer
 
         return 1d;
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static double _GetMinimumScopedBranchRate(Models.CoberturaDocument document, BranchGapScope scope)
     {
@@ -212,4 +280,6 @@ public static class BranchGapAnalyzer
 
         return fileName;
     }
+
+    #endregion
 }

@@ -31,7 +31,7 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
     {
         string repositoryRoot = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        string rootPath = Path.Combine(Path.GetTempPath(), $"gap-sample-{Guid.NewGuid():N}");
+        string rootPath = Path.Combine(Path.GetTempPath(), Invariant($"gap-sample-{Guid.NewGuid():N}"));
         string libraryDirectory = Path.Combine(rootPath, "GapSample");
         string testsDirectory = Path.Combine(rootPath, "GapSample.Tests");
         Directory.CreateDirectory(libraryDirectory);
@@ -58,10 +58,10 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
             global using TUnit.Assertions;
             """);
 
-        int restoreCode = await _RunDotNetAsync($"restore \"{testsProjectPath}\"", rootPath);
+        int restoreCode = await _RunDotNetAsync(Invariant($"restore \"{testsProjectPath}\""), rootPath);
         await Assert.That(restoreCode).IsEqualTo(0);
 
-        int buildCode = await _RunDotNetAsync($"build \"{testsProjectPath}\" -c Release --no-restore", rootPath);
+        int buildCode = await _RunDotNetAsync(Invariant($"build \"{testsProjectPath}\" -c Release --no-restore"), rootPath);
         await Assert.That(buildCode).IsEqualTo(0);
 
         string workDirectory = RunIsolation.CreateDefaultWorkDirectory();
@@ -72,7 +72,7 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
     {
         string repositoryRoot = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        string rootPath = Path.Combine(Path.GetTempPath(), $"gap-unpaired-{Guid.NewGuid():N}");
+        string rootPath = Path.Combine(Path.GetTempPath(), Invariant($"gap-unpaired-{Guid.NewGuid():N}"));
         string libraryDirectory = Path.Combine(rootPath, "GapSample");
         Directory.CreateDirectory(libraryDirectory);
         await File.WriteAllTextAsync(
@@ -83,10 +83,10 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
         await File.WriteAllTextAsync(libraryProjectPath, LibraryProjectXml);
         await File.WriteAllTextAsync(Path.Combine(libraryDirectory, "Calculator.cs"), CalculatorSource);
 
-        int restoreCode = await _RunDotNetAsync($"restore \"{libraryProjectPath}\"", rootPath);
+        int restoreCode = await _RunDotNetAsync(Invariant($"restore \"{libraryProjectPath}\""), rootPath);
         await Assert.That(restoreCode).IsEqualTo(0);
 
-        int buildCode = await _RunDotNetAsync($"build \"{libraryProjectPath}\" -c Release --no-restore", rootPath);
+        int buildCode = await _RunDotNetAsync(Invariant($"build \"{libraryProjectPath}\" -c Release --no-restore"), rootPath);
         await Assert.That(buildCode).IsEqualTo(0);
 
         string workDirectory = RunIsolation.CreateDefaultWorkDirectory();
@@ -114,7 +114,7 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
         if (result.ExitCode != 0)
         {
             string details = string.IsNullOrWhiteSpace(result.StandardError) ? result.StandardOutput : result.StandardError;
-            throw new InvalidOperationException($"dotnet {arguments} failed ({result.ExitCode}): {details}");
+            throw new InvalidOperationException(Invariant($"dotnet {arguments} failed ({result.ExitCode}): {details}"));
         }
 
         return result.ExitCode;

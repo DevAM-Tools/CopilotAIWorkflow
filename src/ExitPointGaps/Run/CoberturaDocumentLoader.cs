@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Loads Cobertura documents from explicit file paths.</summary>
 internal static class CoberturaDocumentLoader
 {
+    #region Public API
+
     /// <summary>Loads Cobertura documents and scoped views for one production project.</summary>
     /// <param name="coberturaPaths">Explicit Cobertura file paths.</param>
     /// <param name="productionProjectName">Production project name used for branch scope.</param>
@@ -65,4 +67,6 @@ internal static class CoberturaDocumentLoader
 
         return true;
     }
+
+    #endregion
 }

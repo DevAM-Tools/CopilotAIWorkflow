@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Runs a single solution-level build before parallel per-project work.</summary>
 internal static class SolutionBuildRunner
 {
+    #region Public API
+
     /// <summary>Builds the solution once when multiple projects are in scope.</summary>
     /// <param name="options">Parsed CLI options.</param>
     /// <param name="projects">Production projects in scope.</param>
@@ -34,7 +36,7 @@ internal static class SolutionBuildRunner
 
         string repositoryRoot = Path.GetFullPath(options.RepositoryRoot);
         DotNetProcessResult buildResult = await DotNetProcess.RunAsync(
-            $"build \"{solutionPath}\" -c {options.Configuration} -v:q",
+            Invariant($"build \"{solutionPath}\" -c {options.Configuration} -v:q"),
             repositoryRoot,
             cancellationToken).ConfigureAwait(false);
 
@@ -48,4 +50,6 @@ internal static class SolutionBuildRunner
 
         return true;
     }
+
+    #endregion
 }

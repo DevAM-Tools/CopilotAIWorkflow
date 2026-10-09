@@ -5,6 +5,8 @@ namespace ExitPoints;
 /// <summary>How control leaves a callable at an exit point.</summary>
 public enum ExitKind
 {
+    #region Public API
+
     /// <summary>Explicit <c>return</c> statement.</summary>
     Return,
 
@@ -31,4 +33,6 @@ public enum ExitKind
 
     /// <summary>Leaf expression completing the callable.</summary>
     ExpressionCompletion,
+
+    #endregion
 }

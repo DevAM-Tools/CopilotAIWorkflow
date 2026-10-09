@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Resolves effective parallelism for orchestrated runs.</summary>
 internal static class ParallelismDefaults
 {
+    #region Public API
+
     /// <summary>Returns the effective max parallelism for the current invocation.</summary>
     /// <param name="options">Parsed CLI options.</param>
     /// <param name="projectCount">Number of production projects in scope.</param>
@@ -25,4 +27,6 @@ internal static class ParallelismDefaults
 
         return projectCount;
     }
+
+    #endregion
 }

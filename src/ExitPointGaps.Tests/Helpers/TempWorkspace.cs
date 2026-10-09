@@ -7,7 +7,7 @@ internal static class TempWorkspace
 {
     public static async Task<string> CreateAsync()
     {
-        string root = Path.Combine(Path.GetTempPath(), $"exitpointgaps-workspace-{Guid.NewGuid():N}");
+        string root = Path.Combine(Path.GetTempPath(), Invariant($"exitpointgaps-workspace-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
         string repositoryRoot = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));

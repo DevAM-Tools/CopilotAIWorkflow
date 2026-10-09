@@ -2,10 +2,26 @@
 
 namespace ExitPointGaps;
 
-/// <summary>Caches parsed <c>project.assets.json</c> reference paths per project invocation.</summary>
+/// <summary>
+/// Process-wide cache of parsed <c>project.assets.json</c> reference paths for one CLI invocation.
+/// Call <see cref="Clear"/> at the start of each run/plan so restore/retarget cannot reuse stale entries.
+/// Thread-safe for concurrent <see cref="TryGetOrLoad"/> within an invocation.
+/// </summary>
 internal static class CompilationAssetsCache
 {
+    #region Fields
+
     private static readonly ConcurrentDictionary<AssetsCacheKey, CachedAssets> _Cache = new();
+
+    #endregion
+
+    #region Public API
+
+    /// <summary>Clears all cached assets so the next load re-reads <c>project.assets.json</c>.</summary>
+    public static void Clear()
+    {
+        _Cache.Clear();
+    }
 
     /// <summary>Loads or returns cached compilation assets for a project.</summary>
     /// <param name="projectDirectory">Project directory.</param>
@@ -56,9 +72,14 @@ internal static class CompilationAssetsCache
         return true;
     }
 
+    #endregion
+
+    #region Private helpers
+
     private static CachedAssets _LoadAssets(string assetsPath, AssetsCacheKey key)
     {
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsPath));
+        using FileStream stream = File.OpenRead(assetsPath);
+        using JsonDocument document = JsonDocument.Parse(stream);
         HashSet<string> paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         if (document.RootElement.TryGetProperty("targets", out JsonElement targets)
@@ -92,7 +113,8 @@ internal static class CompilationAssetsCache
             }
         }
 
-        List<string> referencePaths = paths.OrderBy(static path => path, StringComparer.OrdinalIgnoreCase).ToList();
+        List<string> referencePaths = [.. paths];
+        referencePaths.Sort(StringComparer.OrdinalIgnoreCase);
         return new CachedAssets(key.TargetFramework, referencePaths);
     }
 
@@ -139,7 +161,8 @@ internal static class CompilationAssetsCache
 
     private static string? _TryReadTargetFrameworkFromAssets(string assetsPath)
     {
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsPath));
+        using FileStream stream = File.OpenRead(assetsPath);
+        using JsonDocument document = JsonDocument.Parse(stream);
         if (!document.RootElement.TryGetProperty("project", out JsonElement project)
             || !project.TryGetProperty("frameworks", out JsonElement frameworks))
         {
@@ -193,4 +216,6 @@ internal static class CompilationAssetsCache
     /// <param name="TargetFramework">Resolved target framework moniker.</param>
     /// <param name="ReferencePaths">Absolute metadata reference paths.</param>
     internal sealed record CachedAssets(string TargetFramework, IReadOnlyList<string> ReferencePaths);
+
+    #endregion
 }

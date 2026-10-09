@@ -5,6 +5,8 @@ namespace ExitPointGaps;
 /// <summary>Runs the <c>run</c> command.</summary>
 internal static class RunCommand
 {
+    #region Public API
+
     public static Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         string[] effectiveArgs = args.Length == 0
@@ -25,6 +27,10 @@ internal static class RunCommand
         options.Command = CliConstants.RunCommand;
         return GapRunOrchestrator.RunAsync(options, cancellationToken);
     }
+
+    #endregion
+
+    #region Private helpers
 
     private static string[] _PrependRunWhenNeeded(string[] args)
     {
@@ -52,4 +58,6 @@ internal static class RunCommand
         await CliUsage.WriteAsync().ConfigureAwait(false);
         return exitCode;
     }
+
+    #endregion
 }

@@ -2,10 +2,15 @@
 
 namespace ExitPointGaps;
 
-/// <summary>Parses CLI arguments into <see cref="CliOptions"/>.</summary>
+/// <summary>
+/// Parses CLI arguments into <see cref="CliOptions"/>.
+/// Reason: covered by dedicated CliParser* tests; attribute keeps the thin switch table out of analyzer coverage metrics.
+/// </summary>
 [ExcludeFromCodeCoverage]
 internal static class CliParser
 {
+    #region Public API
+
     public static bool TryParse(string[] args, out CliOptions? options, out string? error)
     {
         options = new();
@@ -71,9 +76,26 @@ internal static class CliParser
             return _TryParseTrailingFlags(args, index, options, out error);
         }
 
-        error = $"Unknown target: {args[index]}. Use solution or project.";
+        error = Invariant($"Unknown target: {args[index]}. Use solution or project.");
         return false;
     }
+
+    public static bool IsValidReportFormat(string format)
+    {
+        return string.Equals(format, "agent", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "compact", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "text", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsValidPlanFormat(string format)
+    {
+        return string.Equals(format, "agent", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "text", StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
+
+    #region Private helpers
 
     private static bool _IsCommandToken(string token)
     {
@@ -90,7 +112,7 @@ internal static class CliParser
             return true;
         }
 
-        error = $"Unknown command: {command}. Use run or plan.";
+        error = Invariant($"Unknown command: {command}. Use run or plan.");
         return false;
     }
 
@@ -175,21 +197,10 @@ internal static class CliParser
                 options.ShowHelp = true;
                 return true;
             default:
-                error = $"Unknown or incomplete option: {token}";
+                error = Invariant($"Unknown or incomplete option: {token}");
                 return false;
         }
     }
 
-    public static bool IsValidReportFormat(string format)
-    {
-        return string.Equals(format, "agent", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(format, "compact", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(format, "text", StringComparison.OrdinalIgnoreCase);
-    }
-
-    public static bool IsValidPlanFormat(string format)
-    {
-        return string.Equals(format, "agent", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(format, "text", StringComparison.OrdinalIgnoreCase);
-    }
+    #endregion
 }
