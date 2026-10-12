@@ -42,7 +42,7 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
   test that can fail. Extra tests beyond those IDs are allowed when they
   still prove agreed behavior.
 - Run `Verify` from the plan step or finding; require pass. Keep that run on the tests that cover the step (`tech-test.md`). On failure follow Section 4.15 and the step `Debug` block. Consider concurrent-agent collision (Section 4.14).
-- When a step changes a product web UI, the editor’s integrated browser is available and recommended (`tech-playwright.md`).
+- When a step changes a product web UI, use the integrated browser on the running UI (Section 4.8).
 - **Alignment check:** plan/finding target vs actual; no silent deviation.
 - **Requirements check (step close):** re-read the **linked** requirements file (not a copy in the plan). Run Done-when for each requirement ID still `⬜` that this step could have made true. Tick `Met` in that file only when the check **ran**. Do not tick because `How` alluded to an outcome. Do not write requirement IDs or test IDs into code or comments.
 - Confirm step `Acceptance` checkboxes.
@@ -51,17 +51,17 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Run `/review` at each Step `{n}R` (review of step n); zero Errors before next
   step.
 - Persist review file in complex-task mode per `workflow-complex-task.md`.
-- After two failed remediations for the same Error root cause: exponential backoff then retry, or stop with blocker.
+- After two failed remediations for the same Error root cause: stop and report a blocker per Section 4.16 (what blocks, evidence, impact, scope, to unblock).
 
 ## Stage 3 — Final Verification
 
 - Confirm **every** scoped step, test ID, and finding is `✅` on every status
   surface for that item (plan: Step Overview, Shared Block, Task Checklist;
   review finding: `Status` line and Summary **Findings** Status cell).
-  Leftover `⬜` / `⚠️` = blocker.
+  Leftover `⬜` / `⚠️` = blocker, reported per Section 4.16.
 - Re-run alignment: every requirement ID with Done-when Met ✅, every test ID ✅, or all accepted findings resolved.
 - Run full build and all tests in optimized/Release. Commands from the loaded tech skill.
-- For web UI: run the planned Playwright journeys. The editor’s integrated browser is available and recommended (`tech-playwright.md`).
+- For web UI: run the planned Playwright journeys and walk the changed pages in the integrated browser (Section 4.8).
 - Output Implementation Status Table (every step / finding / test ID listed).
 - Do not enter Stage 4 until this stage is green.
 

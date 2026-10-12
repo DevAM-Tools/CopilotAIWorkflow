@@ -27,7 +27,7 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 
 ## Speed
 
-- Finish unit tests in milliseconds. Do not `Sleep` / `time.sleep` / `thread::sleep`.
+- Each unit test finishes in ≤ 100 ms (Section 4.5). Slower tests carry the stack’s slow or integration marker. Do not `Sleep` / `time.sleep` / `thread::sleep`.
 - Do not use network, real clock waits, or an extra process when a deterministic fake will do.
 - Assert one behavior per test. Parametrize related inputs; do not copy-paste.
 

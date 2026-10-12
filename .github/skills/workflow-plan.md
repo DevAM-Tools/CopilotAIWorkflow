@@ -186,7 +186,7 @@ Collision: other agents locking build/test?
 9. Steps (Shared Block; last = Requirements fit + `{n}R`)
 10. Edge Cases and Risks
 11. Decisions & Trade-offs (`C{n}`; omit when none)
-12. Open Questions
+12. Open Questions (each one that blocks a step is a blocker per `copilot-instructions.md` Section 4.16: what blocks, evidence, impact, scope, to unblock)
 13. Closing Summary
 14. Task Checklist (Step N, tests that are their own steps, Step `{n}R`; include Requirements fit)
 
@@ -270,9 +270,8 @@ fast. An applicable class with no test ID and no Out = gap.
 
 - Concrete end-state: types, files, APIs, data flow, invariants, algorithms. Show that shape in snippets, not only in prose. Not a slogan.
 - Map every requirement ID that has Done-when to a design element here (completeness). Do not paste Done-when from the requirements file. Steps then apply this shape.
-- SSOT for final file shape. A primary-file `After` that differs from this section is an incomplete plan.
+- SSOT for final file layout, data flow, invariants, and algorithms. **API and interfaces** is the SSOT for public signatures and contract types; do not paste a second shape here, link to it. A primary-file `After` that differs from either section is an incomplete plan.
 - Do not use step order here.
-- Public signatures and contract types are written once, in **API and interfaces**. Do not paste a second shape here.
 
 ## Slices
 
@@ -360,7 +359,7 @@ Still required:
 
 Run after the plan file is written. **Walk the plan twice.** Patch until both walks are clean. Do not enter Completion with gaps.
 
-1. **Requirements walk** — Re-read the **linked** requirements file **in full**. Do not treat anything in the plan as a copy of that list. Every requirement ID that has Done-when, and every test ID, must land in Target Solution and in a step `How` / `Tests` / `Acceptance`. A test ID without **Content** = gap. An applicable `tech-test.md` class with no test ID and no Out = gap. Unmapped = gap. Cite each test ID as written. Do not renumber a supplied plan.
+1. **Requirements walk** — Re-read the **linked** requirements file **in full**. Do not treat anything in the plan as a copy of that list. Every requirement ID that has Done-when lands in Target Solution **and** in a step `Acceptance`. Every test ID lands in a step `Tests` field **and** has a card with **Content**. IDs never land in a step `How`. A test ID without **Content** = gap. An applicable `tech-test.md` class with no test ID and no Out = gap. Unmapped = gap. Cite each test ID as written. Do not renumber a supplied plan.
 2. **Conversation walk** — Re-read the conversation, Grill Me Q/A, Sweep, council, and attached docs **in full**, then the **entire** written plan. Every relevant user ask, constraint, non-goal, named type/path/command, accepted proposal, rejected option with leftover constraint, and named edge / constellation / contradiction / gap must land somewhere (a requirement ID, a test ID **Content**, Out, `C{n}`, or out of scope). Unmapped = gap. “Implied” without a citation = gap.
 
 Include every requirement ID with Done-when, every test ID, and every Grill Me answer as a row. Record dropped items with reason. Write both tables into Context Anchor. Re-run this stage after any patch.
@@ -394,7 +393,7 @@ A green build can still miss the user outcome.
 - For each requirement ID with Done-when: run Done-when. Cite evidence (command, UI, API, file, output). Tick Met in the requirements file.
 - For each test ID: confirm the Content exists as a test that can fail (extra tests beyond the planned IDs are fine).
 - Mark Met / Status ✅ only when the check holds with no caveats.
-- Any ❌ or leftover ⬜ = blocker.
+- Any ❌ or leftover ⬜ = blocker. Write it per `copilot-instructions.md` Section 4.16 (what blocks, evidence, impact, scope, to unblock).
 - Skip Before/After unless a gap needs a code fix; then stop and file the gap.
 ### Experience
 A person can execute every Done-when without reading the source.

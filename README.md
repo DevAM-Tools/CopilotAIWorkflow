@@ -1,6 +1,6 @@
 # CopilotAIWorkflow
 
-Structured AI agent workflow for **GitHub Copilot** and **Cursor**, plus NuGet packages for C# style enforcement and exit-point coverage.
+Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement and exit-point coverage.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CSharpStyleChecker](https://img.shields.io/nuget/v/CSharpStyleChecker)](https://www.nuget.org/packages/CSharpStyleChecker/)
@@ -114,15 +114,16 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`) |
-| [`.cursor/skills/`](.cursor/skills/) | Cursor skill discovery wrappers → `.github/skills/` |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
+| [`.claude/skills/`](.claude/skills/) | The one skill pointer set → `.github/skills/`; read by Claude Code, Cursor, and VS Code (GitHub Copilot) |
+| [`CLAUDE.md`](CLAUDE.md) | Claude Code bootstrap (imports the SSOT instructions; tool mapping) |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
 
 ---
 
 ## SSOT layering
 
-Each concern has exactly one authoritative file under `.github/`. Copilot prompts and Cursor rules/commands/skills reference by path; they do not copy rules.
+Each concern has exactly one authoritative file under `.github/`. Copilot prompts, Cursor rules and commands, `CLAUDE.md`, and `.claude/skills/` reference by path; they do not copy rules.
 
 | Concern | SSOT |
 |---------|------|
@@ -132,7 +133,9 @@ Each concern has exactly one authoritative file under `.github/`. Copilot prompt
 | Build, CPM, dependencies | `.github/skills/tech-solution.md` |
 | C# / Rust / Python / tests / Blazor / SourceGen | respective `.github/skills/tech-*.md` |
 | Copilot user entry | `.github/prompts/` |
-| Cursor user entry | `.cursor/commands/`, `.cursor/skills/` |
+| Cursor user entry | `.cursor/commands/` |
+| Claude Code user entry | `CLAUDE.md`, `/workflow-*` skills |
+| Skill pointers (all tools) | `.claude/skills/` |
 
 Entry points read `copilot-instructions.md`, `custom_instructions.md` when present, plus one workflow skill. No partial checklists.
 
@@ -152,9 +155,10 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 
 | Skill | Load when |
 |-------|-----------|
-| `tech-csharp.md` | `*.cs` in scope |
+| `tech-csharp.md` | `*.cs` in scope — style, types, errors and logging, security, async, thread safety, allocation and performance |
 | `tech-rust.md` | `*.rs` / `Cargo.toml` / `Cargo.lock` in scope |
 | `tech-python.md` | `*.py` / `pyproject.toml` / `*.pyi` in scope — strict typing |
+| `tech-csharp-profiling.md`, `tech-rust-profiling.md`, `tech-python-profiling.md` | Only when a measurement is needed — profiling without admin rights |
 | `tech-test.md` | Tests or production APIs in scope — case design |
 | `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review |
 | `tech-pytest.md` | pytest files in scope |
@@ -164,6 +168,9 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` — Blazor mechanism on top of `tech-web.md` |
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs` |
+| `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
+| `workflow-port-dotnet-rust.md` | `/port-dotnet-rust`; intake, alignment into `port/MANIFEST.md`, closing audit |
+| `workflow-port-dotnet-rust-loop.md` | `/port-dotnet-rust-loop`; autonomous unit loop with balanced books |
 | `workflow-requirements.md` | `/requirements`; atomic `REQ-<AREA>-<TOPIC>` list; also before `/plan` when none exist |
 | `workflow-plan.md` | `/plan` |
 | `workflow-implement.md` | `/implement`; extensive briefing; Closing Exam |
@@ -174,7 +181,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `workflow-commit-message.md` | `/commit-message`; complete message; git after the file is out of scope |
 | `workflow-illustrate.md` | `/illustrate`; HTML zip; ask before vendoring libraries into `vendor/` |
 
-Agents must `Read` matching skills before edits. Missing skill when trigger matches = Error in review.
+Agents must read matching skills before edits. Missing skill when trigger matches = Error in review.
 
 Always-on policy: [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
 (terms in §5.1). Skills load only on trigger. Do not record instruction line
@@ -222,26 +229,37 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, or `/illustrate` in chat |
-| Agent skills | Skills auto-discover via descriptions; each points to `.github/skills/` SSOT |
+| Slash commands | Type `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/port-dotnet-rust`, or `/port-dotnet-rust-loop` in chat |
+| Agent skills | Cursor loads `.claude/skills/` for compatibility; each points to `.github/skills/` SSOT. Do not add `.cursor/skills/` — Cursor would list every skill twice |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
 Natural-language triggers (`plan this feature`, `capture requirements`, `review the PR`, `council this`, `commit message for staged`, `illustrate this API`) work the same as slash commands per `copilot-instructions.md` Section 6.
 
 ---
 
+## Claude Code usage (CLI and VS Code extension)
+
+| Mechanism | How to use |
+|-----------|------------|
+| Bootstrap | `CLAUDE.md` imports `.github/copilot-instructions.md` on every session |
+| Workflows | Type `/workflow-plan`, `/workflow-implement`, `/workflow-review`, … followed by the argument. `/plan` and `/review` are built-in Claude Code commands, not these workflows |
+| Skill list | `/skills`, or type `/` for the menu |
+| Attach files (VS Code extension) | Hold `Shift` while dragging files into the prompt box, type `@` plus a file name, or press `Alt+K` to insert the current selection |
+
+---
+
 ## GitHub Copilot usage
 
-Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/commands/`](.cursor/commands/) — same three-line body, different tool format.
+Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/commands/`](.cursor/commands/) — same three-line body, different tool format. VS Code also loads the skill pointers from `.claude/skills/`.
 
 ---
 
 ## Adopting the agent workflow in another repository
 
 1. Copy [`.github/`](.github/) (instructions, skills, prompts).
-2. Copy [`.cursor/`](.cursor/) and [`AGENTS.md`](AGENTS.md) for Cursor support.
+2. Copy [`.cursor/`](.cursor/), [`.claude/`](.claude/), [`AGENTS.md`](AGENTS.md), and [`CLAUDE.md`](CLAUDE.md) for Cursor and Claude Code support.
 3. Copy [`COPYRIGHT`](COPYRIGHT) and [`LICENSE`](LICENSE).
-4. Validate paths after copy (`.github/` and `.cursor/` references are relative to repo root).
+4. Validate paths after copy (`.github/`, `.cursor/`, and `.claude/` references are relative to repo root).
 5. Optionally add `custom_instructions.md` at the repo root for extra instructions. Do not create it unless you have overlay rules.
 
 ---

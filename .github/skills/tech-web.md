@@ -101,7 +101,10 @@ Before adding a rule, choose the highest file that still stays correct: **app** 
 .card { --accent: #7dd; }
 @media (min-width: 900px) { .card { grid-template-columns: 1fr 1fr; } }
 
-/* Right — tokens in app.css; this card follows its container */
+/* Right — tokens in app.css; this card follows its container.
+   The slot that hosts the card must declare itself a container,
+   or the @container rule never matches. */
+.card-slot { container-type: inline-size; }
 .card { display: grid; gap: 1rem; }
 @container (min-width: 768px) {
   .card { grid-template-columns: 1fr 1fr; }
@@ -152,4 +155,4 @@ syncChartSize(desktop);
 
 ## Testing
 
-Journeys, viewports, and debug: `tech-playwright.md`. The editor’s integrated browser is available there and recommended. Case design and suite size: `tech-test.md`.
+Journeys, viewports, and debug: `tech-playwright.md`. Integrated browser: Section 4.8. Case design and suite size: `tech-test.md`.
