@@ -64,4 +64,4 @@ Load on `/complex-task`. Orchestrates requirements (if needed), plan, implement,
 - Cite the briefing and the Exam artifact. Goal verdict requires Exam **Holds**.
 - List deferred Cosmetic, Refactoring, Performance findings.
 - State goal-achievement verdict vs every requirement ID with Done-when, every test ID, and plan done criteria.
-- Chat: artifact paths; do not recap bodies.
+- Chat: artifact paths plus the Open-Items Report (`workflow-implement.md` Stage 6). Run it on every exit after Stage 4 starts, including block and `exam-fail`. Do not recap bodies.

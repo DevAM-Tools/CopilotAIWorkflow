@@ -71,7 +71,7 @@ findings are still `⬜` or `⚠️` unless they are deferred.
 - Run full build and all tests in optimized/Release. Commands from the loaded tech skill.
 - State release verdict from the latest review Summary.
 - List deferred findings with deferral reason when user approved deferral.
-- Chat: artifact paths; do not recap finding bodies.
+- Chat: artifact paths plus the Open-Items Report (`workflow-implement.md` Stage 6). Run it on every exit, including block and cap. Do not recap finding bodies.
 
 ### Review Iteration Table
 

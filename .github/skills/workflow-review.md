@@ -267,10 +267,12 @@ Skeptic (parts). REQ-EXPORT-NO-DUPLICATE in
 
 ### Findings Overview Table
 
+❗ Link every finding ID in the Overview, Summary **Findings**, and **Priority** to its block (`#` + the GitHub slug of the block heading: lowercase, punctuation other than `-` dropped, spaces → `-`; `## E1 - Export accepts a duplicate name` → `#e1---export-accepts-a-duplicate-name`).
+
 ```markdown
 | ID | Bucket | Title | Summary |
 |----|--------|-------|---------|
-| E1 | E | {title} | {one sentence with location} |
+| [E1](#e1---export-accepts-a-duplicate-name) | E | {title} | {one sentence with location} |
 ```
 
 ```markdown
@@ -288,7 +290,7 @@ verdict, every finding in one table, and every hunt in one table. The release
 verdict lives here. Do not add a second closer. Do not replace the tables
 with paragraphs.
 
-- **Release** is one line when Ready. When Blocked, the line lists the IDs
+- **Release** is one line when Ready. When Blocked, the line lists the linked IDs
   and one short block per blocker follows it (Section 4.16: what blocks,
   evidence, impact, scope, to unblock). **Execution** is one line.
 - **Counts** is one line. A bucket with zero findings shows `0`.
@@ -303,7 +305,7 @@ with paragraphs.
   is finding IDs or `none`. `none` means the hunt ran and found nothing. A
   hunt that does not apply says `n/a` and why (`n/a — no product UI`). A
   missing row is an incomplete Summary.
-- **Priority** lists findings in fix order, one line each: the ID and what the fix changes. Write `none` when Findings has no defect rows.
+- **Priority** lists findings in fix order, one line each: the linked ID and what the fix changes. Write `none` when Findings has no defect rows.
 
 ```markdown
 ## Summary
@@ -326,9 +328,9 @@ with paragraphs.
 
 | ID | Status | Bucket | Result |
 |----|--------|--------|--------|
-| E1 | ⬜ | Error · High | {defect and where, one sentence} |
-| P1 | ⬜ | Performance · Medium | {defect and where, one sentence} |
-| R1 | ⬜ | Refactoring | {defect and where, one sentence} |
+| [E1](#e1---export-accepts-a-duplicate-name) | ⬜ | Error · High | {defect and where, one sentence} |
+| [P1](#p1---{title-slug}) | ⬜ | Performance · Medium | {defect and where, one sentence} |
+| [R1](#r1---{title-slug}) | ⬜ | Refactoring | {defect and where, one sentence} |
 
 ### Checks
 
@@ -361,12 +363,12 @@ with paragraphs.
 
 ### Priority
 
-1. {ID} — {what the fix changes}
+1. [E1](#e1---export-accepts-a-duplicate-name) — {what the fix changes}
 ```
 
 When nothing was found, Findings is one row: `| — | — | — | none |`, and Priority is `none`.
 
-Patch Output before Completion if any Checks row is missing, a finding is absent from Findings, or a Findings row has no Status.
+Patch Output before Completion if any Checks row is missing, a finding is absent from Findings, a Findings row has no Status, or a finding link does not match a block heading.
 
 ### Output Modes
 

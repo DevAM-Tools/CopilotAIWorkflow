@@ -2,7 +2,7 @@
 
 Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git, and communication rules.
 
-**Purpose:** Implement approved plan steps or accepted review findings **exactly**. Complete every item in scope. Close with an **extensive briefing**, then a council Exam of the built result.
+**Purpose:** Implement approved plan steps or accepted review findings **exactly**. Complete every item in scope. Close with an **extensive briefing**, then a council Exam of the built result. End **every** run, complete or not, with an Open-Items Report in chat.
 
 ## Stage Order
 
@@ -11,6 +11,7 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 3. Final Verification
 4. Briefing
 5. Closing Exam
+6. Open-Items Report
 
 ## Stage 1 — Prepare
 
@@ -48,10 +49,14 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 - Confirm step `Acceptance` checkboxes.
 - Confirm misuse/abuse checklist from the plan when new public APIs are in scope.
 - Confirm docs (README, guides, architecture, package docs) still match behavior and commands (Section 1).
+- **Phase close:** when the plan has phases, run the phase's `How to try` from
+  **Expected Experience** after its last step. A mismatch with `They should
+  see` is a Problem in the report (Stage 6).
 - Run `/review` at each Step `{n}R` (review of step n); zero Errors before next
   step.
 - Persist review file in complex-task mode per `workflow-complex-task.md`.
-- After two failed remediations for the same Error root cause: stop and report a blocker per Section 4.16 (what blocks, evidence, impact, scope, to unblock).
+- After two failed remediations for the same Error root cause: stop and report a blocker per Section 4.16 (what blocks, evidence, impact, scope, to unblock). Go to Stage 6.
+- Any other stop (out-of-scope discovery, unexpected diff, missing decision, user abort) also goes to Stage 6.
 
 ## Stage 3 — Final Verification
 
@@ -67,7 +72,7 @@ Load on `/implement`. Apply `copilot-instructions.md` for all quality, tech, git
 
 ## Stage 4 — Briefing
 
-Write the briefing before Stage 5. Exam skipped → still write it. No complete without it. Chat: path only.
+Write the briefing before Stage 5. Exam skipped → still write it. No complete without it. Chat: path plus the Stage 6 report.
 
 Call this artifact a **briefing**, never a “review brief”. `/review` is a different workflow (adversarial review; default includes test execution).
 
@@ -95,6 +100,7 @@ The briefing is the human packet for what shipped. It must be **extensive**: a r
 **Done when:** {checks the reader can run}
 **Why:** {problem without this work; what stays wrong if it does not ship}
 **Out:** {exclusions}
+**Open:** {Stage 6 items: decisions, problems, unfinished or deferred items; or `nothing`}
 
 **Try this:** {exact commands, Playwright spec, or usage snippet; expected observable}
 
@@ -145,6 +151,53 @@ The briefing is the human packet for what shipped. It must be **extensive**: a r
 - Chairman **Does not hold** → remediate kill shots and §4 violations (Verify, alignment, two-attempt cap). Re-run Stage 3 for touched scope, rewrite Stage 4, then re-Exam `_<n>`.
 - Grill Me follow-ups → ask user; do not mark implement complete.
 - Do not treat Exam as `/review`. Do not skip Step `{n}R` because Exam will run.
+
+## Stage 6 — Open-Items Report
+
+Run on **every** exit: complete, blocked, failed, paused, aborted. It is the last
+chat message of the run. Chat follows the user's language (Section 2). Files
+keep their record; chat repeats what needs the user, compactly. A parent
+(`workflow-complex-task.md`, `workflow-review-loop.md`) reports once at its end
+or at its first stop, not per item.
+
+- Lead with the outcome line, then **Needs you**, then the status table.
+- Collect every item that needs action:
+  - **Decision:** unresolved `C{n}`, plan Open Question, Grill Me follow-up,
+    out-of-scope discovery, deviation that needs approval, Exam follow-up.
+  - **Problem:** failed `Verify`, red build or test, unmet Done-when, Exam
+    **Does not hold**, phase mismatch, two-attempt cap, environment collision.
+    Name where it failed and why.
+  - **Open:** item still `⬜` or `⚠️`, deferred finding, not-yet-run check.
+- One entry per root cause. Section 4.16 content in one to three lines: what
+  blocks, evidence, impact, to unblock (options with consequences). Link the
+  plan step, finding, or file (Section 4.6, from repo root). Do not paste
+  Shared Blocks or the briefing.
+- Nothing needs action → write `Nothing open.`
+- Status table: only items not `✅`, plus a count of `✅` items. The full
+  Implementation Status Table stays in the artifacts.
+- Mirror the entries in the briefing **Open** field when a briefing exists.
+
+```markdown
+**Implement ⚠️ Stopped at Step 3** — {scope}: 2 of 5 steps ✅.
+
+### Needs you
+**Decisions**
+1. [Step 3](plans/plans_export.md#step-3---add-store): {question}. Options: A) {consequence} · B) {consequence}.
+
+**Problems**
+1. ❌ [Step 3](plans/plans_export.md#step-3---add-store) `Verify` failed twice: {what}. Evidence: `{command}` → {key line}. Impact: {…}. To unblock: {…}.
+
+**Open**
+1. ⬜ [Step 4](plans/plans_export.md#step-4---wire-ui), [Step 5](plans/plans_export.md#step-5---requirements-fit): not started.
+
+| Item | Status |
+|------|--------|
+| [Step 3](plans/plans_export.md#step-3---add-store) | ⚠️ |
+| 4 more items | ⬜ |
+| 2 items | ✅ |
+
+Briefing: [`reviews/briefing_export.md`](reviews/briefing_export.md)
+```
 
 ## Implementation Status Table
 

@@ -196,15 +196,17 @@ Existing files under `plans/` or `reviews/` are historical unless the user names
 Stages live in workflow skills only. Prompts do not repeat them.
 
 - **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`); context prose has no IDs; skip reinventing when the user already supplied them
-- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, then a requirements walk **and** a conversation walk, Requirements-fit
+- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, an **Expected Experience** section right after Step Overview (per phase when the plan has phases), linked Step Overview / checklist / test index rows, then a requirements walk **and** a conversation walk, Requirements-fit
 - **Implement:** `workflow-implement.md` — read the plan in full, execute steps
   and `TEST-<AREA>-<TOPIC>` content, verify requirements at step close (tick
   `Met` in the linked requirements file), tick accepted finding Status in the
   review Summary together with the finding Status line, extensive **briefing**
-  (file cards are Section 4.6 links), Closing Exam
+  (file cards are Section 4.6 links), Closing Exam, and an **Open-Items
+  Report** in chat on every exit (decisions, problems, open items)
 - **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
   public-release verdict for the **scope**; Summary Findings table has a
-  Status column (`⬜` at write time; `/implement` ticks it) plus a
+  Status column (`⬜` at write time; `/implement` ticks it) and links each
+  finding ID to its block, plus a
   hunt-results table; ignore prior `reviews/review_*.md`
   unless named; Section 3 skill load; locked finding `How` with Problem/Fix
   before/after code (extra illustration snippets welcome); Section 4.6 links;
