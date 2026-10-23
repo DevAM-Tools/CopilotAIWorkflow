@@ -177,6 +177,14 @@ def pair(self, path: str) -> int | None:
 - **Deserialization:** never `pickle`, `marshal`, `shelve`, or `yaml.load` on untrusted data; use `json` / `yaml.safe_load`, then validate into typed objects.
 - **Code execution:** no `eval`, `exec`, or `compile` on input.
 - **SQL:** driver placeholders (`cursor.execute("… WHERE id = ?", (item_id,))`); never f-strings or `%`.
+- **Limits** (Section 4.2): a frozen dataclass with documented defaults; check ranges in `__post_init__` and raise the package's configuration error. Host-derived defaults: `os.process_cpu_count()` (3.13+, else `os.cpu_count()`). Format and protocol facts are `Final` constants. Comment the security decision at the definition:
+
+```python
+# Threat: a huge CSV floods memory. Open by default: the tool reads the user's own local files.
+# User may tighten it with --max-rows (1 or more). Rejected: a fixed cap (blocks large local datasets).
+# Residual risk: an untrusted file can still exhaust memory unless the user sets --max-rows.
+max_rows: int | None = None
+```
 - **Paths:** resolve, then confirm the result stays under the root.
 
 ```python

@@ -172,6 +172,14 @@ fn resolve_inside(root: &Path, relative: &Path) -> Option<PathBuf> {
 - **Deserialization:** `#[serde(deny_unknown_fields)]` on boundary types; bound input size first; validate into newtypes.
 - **Hash maps:** keep SipHash for untrusted keys (HashDoS); fast hashers only for internal keys.
 - **SQL:** bind parameters; never format values into queries.
+- **Limits** (Section 4.2): a limits struct with private fields, a documented `Default`, and `TryFrom` / a builder that rejects out-of-range values. Host-derived defaults: `std::thread::available_parallelism()`. Format and protocol facts are `const`. Comment the security decision at the definition:
+
+```rust
+// Threat: deeply nested input overflows the parser stack. Secure by default: input is remote.
+// Operator may set 16..=1024 in config. Rejected: unbounded recursion (stack overflow aborts the process).
+// Residual risk: 1024 levels still cost CPU per request; the rate limit covers that.
+max_depth: u16,
+```
 - **Secrets:** redacting `Debug`; no secrets in `Display` or errors. `subtle` / `zeroize` only through the New Dependency Protocol.
 - **`unsafe`:** only at approved sites, opened with `#[expect(unsafe_code, reason = "…")]`; `// SAFETY:` on every block (aliasing, lifetimes, validity, `Send`/`Sync`). Validate FFI and I/O input first.
 - ❗ No `unsafe impl Send` / `Sync` without a documented invariant.

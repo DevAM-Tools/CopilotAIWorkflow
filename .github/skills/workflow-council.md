@@ -31,7 +31,7 @@ Skip none. Use these names only.
 
 | View | Ask | Do |
 |------|-----|-----|
-| Skeptic | What kills this? | Assume it cannot work. Find the fatal flaw. Dig if it looks solid. Dumbest user/operator error AND worst abuse + STRIDE at trust boundaries. Do not trust tests, docs, or a green path. |
+| Skeptic | What kills this? | Assume it cannot work. Find the fatal flaw. Dig if it looks solid. Dumbest user/operator error AND worst abuse + STRIDE at trust boundaries. A limit that cripples a capable host or lets abuse through (§4.2). Do not trust tests, docs, or a green path. |
 | Problem-First | Right problem? | Strip the proposed solution. Rebuild the problem. Say when the question is wrong. |
 | Upside | What extra value sits in scope? | Hunt in-scope gain only. No new product, dependency, or scope. New packages still need the New Dependency Protocol (Section 4.7). |
 | Outsider | Would a first-time user get this? | Drop insider context. Flag jargon, opaque names, missing first-caller steps. Unknown term → treat as unknown. |

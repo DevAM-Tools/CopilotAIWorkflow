@@ -70,7 +70,7 @@ Defaults: `tech-dotnet-rust.md` Section 2, all adopted unless listed.
 
 ## Limits
 
-- {limit}: {value} · constant | configurable ({where, default})
+- {limit}: {value or range} · {threat} · constant | configurable ({where, who, default}) · secure | open by default ({why}). Same as the source unless approved here.
 
 ## Priority targets
 

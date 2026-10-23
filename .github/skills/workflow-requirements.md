@@ -178,6 +178,8 @@ Accept: The operator submits Report again, still sees one row, and sees the
         duplicate-name message.
 Accept: The agreed typical workload on the agreed machine class finishes in
         ≤ 30s, measured from submit to the result row.
+Accept: The user raises the import limit in Settings from 1 GB to 4 GB, sees
+        why the limit exists and its allowed range, and imports a 3 GB file.
 ```
 
 Ban slogans. Ban “it builds” / “tests exist” / “docs updated” (Section 4).
@@ -191,7 +193,8 @@ new ambiguity; cite the prior answer.
 Cover if still open: groups and differing expectations; context; boundary;
 inputs/outputs; in/out of scope; shall / shall-not / properties until
 Done-when is an example, not an adjective; conflicts between draft
-requirements; limits (value, constant vs configurable in user terms); hard
+requirements; limits per Section 4.2 in user terms (value or range, what it
+protects, who may change it, secure or open by default and why); hard
 constraints (legal, platform, offline, data that must not leave the machine).
 
 Do not Grill Me: API signatures, `TEST-<AREA>-<TOPIC>` content, Playwright journeys, file

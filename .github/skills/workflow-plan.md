@@ -58,7 +58,7 @@ Cover every topic before finalizing scope:
 - performance and allocations (hot paths, budgets) — performance is a feature
 - edge cases and error handling
 - security boundaries and STRIDE
-- trust-boundary limits: proposed defaults; constant vs configurable (where, who, unset default)
+- trust-boundary limits per Section 4.2: threat; proposed default or range; constant vs configurable (where, who: code / operator / end user); posture (secure or open by default) and why; end-user help text
 - concurrency, TOCTOU, async interleaving
 - compatibility, migration, breaking change
 - new dependencies: id, what it does, why needed, license, alternatives
@@ -304,6 +304,14 @@ fast. An applicable class with no test ID and no Out = gap.
 - Concrete end-state: types, files, APIs, data flow, invariants, algorithms. Show that shape in snippets, not only in prose. Not a slogan.
 - Map every requirement ID that has Done-when to a design element here (completeness). Do not paste Done-when from the requirements file. Steps then apply this shape.
 - SSOT for final file layout, data flow, invariants, and algorithms. **API and interfaces** is the SSOT for public signatures and contract types; do not paste a second shape here, link to it. A primary-file `After` that differs from either section is an incomplete plan.
+- Trust-boundary limits (Section 4.2): one table row per limit. A limit without threat or posture is incomplete. Each limit gets the limit cases in `tech-test.md` as test cards.
+
+```markdown
+| Limit | Default · range | Kind · who | Posture · why |
+|-------|-----------------|------------|---------------|
+| Import size (memory exhaustion) | 1 GB · 1 MB–host RAM | config · end user | secure: files from strangers |
+```
+
 - Do not use step order here.
 
 ## Slices

@@ -216,6 +216,14 @@ public static bool TryResolveInside(string root, string relative, [NotNullWhen(t
 
 - **Secrets:** read from configuration (user secrets, environment, vault); never commit them. Generate tokens with `RandomNumberGenerator`; compare with `CryptographicOperations.FixedTimeEquals`.
 - **Web input:** validate on the server (`tech-blazor.md`, `tech-web.md`).
+- **Limits** (Section 4.2): one `sealed record` per boundary with documented defaults and ranges. Validate in a `Try` factory (libraries) or `IValidateOptions<T>` with `ValidateOnStart()` (hosted apps). Host-derived defaults: `GC.GetGCMemoryInfo().TotalAvailableMemoryBytes`, `Environment.ProcessorCount`. Format and protocol facts are `const`. Comment the security decision at the definition:
+
+```csharp
+// Threat: one hostile file exhausts memory. Secure by default: imports come from untrusted senders.
+// End user may set 1 MB to available RAM in Settings. Rejected: a fixed constant (cripples large hosts).
+// Residual risk: a value near RAM size can still stall the app; the setting warns about it.
+public long MaxImportBytes { get; init; } = 1L << 30;
+```
 
 ## Async
 

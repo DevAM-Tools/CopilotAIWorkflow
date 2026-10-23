@@ -72,7 +72,7 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 - ❗ Treat warnings as errors; fix root causes. Do not hide a warning without user approval. When a warning is suppressed, always use the loaded tech skill’s **suppression template** (rule id, reason, scope). A suppression without a reason is incomplete.
 - ❗ Never fail silently; return a meaningful error (throw or panic only for bugs and broken invariants).
 - ❗ Validate external input at trust boundaries: content, structure, type, range, encoding, size.
-- ❗ Agree trust-boundary **limits** with the user (size, count, length, range, time, rate). Do not invent silent defaults. Record for each limit: the value, and whether it is a **constant** or **configurable** (where it lives, who may change it, default when unset).
+- ❗ Agree and record trust-boundary **limits** per Section 4.2.
 - ❗ Validate function parameters at entry.
 - ❗ Expected failures use result types, error codes, or language-idiomatic try-APIs — at public boundaries and always on hot paths. Throw or panic only for bugs and broken invariants.
 - List every affected file before any edit: implementation, call sites, tests, config, docs.
@@ -94,6 +94,19 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 - Enumerate STRIDE threats in planning for every external-input feature.
 - After external-input implementation, verify boundary validation and STRIDE mitigations.
 - Check injection paths and secret exposure actively.
+- ❗ Comment each security decision where the code enforces it: the threat, the chosen mitigation, the rejected alternative, and the accepted residual risk.
+
+**Trust-boundary limits** (size, count, length, depth, range, time, rate). A limit protects; it must not cripple the host.
+
+- ❗ Agree every limit with the user. Do not invent silent defaults.
+- ❗ Tie each limit to the threat it stops (exhaustion, amplification, abuse). The host is unknown: do not cap below what it may handle just to pick a number.
+- Prefer a bound that scales over a small fixed number: stream instead of buffer (Section 4.4), or derive the default from the host (memory, cores).
+- **Constant** only for facts of a format, protocol, or type. A value that depends on host, data, deployment, or risk appetite is **configurable**.
+- ❗ Configurable: record where it lives, who may change it (code, operator, end user), the default, and the allowed range. Validate the configured value as external input. A ceiling that protects other users or the system stays out of end-user reach.
+- ❗ Label the **posture** per limit: **secure by default** (tight default; loosening is opt-in) or **open by default** (loose default; tightening is opt-in). Neither wins by rule. Choose by exposure (untrusted, remote, or multi-user input → secure by default) and record why. Mark an open default in the docs and next to the setting.
+- ❗ End-user setting: show what it limits, why it exists, the unit, the allowed range, the default, and the risk of raising or lowering it. Reject an out-of-range value with a message that names the range.
+- ❗ Exceeding a limit is an expected failure (Section 4.1): name the limit in the error. Never truncate or drop silently.
+- ❗ Record per limit, in the plan and in a comment at its definition: value or range · threat · constant or configurable (where, who) · posture and why.
 
 ### 4.3 Thread Safety
 
@@ -139,7 +152,7 @@ Performance is a feature of every application and library, not optional polish. 
 ### 4.6 Documentation
 
 - ❗ Non-temporary documents are **English**: plans, requirements, briefings, reviews, councils, README, guides, architecture docs, illustrations that stay in the repo, public API docs. Chat shall follow the user’s language.
-- ❗ Use inline comments for purpose, motivation, caveats, and design decisions. State why; never restate obvious syntax.
+- ❗ Use inline comments for purpose, motivation, caveats, design decisions, and security trade-offs (Section 4.2). State why; never restate obvious syntax.
 - Split non-trivial function bodies into semantic blocks. Separate blocks with one blank line (two allowed). Lead each block with a comment that states intent and what to watch for.
 - Keep comments, XML/rustdoc/docstrings, README, guides, and architecture docs synchronized with code.
 - Document every public API item in the language’s canonical doc form. Form: loaded tech skill.

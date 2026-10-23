@@ -75,11 +75,11 @@ Cite source path and the broken rule in `Context`. Miss = Error. A trigger that 
 
 Reminder of Section 4. Still walk the leading sources in full. Record finding IDs or `none` on the matching Summary **Checks** row.
 
-- **Security:** OWASP Top 10; never trust caller parameters, URLs, bindings, payloads; injection; no secrets, credentials, tokens, or PII in logs; STRIDE mitigations for external input.
+- **Security:** OWASP Top 10; never trust caller parameters, URLs, bindings, payloads; injection; no secrets, credentials, tokens, or PII in logs; STRIDE mitigations for external input; trust-boundary limits per §4.2 (agreed, tied to a threat, posture labeled with why, host-dependent values configurable with a validated range, end-user settings explained, a hit limit is a named error, no silent truncation); every security decision commented where the code enforces it.
 - **Races:** no unsynchronized shared mutable state; race, TOCTOU, async interleaving, lock inversion, partial-state; document lock/atomic; concurrent tests for thread-safety claims.
 - **Docs:** English non-temp docs; why-comments; public API docs; comments, XML/docs, README, guides in sync with code.
 - **Orphans:** unused types, objects, APIs, files; dead code; stale docs; deprecated patterns in active paths; internals leaked; least visibility.
-- **Correctness:** warnings as errors; no silent failure; validate trust-boundary input and parameters; agreed limits (constant vs configurable); no invalid state after errors; check returns; no tracking IDs in code; off-by-one; overflow; result/try APIs on expected and hot-path failures.
+- **Correctness:** warnings as errors; no silent failure; validate trust-boundary input and parameters; no invalid state after errors; check returns; no tracking IDs in code; off-by-one; overflow; result/try APIs on expected and hot-path failures.
 - **API:** invalid states unrepresentable; try/result at public expected-failure boundaries; misuse/abuse analysis; public snippet matches the plan.
 - **Repo:** Windows/Linux/macOS on x64/ARM64; UTF-8 console once at process start; Debug = Release; line length 160; copyright; mandatory lint; no unapproved dependency or script; MIT / Apache-2.0 / BSD-like only.
 - **UI:** product web UI: `aria-*`; phone-first responsive (320px, locked
@@ -106,7 +106,7 @@ When a plan is in scope: walk every requirement ID that has Done-when from the *
 
 ### Design decisions
 
-Hunt encoded choices without a why: algorithm, data layout, lock/atomic, error policy, trust-boundary limit, fallback, compatibility shim, omitted validation. Section 4.6 (also 4.1, 4.3) requires comments/docs for those. Undocumented choice = Error. "Obvious" is not documentation.
+Hunt encoded choices without a why: algorithm, data layout, lock/atomic, error policy, trust-boundary limit, security trade-off (threat, mitigation, rejected alternative, residual risk), fallback, compatibility shim, omitted validation. Section 4.6 (also 4.1, 4.2, 4.3) requires comments/docs for those. Undocumented choice = Error. "Obvious" is not documentation.
 
 ### Performance
 
@@ -142,7 +142,7 @@ Source-visible cost is enough. Do not require a profiler unless the user asked o
 
 This is the required stance, not a soft overlay. Assume the in-scope solution cannot work. Do not stop after the first flaw. Cite `Skeptic` in `Context`.
 
-- **Parts:** every in-scope unit — wrong default, off-by-one, silent swallow, copy-paste, tests that cannot fail, missing guard. Dumbest caller/operator error AND worst abuse + STRIDE at trust boundaries.
+- **Parts:** every in-scope unit — wrong default, off-by-one, silent swallow, copy-paste, tests that cannot fail, missing guard, a limit too tight for a capable host or too loose for its exposure. Dumbest caller/operator error AND worst abuse + STRIDE at trust boundaries.
 - **Whole:** composition — call-graph, shared state, ordering, contracts vs callers, tests that pass but do not prove the claim, requirements that hold per file but fail end-to-end, defects that exist only in the interplay of otherwise-correct pieces.
 - Hair in the soup counts. Isolated nits that violate §4 or become fatal in combination = Error. `none` only after both hunts ran and found nothing (say so in Sweep).
 

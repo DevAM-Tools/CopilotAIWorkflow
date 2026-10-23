@@ -17,6 +17,7 @@ Cover:
 - `null` / absence when the type allows it
 - concurrency when shared state exists
 - trust-boundary / misuse cases for public APIs
+- each limit (Section 4.2): at the limit, one above, a configured value out of range, and the default when unset
 
 ```text
 Wrong: [Arguments(0), (1), (2), … (int.MaxValue)] for Clamp
