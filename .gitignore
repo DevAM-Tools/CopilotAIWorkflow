@@ -399,9 +399,13 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Workflow history (plans, reviews, briefings, councils, illustrations, docs-repair ledgers).
+# Durable outcomes move to docs/ (tech-docs.md § Doc set); these folders stay local.
 /plans/
 /councils/
 /reviews/
+/illustrations/
+/docs-repair/
 
 # Temporary local experiments (Blazor Playwright demo, etc.)
 /tmp/

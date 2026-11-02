@@ -97,7 +97,9 @@ Version line restarts at **1.0.0** (not a continuation of 2.x). Package historie
 Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
 - No implementation before plan approval.
-- Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate.
+- Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate, docs-repair.
+- Docs move with code: a small doc set (README, architecture with a one-screen Overview, concepts, domain, decision records); agents read in tiers before acting, so context stays small; the architecture is a contract; learned knowledge lands in its home in the same run; contract doc comments on every item with Related links by meaning or dependency (never usages); an Impact search before edits and a Sync check before anything is done ([`tech-docs.md`](.github/skills/tech-docs.md)).
+- Every editing run ends with the same run report, also when it stops early: what is **not done** comes first, then decisions, problems, and deviations. Questions carry context and always allow a free-text answer (`copilot-instructions.md` Section 4.16).
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
 - Plans lock the implementation (Before/After) so a weaker agent can execute them; reviews lock the fix the same way (`How` + Problem/Fix). Prefer snippets over prose in those artifacts; extra illustration code is welcome. Chat may use natural prose.
@@ -114,10 +116,11 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
 | [`.claude/skills/`](.claude/skills/) | The one skill pointer set → `.github/skills/`; read by Claude Code, Cursor, and VS Code (GitHub Copilot) |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code bootstrap (imports the SSOT instructions; tool mapping) |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
+| [`docs/architecture.md`](docs/architecture.md) | Components of this repository, where they are, and what is easy to miss when changing them |
 
 ---
 
@@ -169,15 +172,19 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs` |
 | `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
+| `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set, reading tiers, architecture as contract, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, language contract, Impact search, Sync check |
+| `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide |
+| `tech-instructions.md` | Instructions, skills, prompts, or pointer files in scope — authoring rules, compaction without loss, workflow-kit change coupling |
+| `workflow-docs-repair.md` | `/docs-repair`; realign docs with code in an existing project; decision cards; resumable ledger |
 | `workflow-port-dotnet-rust.md` | `/port-dotnet-rust`; intake, alignment into `port/MANIFEST.md`, closing audit |
 | `workflow-port-dotnet-rust-loop.md` | `/port-dotnet-rust-loop`; autonomous unit loop with balanced books |
 | `workflow-requirements.md` | `/requirements`; atomic `REQ-<AREA>-<TOPIC>` list; also before `/plan` when none exist |
 | `workflow-plan.md` | `/plan` |
-| `workflow-implement.md` | `/implement`; extensive briefing; Closing Exam |
+| `workflow-implement.md` | `/implement`; docs per step; extensive briefing; Closing Review |
 | `workflow-review.md` | `/review`; file mode default; `chat only` opt-in; public-release verdict |
 | `workflow-review-loop.md` | `/review-loop`; default full clean (all buckets) |
-| `workflow-complex-task.md` | `/complex-task`; defers nits; Exam after Error-clean |
-| `workflow-council.md` | `/council`; Sweep on `/plan` (five views); `/review` uses Skeptic + Outsider only |
+| `workflow-complex-task.md` | `/complex-task`; defers nits; Closing Review after Error-clean |
+| `workflow-council.md` | `/council`; Sweep on `/plan` (five views); `/review` uses Skeptic + Outsider only; Exam on request |
 | `workflow-commit-message.md` | `/commit-message`; complete message; git after the file is out of scope |
 | `workflow-illustrate.md` | `/illustrate`; HTML zip; ask before vendoring libraries into `vendor/` |
 
@@ -187,7 +194,7 @@ Always-on policy: [`.github/copilot-instructions.md`](.github/copilot-instructio
 (terms in §5.1). Skills load only on trigger. Do not record instruction line
 counts here.
 
-Existing files under `plans/` or `reviews/` are historical unless the user names one. Follow the matching workflow-skill templates, not those artifacts.
+`plans/`, `reviews/`, `councils/`, `illustrations/`, and `docs-repair/` are git-ignored workflow history. Existing files there are historical unless the user names one. Follow the matching workflow-skill templates, not those artifacts.
 
 ---
 
@@ -196,25 +203,28 @@ Existing files under `plans/` or `reviews/` are historical unless the user names
 Stages live in workflow skills only. Prompts do not repeat them.
 
 - **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`); context prose has no IDs; skip reinventing when the user already supplied them
-- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, an **Expected Experience** section right after Step Overview (per phase when the plan has phases), linked Step Overview / checklist / test index rows, then a requirements walk **and** a conversation walk, Requirements-fit
+- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, an **Expected Experience** section right after Step Overview (per phase when the plan has phases), linked Step Overview / checklist / test index rows, an Impact search and a required `Docs` field per step, then a requirements walk **and** a conversation walk, Requirements-fit; Grill Me questions carry context, why it matters, options with consequences, and a recommendation
 - **Implement:** `workflow-implement.md` — read the plan in full, execute steps
-  and `TEST-<AREA>-<TOPIC>` content, verify requirements at step close (tick
-  `Met` in the linked requirements file), tick accepted finding Status in the
-  review Summary together with the finding Status line, extensive **briefing**
-  (file cards are Section 4.6 links), Closing Exam, and an **Open-Items
-  Report** in chat on every exit (decisions, problems, open items)
+  and `TEST-<AREA>-<TOPIC>` content, update the step’s docs and run the Sync
+  check, verify requirements at step close (tick `Met` in the linked
+  requirements file), Step `{n}R` on the step’s change, tick accepted finding
+  Status in the review Summary together with the finding Status line,
+  extensive **briefing** (file cards are Section 4.6 links), one full-scope
+  **Closing Review** (Exam only on request), and a **run report** in chat on
+  every exit (not done, needs you, problems, deviations)
 - **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
   public-release verdict for the **scope**; Summary Findings table has a
   Status column (`⬜` at write time; `/implement` ticks it) and links each
   finding ID to its block, plus a
-  hunt-results table; ignore prior `reviews/review_*.md`
+  hunt-results table (Docs code and Docs project are separate hunts); ignore prior `reviews/review_*.md`
   unless named; Section 3 skill load; locked finding `How` with Problem/Fix
   before/after code (extra illustration snippets welcome); Section 4.6 links;
   **default** runs tests and writes `reviews/review_<slug>_<n>.md`; static on
   explicit reduced scope; `chat only` / `ohne Review-Datei` opt-in
 - **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until zero findings in all buckets unless deferred (no plan required); `errors only` on request
-- **Complex-task:** `workflow-complex-task.md` — requirements (if needed) → plan → checkpoint → implement/review loop → one Closing Exam
-- **Council:** `workflow-council.md` — five views in the **same agent** (no subagents); Sweep in `/plan`; Lite/Full on `/council`; Exam after implement
+- **Complex-task:** `workflow-complex-task.md` — requirements (if needed) → plan → checkpoint → implement with step reviews → one Closing Review
+- **Council:** `workflow-council.md` — five views in the **same agent** (no subagents); Sweep in `/plan`; Lite/Full on `/council`; Exam on request after the Closing Review
+- **Docs-repair:** `workflow-docs-repair.md` — existing projects: inventory docs and code units, audit each unit’s claims against code and tests, fix doc-side drift when evidence decides, ask with self-contained `DRIFT-<AREA>-<TOPIC>` decision cards when it does not, hand code-side fixes to `/implement` as findings, backfill doc comments with Related links, the architecture Overview and component sections, concepts, and the domain doc; resumable ledger in `docs-repair/<slug>.md` (git-ignored; durable answers move to `docs/`)
 - **Commit-message:** `workflow-commit-message.md` — named scope, complete specific message (names, before/after, examples) in `commit_message.md`; `CHANGELOG.md` when the scope is a release; git after the file is out of scope
 - **Illustrate:** `workflow-illustrate.md` — HTML zip, no build; asks before
   vendoring allowlisted libraries (download into `vendor/`, relative paths,
@@ -231,11 +241,11 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/port-dotnet-rust`, or `/port-dotnet-rust-loop` in chat |
+| Slash commands | Type `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, or `/port-dotnet-rust-loop` in chat |
 | Agent skills | Cursor loads `.claude/skills/` for compatibility; each points to `.github/skills/` SSOT. Do not add `.cursor/skills/` — Cursor would list every skill twice |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
-Natural-language triggers (`plan this feature`, `capture requirements`, `review the PR`, `council this`, `commit message for staged`, `illustrate this API`) work the same as slash commands per `copilot-instructions.md` Section 6.
+Natural-language triggers (`plan this feature`, `capture requirements`, `review the PR`, `council this`, `commit message for staged`, `illustrate this API`, `repair the docs`) work the same as slash commands per `copilot-instructions.md` Section 6.
 
 ---
 
