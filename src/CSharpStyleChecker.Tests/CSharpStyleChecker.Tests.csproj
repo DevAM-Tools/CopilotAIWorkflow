@@ -12,5 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CSharpStyleChecker\CSharpStyleChecker.csproj" />
     <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+    <ProjectReference Include="..\InvariantStringHelper\InvariantStringHelper.csproj" />
   </ItemGroup>
 </Project>

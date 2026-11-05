@@ -2,6 +2,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
@@ -16,6 +18,52 @@ internal static class AnalyzerVerifier
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         await VerifyAsync<TAnalyzer>(source, null, expected).ConfigureAwait(false);
+    }
+
+    /// <summary>Verifies analyzer diagnostics for in-memory source compiled against the given framework references.</summary>
+    /// <param name="source">The test source, with diagnostic markup.</param>
+    /// <param name="referenceAssemblies">The framework the source is compiled against, for example <c>netstandard2.0</c>.</param>
+    /// <param name="expected">The diagnostics the analyzer must report.</param>
+    public static async Task VerifyOnFrameworkAsync<TAnalyzer>(
+        string source,
+        ReferenceAssemblies referenceAssemblies,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        CSharpAnalyzerTest<TAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = source,
+            ReferenceAssemblies = referenceAssemblies,
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+        await test.RunAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>Verifies analyzer diagnostics for in-memory source compiled with a fixed C# language version.</summary>
+    /// <param name="source">The test source, with diagnostic markup.</param>
+    /// <param name="languageVersion">The language version the source is parsed and compiled with.</param>
+    /// <param name="expected">The diagnostics the analyzer must report.</param>
+    public static async Task VerifyOnLanguageVersionAsync<TAnalyzer>(
+        string source,
+        LanguageVersion languageVersion,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        CSharpAnalyzerTest<TAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = source,
+        };
+
+        test.SolutionTransforms.Add((solution, projectId) =>
+        {
+            // Invariant: the test project is a C# project, so project and parse options exist.
+            CSharpParseOptions parseOptions = (CSharpParseOptions)solution.GetProject(projectId)!.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parseOptions.WithLanguageVersion(languageVersion));
+        });
+
+        test.ExpectedDiagnostics.AddRange(expected);
+        await test.RunAsync().ConfigureAwait(false);
     }
 
     /// <summary>Verifies analyzer diagnostics with optional additional source files.</summary>

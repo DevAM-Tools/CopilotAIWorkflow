@@ -9,5 +9,8 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     <PackageVersion Include="TUnit" Version="1.56.0" />
+    <!-- Transitive pin (CentralPackageTransitivePinningEnabled): Analyzer.Testing pulls 9.0.6, which has a known denial-of-service advisory
+         (GHSA-846f-f764-76mx, NU1903). 9.0.21 is the patched 9.0.x release. User approved. -->
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ Load when `*.cs` is in scope. C# mechanisms for Section 4. Section order matches
 - Target `net10.0`, C# 14. Source generators: `netstandard2.0` (`tech-sourcegen.md`).
 - Apply `tech-solution.md` build settings (nullable, analyzers, warnings as errors).
 - ❗ Reference CSharpStyleChecker `1.*` in every SDK-style project (`tech-solution.md`).
+- ❗ Reference InvariantStringHelper `1.*` in every SDK-style project that targets `net6.0` or later and interpolates strings (`tech-solution.md`).
 - Line length 160 (`.cs`, `.razor`, `.razor.cs`, `.css`); 4 spaces, no tabs.
 
 ## Naming
@@ -26,7 +27,10 @@ Load when `*.cs` is in scope. C# mechanisms for Section 4. Section order matches
 ## Style
 
 - ❗ Pass `CultureInfo.InvariantCulture` to every parse and format call unless another locale is required.
-- Interpolate with `Invariant($"…")` (`global using static System.FormattableString;`). On hot paths use `string.Create(CultureInfo.InvariantCulture, $"…")` or `StringBuilder.Append(CultureInfo.InvariantCulture, $"…")`.
+- ❗ Interpolate with `Invariant($"…")` from the InvariantStringHelper package (`global using static InvariantStringHelper.InvariantText;`).
+- ❗ Interpolate into a `StringBuilder` with `Append(CultureInfo.InvariantCulture, $"…")`.
+- ❗ Never write a bare `$"…"` or `FormattableString.Invariant` in a `net6.0` or later project (CSC009).
+- In a `netstandard2.0` project (analyzer, generator) write `Invariant($"…")` with `global using static System.FormattableString;`.
 
 ```csharp
 string message = Invariant($"Rejection rate: {rate:P1}, count={count}");
@@ -160,6 +164,7 @@ ExportLog.ExportRejected(_Logger, name, reason);
 ```
 
 - `IDE1006`: never `NoWarn`; configure the root `.editorconfig` (`tech-solution.md`).
+- `IDE0005` (unnecessary using) is raised to error in the root `.editorconfig` (`tech-solution.md` § Raising a diagnostic to error).
 
 ## Comments and docs
 

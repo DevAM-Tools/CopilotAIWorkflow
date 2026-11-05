@@ -2,6 +2,35 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.2.0
+
+Package release notes (full detail):
+
+| Package | Version | Changelog |
+|---------|---------|-----------|
+| CSharpStyleChecker | 1.2.0 | [src/CSharpStyleChecker/CHANGELOG.md](src/CSharpStyleChecker/CHANGELOG.md) |
+| ExitPointGaps | 1.1.1 | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
+| InvariantStringHelper | 1.0.0 (new) | [src/InvariantStringHelper/CHANGELOG.md](src/InvariantStringHelper/CHANGELOG.md) |
+
+### Workflow kit
+
+- `tech-solution.md` § Raising a diagnostic to error: raise single diagnostics by ID in the root `.editorconfig`, never by category or analysis level. `IDE0005` (unnecessary using) becomes an error; it can miss unused `global using` entries, so `/review` still checks `GlobalUsings.cs` for unused entries and order.
+
+### InvariantStringHelper (new, 1.0.0)
+
+- `Invariant($"…")` formats an interpolated string under the invariant culture and allocates only the result string. Targets `net6.0` and `net10.0`; no dependencies; `netstandard2.0` is not supported.
+
+### CSharpStyleChecker
+
+- **Breaking:** on .NET 6 and later CSC009 now reports `FormattableString.Invariant($"…")` and `Invariant($"…")` imported through `using static System.FormattableString;`; 1.1.0 accepted both. Reference InvariantStringHelper and change the one `using` to `global using static InvariantStringHelper.InvariantText;`; the call sites stay. `string.Create(CultureInfo.InvariantCulture, $"…")` is also accepted. `netstandard2.0` projects are unaffected.
+- **Update required for projects that use InvariantStringHelper:** CSharpStyleChecker 1.1.0 reports the helper's `Invariant($"…")` as CSC009 and recommends the very call it rejects. 1.2.0 accepts the helper (recognized by symbol, not by name) and its CSC009 messages on .NET 6 and later recommend the package; `string.Create` stays accepted but is no longer suggested.
+- The advice follows what the compilation can do, not the project's name: the package is recommended only on .NET 6 and later with C# 10 or later. `netstandard2.0`, `netstandard2.1`, .NET Framework, .NET 5, and a .NET 6 project pinned to C# 9 keep `FormattableString.Invariant`, and CSC009 names it there.
+- Fix: an interpolated string in parentheses as a handler argument is no longer reported.
+
+### ExitPointGaps
+
+- Uses `Invariant($"…")` from InvariantStringHelper (was `FormattableString.Invariant`); the tool package ships the helper assembly. CLI surface and schema unchanged.
+
 ## 1.1.0
 
 Package release notes (full detail):
@@ -25,6 +54,34 @@ Package release notes (full detail):
 
 ### Agent workflow
 
+- Section 4.6 holds the documentation rules itself; `tech-docs.md` adds details and checks:
+  - **Doc set:** `README.md` and `docs/architecture.md` are the minimum. `docs/concepts.md` (ideas of the solution across components), `docs/domain.md` (problem world: glossary, rules with source, external facts), and decision records in `docs/decisions/` are created with their first fact. Each has a one-line test for what belongs there.
+  - **Reading tiers:** agents always read the README and the one-screen architecture **Overview**, then only the component sections in scope and the concept, domain, and decision entries for the task’s terms. Context stays small.
+  - **Architecture as a contract:** the Overview lists allowed dependencies. A broken boundary, dependency, flow, or invariant needs user agreement, an architecture update, and a decision record; otherwise it is a defect.
+  - **Docs move with code:** knowledge learned in a run lands in its home in the same run. **Impact search** before an edit, **Sync check** before ✅.
+  - **Doc comments:** on every type and member, private included, stating the contract.
+  - **References:** **Related** links only items bound in meaning, items this one depends on, and items easy to forget; never call sites. Couplings the compiler cannot check get `Sync:` at both ends, and the architecture component section names them under **Easy to miss**. No separate navigation file.
+  - **Inline comments:** why and flow, never obvious syntax; tags `Invariant:`, `Perf:`, `Security:`, `Sync:`; no history; no file header; named sections in large files.
+  - **Language contract:** every language skill defines its doc form, checked link, section marker, and doc lint.
+  - **Templates:** `tech-docs-templates.md` holds README, architecture (Overview plus component sections), concepts, domain, decision record, and guide.
+- The C#, Rust, and Python skills add the mechanism:
+  - C#: XML docs with `<seealso cref>` on every member.
+  - Rust: `# Related` sections, `missing_docs_in_private_items`, and `rustdoc::broken_intra_doc_links`.
+  - Python: `Related:` docstring sections and private docstrings.
+  - Section markers: `#region` / `// region:` / `# region`. Sections group members by content (one responsibility or flow stage with its state and helpers), never by member kind; C# drops the fixed `Fields` / `Lifecycle` / `Public API` / `Private helpers` regions.
+  - Skill examples use a neutral invoice-import domain instead of the repository’s own tools.
+- `.gitignore` adds `/illustrations/` and `/docs-repair/` to the ignored workflow history (`/plans/`, `/councils/`, `/reviews/`).
+- New `/docs-repair` (`workflow-docs-repair.md`) for existing projects. It inventories docs and code units and audits each unit’s claims against code and tests. Drift is classified (`doc-stale`, `doc-missing`, `doc-misplaced`, `doc-orphan`, `comment-stale`, `code-drift`, `conflict`, `why-unknown`). Doc-side drift is fixed when the evidence decides. Self-contained `DRIFT-<AREA>-<TOPIC>` decision cards go to a person when it does not. Code-side fixes go to `/implement` as findings. The workflow backfills doc comments with Related links, the architecture Overview and component sections, concepts, and the domain doc. It keeps a resumable ledger in `docs-repair/<slug>.md`; durable answers move to `docs/`.
+- Section 4.16 becomes **Run reports, blockers, and questions**:
+  - **Run report:** every run of an editing workflow (`/implement`, `/review-loop`, `/complex-task`, `/docs-repair`, `/port-dotnet-rust-loop`) ends with the same report on every exit: Outcome, **Not done** (first, never in passing), Needs you, Problems, Deviations. Empty sections say `none`. It replaces the implement Open-Items Report.
+  - **Blocker kinds:** a requirement not met, a conflict, and a failed check each state what a person needs to judge them (Done-when and observation; both sides quoted and the side followed; command and key output).
+  - **Question form:** context starts with the task and where the run stands; options are suggestions, and a free-text answer is always possible. A choice tool without free text is not used; the question goes to chat. The `/plan` and `/requirements` Grill Me templates follow it.
+- Status legend (Section 5) adds `🚧` **Started / In progress**. `⚠️` now means only at risk or blocked. `/implement`, `/review-loop`, and `/complex-task` set `🚧` when work on an item starts, `⚠️` only when a blocker stops it, and resume at `⚠️`, then `🚧`, then `⬜`.
+- `/plan`: Stage 1 reads the docs in tiers and runs the Impact search. A design that breaks the architecture is a Grill Me question. Every step has a required `Docs` field. Target Solution has a **Doc delta**. Coverage adds a doc check.
+- `/implement`: per step: edit → docs → Sync check → `Verify` → Step `{n}R`, scoped to the step’s change, which may reuse the step’s `Verify` run. The automatic Closing Exam is replaced by one full-scope **Closing Review** (`reviews/review_<slug>-closing_<n>.md`). It adds the Closing hunts: requirements end to end, “Verify proves”, leftovers, and briefing claims. Exam runs only on request after the Closing Review. `/complex-task` and `/council` follow.
+- `/review`: a **Docs** hunt runs the Sync check and checks architecture conformance (a silent break is an Error even when the code works); Summary Checks splits `Docs` into `Docs code` and `Docs project` and adds `Closing requirements` and `Closing verify`.
+- New `tech-instructions.md`: authoring rules for instructions and skills (imperative one-rule bullets, one home per rule, compaction without lost rules) and the workflow-kit change-coupling table. `copilot-instructions.md` is compacted: duplicate rules are merged, and no rule was dropped.
+- This repository has an [architecture doc](docs/architecture.md) with an Overview and **Easy to miss** couplings per component.
 - Plan test content IDs are `TEST-<AREA>-<TOPIC>`. The ID names the case.
   A case that proves a requirement reuses that requirement’s area and, when
   it is that one claim, its topic (`REQ-EXPORT-NO-DUPLICATE` →
@@ -33,11 +90,25 @@ Package release notes (full detail):
 - `/review` Summary is structured: release line, counts, a findings table, a checks table (one row per hunt), and a priority list.
 - `/review` Summary **Findings** has a Status column (Section 5 legend). A new
   review starts each row at `⬜`. `/implement` sets that cell and the finding
-  Status line together (`⚠️` before the edit, `✅` after Verify). **Release**
+  Status line together (`🚧` before the edit, `⚠️` when a blocker stops it, `✅` after Verify). **Release**
   and **Counts** stay the review-time verdict. A deferred finding stays `⬜`.
 - `/requirements` IDs are `REQ-<AREA>-<TOPIC>` (the ID names the subject). The artifact is an atomic, contradiction-free list. Headings, context, and notes do not get IDs.
 - Plan and review artifacts welcome extra illustrative code. Plans prefer snippets over a prose-only `How` or Target Solution. Review findings keep fenced Problem/Fix (before/after) as the primary handoff.
 - Section 4.6: file references in plans, briefings, reviews (and other non-temp docs) are clickable Markdown links with a relative target that opens. Bare backticks and absolute paths are not enough.
+- `/implement` ends every run, complete or not, with the run report in chat (Stage 6, Section 4.16), each item linked. The briefing mirrors it in **Open**. `/complex-task` and `/review-loop` report once at their end or first stop.
+- `/plan` writes **Expected Experience** directly after Step Overview: one `Result` block, or one block per phase that aggregates the step Experience (`Steps`, `After this phase a person can`, `They should see`, `How to try`, `Not yet`). `/implement` runs the phase `How to try` at phase close.
+- Plan Step Overview, Task Checklist, and Test cases index link to the step and test blocks. `/review` Findings Overview, Summary **Findings**, and **Priority** link each finding ID to its block.
+- Section 4.2 **Trust-boundary limits**: each limit names its threat; host-dependent values are configurable with a validated range and owner (code, operator, end user); each limit is labeled **secure by default** or **open by default** with a reason; end-user settings explain what, why, unit, range, default, and risk; a hit limit is a named error. Every security decision is commented where the code enforces it (threat, mitigation, rejected alternative, residual risk). `/requirements`, `/plan` (limits table in Target Solution), `/review`, council Skeptic, `tech-test.md`, `tech-web.md` (limit settings), and the C#, Rust, and Python skills follow it.
+- Section 4.12 becomes **API Design and Misuse Prevention** and covers public and internal APIs. Goal: the caller cannot use an API wrongly, and the whole API set gives one clear way to do each task.
+  - An API that can be misused is an Error. Preferred order: misuse does not compile; misuse is obviously wrong at the call site; misuse fails at run time with a named error. Named misuse sources: arguments that compile in the wrong order, flags that do not read at the call site, an unenforced call order, hidden effect or cost behind a property or getter-shaped name, a name with two meanings or look-alike names with different behavior, a surprising default, ownership the signature does not show.
+  - **State-dependent use is the last resort.** Prefer stateless operations or types that encode the state. When it is unavoidable, the plan says why, each member documents its valid states, and a call in the wrong state fails with a named error.
+  - **Coherent API:** the API set has no contradictions. Before adding an API, the existing ones for the same or a close task are extended or generalized. A parallel path (overload, wrapper, alias, sync/async pair, old and new shape) needs a caller need the existing path cannot meet and is weighed in Grill Me. Siblings share naming, parameter order, defaults, and error form; one word means one thing.
+  - **Narrow surface:** no public member, parameter, or extension point without a named caller need.
+  - **No type explosion:** misuse is fixed with the cheapest means first (clear name, named argument, parameter order, keyword-only). A new type needs an invariant, a third value or mutually exclusive choice, or use across several APIs; never one type per parameter or per `bool`. A single `bool` named for what `true` does is fine.
+  - **Call-site test:** planning and review write the intended call and the most likely wrong call; the wrong call must not compile or must fail by name.
+  - `/review` adds an **API** hunt that also covers pre-existing code in the reviewed files: call-site test, misuse sources, state dependence (avoidable = Error), parallel paths (different behavior or a new unweighed path is an Error, pre-existing redundancy a Refactoring), drift between siblings, surface. The Fix names the path that stays, how the others map onto it, and whether public callers break.
+  - `/plan` asks whether a new API extends an existing one or adds a parallel path, and **API and interfaces** lists each likely wrong call with how it is rejected and the valid states of state-dependent members. `/implement` Align checks those lines and adds no unlisted API. `tech-test.md` requires a test per documented wrong call.
+  - The C#, Rust, and Python skills add the mechanism (options type over overload ladders, clearly named `bool` parameters stay allowed, enums only for mutually exclusive choices, distinct types for same-typed parameters only for domain values with an invariant, typestate or factory instead of state-guarded members, cheap getters). The council Outsider flags two ways to do one task and calls that are easy to get wrong.
 - Chat handover is not global. Each workflow skill’s Completion (or Output Modes) defines the ending.
 - `/review-loop` default is full clean: remediate every bucket, then stop only when the latest review has zero open findings (or explicit deferrals). `/complex-task` still defers Cosmetic, Refactoring, and Performance so the plan can finish and Exam can run.
 - `/review` file mode is the default for standalone `/review` as well as

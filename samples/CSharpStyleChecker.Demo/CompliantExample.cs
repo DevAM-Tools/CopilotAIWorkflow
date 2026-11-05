@@ -12,6 +12,7 @@ internal static class CompliantExample
     {
         StringBuilder builder = new();
         builder.Append(_Seed);
+        // CSC009: netstandard2.0 has no string.Create handler overload, so Invariant is the invariant interpolation here.
         _ = Invariant($"seed={_Seed}");
         _ = _Seed.ToString(CultureInfo.InvariantCulture);
         return left + right + _Seed + _Values.Count;

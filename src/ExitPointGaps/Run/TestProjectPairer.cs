@@ -57,13 +57,17 @@ internal static class TestProjectPairer
         string productionName = Path.GetFileNameWithoutExtension(productionProjectPath);
         string parentDirectory = Path.GetDirectoryName(productionDirectory) ?? productionDirectory;
 
-        string underParent = Path.Combine(parentDirectory, Invariant($"{productionName}.Tests"), Invariant($"{productionName}.Tests.csproj"));
+        // Sibling convention: <Name>.Tests/<Name>.Tests.csproj, next to or below the production project folder.
+        string testsFolder = Invariant($"{productionName}.Tests");
+        string testsProject = Invariant($"{productionName}.Tests.csproj");
+
+        string underParent = Path.Combine(parentDirectory, testsFolder, testsProject);
         if (File.Exists(underParent))
         {
             return Path.GetFullPath(underParent);
         }
 
-        string underSame = Path.Combine(productionDirectory, Invariant($"{productionName}.Tests"), Invariant($"{productionName}.Tests.csproj"));
+        string underSame = Path.Combine(productionDirectory, testsFolder, testsProject);
         if (File.Exists(underSame))
         {
             return Path.GetFullPath(underSame);

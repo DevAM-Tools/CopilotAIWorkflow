@@ -10,5 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ExitPointGaps\ExitPointGaps.csproj" />
     <ProjectReference Include="..\ExitPoints\ExitPoints.csproj" />
+    <ProjectReference Include="..\InvariantStringHelper\InvariantStringHelper.csproj" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 NuGet packages from [CopilotAIWorkflow](https://github.com/DevAM/CopilotAIWorkflow) — agent workflow tooling with mechanical quality gates.
 
-**Release 1.1.0** — **CSharpStyleChecker** ships **CSC009** plus CSC001–CSC008 fixes; **ExitPointGaps** aligns with CSC009. Version line restarted at 1.0.0 (not a continuation of the pre-rebrand 2.x line).
+**Release 1.2.0** — **InvariantStringHelper** 1.0.0 is new; **CSharpStyleChecker** 1.2.0 accepts and recommends it in CSC009 (1.1.0 rejects the helper); **breaking on .NET 6+:** CSC009 now also rejects `FormattableString.Invariant`; **ExitPointGaps** 1.1.1 uses the helper. 1.1.0 shipped **CSC009** plus CSC001–CSC008 fixes. Version line restarted at 1.0.0 (not a continuation of the pre-rebrand 2.x line).
 
 ## CSharpStyleChecker
 
@@ -15,6 +15,22 @@ Roslyn analyzer enforcing C# style as **compiler errors** (CSC001–CSC009). Add
 Analyzers load from `analyzers/dotnet/cs` (includes bundled `ExitPoints.dll`). See [README.md — CSharpStyleChecker](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#csharpstylechecker).
 
 **Replaces:** `CSharpStyleValidator` (rule IDs CSV* → CSC*).
+
+## InvariantStringHelper
+
+Invariant-culture string interpolation for .NET 6 and later that allocates only the result string.
+
+```xml
+<PackageReference Include="InvariantStringHelper" Version="1.*" />
+```
+
+```csharp
+global using static InvariantStringHelper.InvariantText;
+
+string message = Invariant($"Rejection rate: {rate:P1}, count={count}");
+```
+
+No dependencies. `netstandard2.0` is not supported. Together with **CSharpStyleChecker** use 1.2.0 or later: 1.1.0 reports the call as CSC009. See [README.md — InvariantStringHelper](https://github.com/DevAM/CopilotAIWorkflow/blob/main/README.md#invariantstringhelper).
 
 ## ExitPointGaps
 
@@ -54,6 +70,7 @@ Details: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [E
 | Package | Consumer / host | Notes |
 |---------|-----------------|-------|
 | CSharpStyleChecker | SDK-style `netstandard2.0`+ or .NET Core App | .NET SDK 9.0.300+ or VS 2022 17.14+ (Roslyn 4.14) |
+| InvariantStringHelper | SDK-style `net6.0`+ | No dependencies; `netstandard2.0` is not supported |
 | ExitPointGaps | .NET SDK 10.0 | Local tool manifest; not a project reference |
 | This repository | .NET SDK 10.0 | `global.json` pins 10.0.100 |
 

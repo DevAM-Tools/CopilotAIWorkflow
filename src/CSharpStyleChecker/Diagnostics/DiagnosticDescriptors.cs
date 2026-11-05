@@ -104,9 +104,11 @@ internal static class DiagnosticDescriptors
         "Style",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Interpolated strings must use FormattableString.Invariant (or string.Create / "
-            + "StringBuilder.Append with CultureInfo.InvariantCulture). Culture-sensitive ToString must "
-            + "pass CultureInfo.InvariantCulture.");
+        description: "Interpolated strings must use Invariant($\"…\") from the InvariantStringHelper package, or "
+            + "StringBuilder.Append with CultureInfo.InvariantCulture for builders (no extra allocation). string.Create with "
+            + "CultureInfo.InvariantCulture is accepted as well. FormattableString.Invariant is accepted only on targets without "
+            + "string.Create (netstandard2.0) because it allocates a FormattableString and boxes its arguments. "
+            + "Culture-sensitive ToString must pass CultureInfo.InvariantCulture.");
 
     /// <summary>All rule descriptors.</summary>
     public static IReadOnlyList<DiagnosticDescriptor> All { get; } = new DiagnosticDescriptor[]

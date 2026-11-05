@@ -186,6 +186,51 @@ internal sealed class LineMaskingTests
     }
 
     [Test]
+    public async Task MaskLineInterpolatedEscapedBracesAreNotHoles()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("s = $\"a{{b}}c\";", default);
+
+        await Assert.That(masked).IsEqualTo("s = $\"\";");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+    }
+
+    [Test]
+    public async Task MaskLineVerbatimInterpolatedWithDollarFirstMasksContentAndDoubledQuote()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("s = $@\"abc\"\"def\";", default);
+
+        await Assert.That(masked).IsEqualTo("s = $@\"\";");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+    }
+
+    [Test]
+    public async Task MaskLineInterpolatedEscapedQuoteDoesNotCloseString()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("s = $\"a\\\"b\";", default);
+
+        await Assert.That(masked).IsEqualTo("s = $\"\";");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+    }
+
+    [Test]
+    public async Task MaskLineInterpolatedBackslashAtEndOfLineKeepsStringOpen()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("s = $\"abc\\", default);
+
+        await Assert.That(masked).IsEqualTo("s = $\"");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.Interpolated);
+    }
+
+    [Test]
+    public async Task MaskLineRawInterpolatedStringIsMaskedToItsDelimiters()
+    {
+        (string masked, LineMaskState state) = LineMasking.MaskLine("s = $\"\"\"text {x}\"\"\";", default);
+
+        await Assert.That(masked).IsEqualTo("s = $\"\"\"\"\"\";");
+        await Assert.That(state.OpenString).IsEqualTo(LineStringKind.None);
+    }
+
+    [Test]
     public async Task MaskLineQuoteInsideBlockCommentDoesNotOpenString()
     {
         (string masked, LineMaskState state) = LineMasking.MaskLine("/* \"not a string\" */ int x = 1;", default);

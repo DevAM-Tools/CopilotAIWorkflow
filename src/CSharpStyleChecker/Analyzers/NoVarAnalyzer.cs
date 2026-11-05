@@ -82,22 +82,15 @@ public sealed class NoVarAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeForEachVariable(SyntaxNodeAnalysisContext context)
     {
-        if (context.Node is not ForEachVariableStatementSyntax statement)
-        {
-            return;
-        }
+        // Registered for ForEachVariableStatement only, so the cast cannot fail.
+        ForEachVariableStatementSyntax statement = (ForEachVariableStatementSyntax)context.Node;
 
+        // The deconstruction target of a foreach holds declaration expressions, never variable declarations; report the first var once.
         foreach (SyntaxNode node in statement.Variable.DescendantNodesAndSelf())
         {
             if (node is DeclarationExpressionSyntax { Type.IsVar: true } declaration)
             {
                 Report(context, declaration.Type.GetLocation());
-                return;
-            }
-
-            if (node is VariableDeclarationSyntax { Type.IsVar: true } variableDeclaration)
-            {
-                Report(context, variableDeclaration.Type.GetLocation());
                 return;
             }
         }

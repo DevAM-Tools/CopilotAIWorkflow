@@ -1,18 +1,19 @@
 # CopilotAIWorkflow
 
-Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement and exit-point coverage.
+Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement, invariant string interpolation, and exit-point coverage.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CSharpStyleChecker](https://img.shields.io/nuget/v/CSharpStyleChecker)](https://www.nuget.org/packages/CSharpStyleChecker/)
 [![ExitPointGaps](https://img.shields.io/nuget/v/ExitPointGaps)](https://www.nuget.org/packages/ExitPointGaps/)
+[![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
 
-**Release 1.1.0** — **CSharpStyleChecker** adds **CSC009** (invariant culture for interpolations / culture-sensitive `ToString`) and tightens CSC001–CSC008; **ExitPointGaps** aligns with CSC009. Package histories: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
+**Release 1.2.0** — **InvariantStringHelper** 1.0.0 is new (`Invariant($"…")` for .NET 6+); **CSharpStyleChecker** 1.2.0 accepts and recommends it in **CSC009** (1.1.0 rejects the helper, so projects that use it need 1.2.0 or later); **breaking on .NET 6+:** CSC009 now also rejects `FormattableString.Invariant` (see the [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md)); **ExitPointGaps** 1.1.1 uses the helper. 1.1.0 added **CSC009** (invariant culture for interpolations / culture-sensitive `ToString`) and tightened CSC001–CSC008. Package histories: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages). **InvariantStringHelper** 1.0.0 is new: `Invariant($"…")` for .NET 6+ ([InvariantStringHelper CHANGELOG](src/InvariantStringHelper/CHANGELOG.md)).
 
 ---
 
 ## Quickstart
 
-Two packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). No extra wiring: add **CSharpStyleChecker** or register **ExitPointGaps** as a local dotnet tool — `ExitPoints` ships inside **CSharpStyleChecker**; no second analyzer reference.
+Three packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). No extra wiring: add **CSharpStyleChecker** or **InvariantStringHelper** as a `PackageReference`, or register **ExitPointGaps** as a local dotnet tool — `ExitPoints` ships inside **CSharpStyleChecker**; no second analyzer reference.
 
 **Requires:**
 
@@ -76,6 +77,7 @@ CLI options: [ExitPointGaps](#exitpointgaps).
 | Package | Consumer TFM | Usage | Role |
 |---------|--------------|-------|------|
 | [CSharpStyleChecker](https://www.nuget.org/packages/CSharpStyleChecker/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSC001–CSC009); bundles `ExitPoints` |
+| [InvariantStringHelper](https://www.nuget.org/packages/InvariantStringHelper/) | `net6.0`+ | `PackageReference` | `Invariant($"…")`: invariant-culture interpolation that allocates only the result |
 | [ExitPointGaps](https://www.nuget.org/packages/ExitPointGaps/) | N/A (CLI) | Local `dotnet tool install` | `dotnet tool run exitpointgaps` — lists exit-point gaps |
 
 `ExitPoints` is not published separately; it is included in **CSharpStyleChecker**.
@@ -100,6 +102,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 - Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate, docs-repair.
 - Docs move with code: a small doc set (README, architecture with a one-screen Overview, concepts, domain, decision records); agents read in tiers before acting, so context stays small; the architecture is a contract; learned knowledge lands in its home in the same run; contract doc comments on every item with Related links by meaning or dependency (never usages); an Impact search before edits and a Sync check before anything is done ([`tech-docs.md`](.github/skills/tech-docs.md)).
 - Every editing run ends with the same run report, also when it stops early: what is **not done** comes first, then decisions, problems, and deviations. Questions carry context and always allow a free-text answer (`copilot-instructions.md` Section 4.16).
+- APIs cannot be used wrongly by accident and do not drift apart: misuse-prone shapes and state-dependent members are removed or justified, a new parallel path for an existing task is weighed in planning, and reviews find misuse-prone, redundant, or inconsistent APIs in existing code too (`copilot-instructions.md` Section 4.12).
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
 - Plans lock the implementation (Before/After) so a weaker agent can execute them; reviews lock the fix the same way (`How` + Problem/Fix). Prefer snippets over prose in those artifacts; extra illustration code is welcome. Chat may use natural prose.
@@ -282,6 +285,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 |---------|------|
 | [`CSharpStyleChecker`](src/CSharpStyleChecker/) | Roslyn analyzer NuGet (CSC001–CSC009) |
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
+| [`InvariantStringHelper`](src/InvariantStringHelper/) | NuGet library: `Invariant($"…")` for .NET 6+ |
 | [`ExitPointGaps`](src/ExitPointGaps/) | CLI + analysis — `dotnet tool run exitpointgaps` (`run` / `plan`; lists exit-point gaps) |
 | [`samples/CSharpStyleChecker.Demo`](samples/CSharpStyleChecker.Demo/) | `netstandard2.0` analyzer demo (CSC*), source generator, packed NuGet verification |
 
@@ -301,7 +305,7 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 | CSC006 | At most one exit point per source line per callable; `?:`, switch, `??`, `??=` allowed when arms are on separate lines. Covers methods, constructors, destructors, operators, conversions, accessors, expression-bodied properties and indexers, and local functions. Does not cover lambdas or anonymous methods. |
 | CSC007 | `volatile` fields: plain read/write allowed; `++`/`--`/`+=` require `Interlocked` |
 | CSC008 | Target-typed `new()` and `[]` (exempt: interface/base targets, polymorphic construction, ctor args, throw, non-collection-expression targets such as `ReadOnlyMemory<T>`) |
-| CSC009 | Interpolated strings must use `FormattableString.Invariant` / `Invariant($"…")` (or `string.Create` / `StringBuilder.Append` with `CultureInfo.InvariantCulture`); culture-sensitive `ToString` must pass `CultureInfo.InvariantCulture` |
+| CSC009 | Interpolated strings must use `Invariant($"…")` from the InvariantStringHelper package, `string.Create`, or `StringBuilder.Append` with `CultureInfo.InvariantCulture`; `FormattableString.Invariant` is an error where `string.Create` binds (.NET 6+) and allowed on `netstandard2.0`; culture-sensitive `ToString` must pass `CultureInfo.InvariantCulture` |
 
 XML documentation on public APIs is enforced by built-in **CS1591** when `GenerateDocumentationFile` and `TreatWarningsAsErrors` are enabled.
 
@@ -317,7 +321,23 @@ XML documentation on public APIs is enforced by built-in **CS1591** when `Genera
 dotnet build CopilotAIWorkflow.slnx -c Release
 ```
 
-Release build writes `.nupkg` files to `artifacts/` for packable projects (`ExitPointGaps`, `CSharpStyleChecker`).
+Release build writes `.nupkg` files to `artifacts/` for packable projects (`ExitPointGaps`, `CSharpStyleChecker`, `InvariantStringHelper`).
+
+---
+
+## InvariantStringHelper
+
+```xml
+<PackageReference Include="InvariantStringHelper" Version="1.*" />
+```
+
+```csharp
+global using static InvariantStringHelper.InvariantText;
+
+string message = Invariant($"Rejection rate: {rate:P1}, count={count}");
+```
+
+Formats under the invariant culture and allocates only the result string. Requires `net6.0` or later; `netstandard2.0` projects keep `FormattableString.Invariant`. Together with **CSharpStyleChecker** use 1.2.0 or later: 1.1.0 reports the call as CSC009. Why this form and not the alternatives: [decision record](docs/decisions/invariant-interpolation.md). Package history: [InvariantStringHelper CHANGELOG](src/InvariantStringHelper/CHANGELOG.md).
 
 ---
 

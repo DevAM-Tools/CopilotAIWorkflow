@@ -28,7 +28,7 @@ dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c R
 | `Violations/Csc006_MultipleExits.cs` | CSC006 | Multiple `return` statements on one line |
 | `Violations/Csc007_VolatileAccess.cs` | CSC007 | Non-atomic `++` on a `volatile` field |
 | `Violations/Csc008_TargetTypedCreation.cs` | CSC008 | Redundant explicit type (`new List<int>()`) |
-| `Violations/Csc009_InvariantCulture.cs` | CSC009 | Bare `$"…"` interpolation or culture-sensitive `ToString()` without `CultureInfo.InvariantCulture` |
+| `Violations/Csc009_InvariantCulture.cs` | CSC009 | Bare `$"…"` interpolation or culture-sensitive `ToString()` without `CultureInfo.InvariantCulture`. This sample targets `netstandard2.0`, so `FormattableString.Invariant` (`using static System.FormattableString;`) is the accepted fix here; on .NET 6+ use `Invariant($"…")` from the InvariantStringHelper package |
 
 To test a single rule, temporarily remove the other `.cs` files from `Violations/` or add a more specific `<Compile Remove="..."/>` in the `.csproj`.
 

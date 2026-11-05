@@ -277,6 +277,39 @@ public sealed class PrivateNamingAnalyzerTests
     }
 
     [Test]
+    public async Task PrivateNaming_LowercaseAfterUnderscore_ReportsCsc003()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private int {|#0:_count|};
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<PrivateNamingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.PrivateNaming).WithLocation(0).WithArguments("field", "_count"));
+    }
+
+    [Test]
+    public async Task PrivateNaming_CombiningMarkInName_ReportsCsc003()
+    {
+        // U+0301 (combining acute accent) is a legal identifier character, but neither a letter, a digit, nor connector punctuation.
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                private int {|#0:_Fóo|};
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<PrivateNamingAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.PrivateNaming).WithLocation(0).WithArguments("field", "_Fóo"));
+    }
+
+    [Test]
     public async Task PrivateNaming_FieldInsidePublicNestedType_ReportsCsc003()
     {
         const string source = Usings + """

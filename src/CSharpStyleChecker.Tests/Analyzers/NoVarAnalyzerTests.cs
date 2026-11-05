@@ -153,6 +153,23 @@ public sealed class NoVarAnalyzerTests
     }
 
     [Test]
+    public async Task NoVarOutExplicitTypeNoDiagnostic()
+    {
+        const string source = Usings + """
+            namespace N;
+            public class C
+            {
+                public bool M(string text)
+                {
+                    return int.TryParse(text, out int parsed);
+                }
+            }
+            """;
+
+        await AnalyzerVerifier.VerifyAsync<NoVarAnalyzer>(source);
+    }
+
+    [Test]
     public async Task NoVarForeachDeconstructionVarReportsCsc002()
     {
         const string source = Usings + """

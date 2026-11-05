@@ -10,5 +10,7 @@
     <Project Path="src/CSharpStyleChecker/CSharpStyleChecker.csproj" />
     <Project Path="src/ExitPoints.Tests/ExitPoints.Tests.csproj" />
     <Project Path="src/ExitPoints/ExitPoints.csproj" />
+    <Project Path="src/InvariantStringHelper.Tests/InvariantStringHelper.Tests.csproj" />
+    <Project Path="src/InvariantStringHelper/InvariantStringHelper.csproj" />
   </Folder>
 </Solution>

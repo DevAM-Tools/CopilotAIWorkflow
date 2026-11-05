@@ -123,10 +123,14 @@ internal static class ProjectCompilationLoader
 
         if (sourcePaths.Count == 0)
         {
+            // Perf: build the two build-output segments once; the loop visits every .cs file of the project.
+            string objSegment = Invariant($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}");
+            string binSegment = Invariant($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}");
+
             foreach (string path in Directory.EnumerateFiles(projectDirectory, "*.cs", SearchOption.AllDirectories))
             {
-                if (!path.Contains(Invariant($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
-                    && !path.Contains(Invariant($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
+                if (!path.Contains(objSegment, StringComparison.OrdinalIgnoreCase)
+                    && !path.Contains(binSegment, StringComparison.OrdinalIgnoreCase)
                     && !path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
                 {
                     sourcePaths.Add(path);

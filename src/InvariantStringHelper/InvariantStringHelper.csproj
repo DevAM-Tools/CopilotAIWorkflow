@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Directory.Build.props sets TargetFramework; multi-targeting needs it empty. tech-solution.md requires net10.0 in TargetFrameworks. -->
+    <TargetFramework />
+    <TargetFrameworks>net6.0;net10.0</TargetFrameworks>
+    <RootNamespace>InvariantStringHelper</RootNamespace>
+    <AssemblyName>InvariantStringHelper</AssemblyName>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <PackageId>InvariantStringHelper</PackageId>
+    <Description>Invariant-culture string interpolation that allocates only the result string: Invariant($"…") for .NET 6 and later.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>string;interpolation;culture;invariant;allocation</PackageTags>
+  </PropertyGroup>
+</Project>

@@ -3,6 +3,38 @@
 All notable changes to the **CSharpStyleChecker** NuGet analyzer are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 1.2.0
+
+### Breaking: `FormattableString.Invariant` is an error on .NET 6 and later
+
+CSC009 now reports `FormattableString.Invariant($"…")` and `Invariant($"…")` imported through `using static System.FormattableString;` in every compilation where `string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)` binds (.NET 6 and later). 1.1.0 accepted both. The call allocates a `FormattableString` and an `object[]` and boxes value arguments. `netstandard2.0` projects are unaffected: there it stays the only invariant interpolation.
+
+Before (accepted by 1.1.0, error in 1.2.0 on `net6.0`+):
+
+```csharp
+global using static System.FormattableString;
+
+string message = Invariant($"count={count}");
+```
+
+After (reference the [InvariantStringHelper](../InvariantStringHelper/CHANGELOG.md) package and change one `using`):
+
+```csharp
+global using static InvariantStringHelper.InvariantText;
+
+string message = Invariant($"count={count}");
+```
+
+The call sites stay as they are. `string.Create(CultureInfo.InvariantCulture, $"…")` is also accepted. A project on `Version="1.*"` picks this release up automatically; to stay on 1.1.0 until you have migrated, pin `Version="[1.1.0]"`.
+
+### CSC009 recommends and accepts the InvariantStringHelper package
+
+- **Update required for projects that use InvariantStringHelper.** CSharpStyleChecker 1.1.0 reports `Invariant($"…")` from the new [InvariantStringHelper](../InvariantStringHelper/CHANGELOG.md) package as a bare interpolated string (CSC009), and its message points at `Invariant($"…")`, which it then rejects. 1.2.0 accepts the call. Projects that do not use the package behave as before.
+- The helper is recognized by symbol identity (`InvariantStringHelper.InvariantText.Invariant` with one `ref InvariantInterpolatedStringHandler` parameter). A method that only shares the name `Invariant` is not accepted. If two referenced assemblies define the same type name, the helper is not recognized and the call is reported.
+- Messages on .NET 6 and later point at the package: without the package reference, "Add the InvariantStringHelper package and use `Invariant($"…")`"; with it, "Use `Invariant($"…")` from the InvariantStringHelper package". `StringBuilder.Append(CultureInfo.InvariantCulture, …)` is named for builders. `string.Create(CultureInfo.InvariantCulture, …)` is still accepted; it is no longer suggested.
+- The advice follows what the compilation can do, not the project's name. The package and `string.Create` are recommended only where interpolated string handlers exist: a framework with `string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)` (.NET 6 and later) and language version C# 10 or later. `netstandard2.0`, `netstandard2.1`, .NET Framework, .NET 5, and a .NET 6 project pinned to C# 9 keep `FormattableString.Invariant`, and CSC009 names it: "Use `FormattableString.Invariant($"…")` … this target has no allocation-free alternative".
+- Fix: an interpolated string in parentheses (`Invariant(($"…"))`, `string.Create(provider, ($"…"))`, `builder.Append(provider, ($"…"))`) was reported although the compiler accepts it as a handler argument. It is now recognized.
+
 ## 1.1.0
 
 ### New rule

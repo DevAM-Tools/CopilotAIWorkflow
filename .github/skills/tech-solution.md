@@ -67,6 +67,18 @@ dotnet_diagnostic.CA2007.severity = error
 
 CA1848 and CA2254 (logging through `[LoggerMessage]` with constant templates) are already errors under `10-recommended` with `TreatWarningsAsErrors`.
 
+#### Raising a diagnostic to error
+
+- Raise a diagnostic by ID in the root `.editorconfig` under `[*.cs]`, one line per ID. Raising is not a suppression and needs no approval.
+- ❗ Never raise by group: no `dotnet_analyzer_diagnostic.severity`, no `dotnet_analyzer_diagnostic.category-*.severity`, no higher `AnalysisLevel` or `AnalysisMode`. They switch on rules nobody chose.
+- ❗ Raise `IDE0005` (unnecessary using) to error. It needs `EnforceCodeStyleInBuild` and `GenerateDocumentationFile` from the table above.
+- `IDE0005` misses some unused entries in `GlobalUsings.cs`, and the build does not check their order. `/review` checks both by hand.
+
+```ini
+# IDE0005: an unused using fails the build
+dotnet_diagnostic.IDE0005.severity = error
+```
+
 When a warning is hidden in MSBuild, use the **global** suppression template in `tech-csharp.md` (Lints and suppressions). One XML comment **per id**: id, why the warning is inapplicable, **why global** (not method/file/pragma), user approved.
 
 ```xml
@@ -142,6 +154,20 @@ When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Compan
 - Analyzers load from `analyzers/dotnet/cs`; **`ExitPoints` bundled** — no second package, no `PrivateAssets` / `IncludeAssets`.
 - Violations = compiler errors (CSC*). Rebuild after add.
 - Set `ApplyCSharpStyleChecker=false` only to opt out.
+
+## InvariantStringHelper
+
+❗ Mandatory NuGet **`1.*`** on every SDK-style project that targets `net6.0` or later and interpolates strings. Not for `netstandard2.0` projects (analyzers, generators): they cannot take a run-time dependency.
+
+| Step | Action |
+|------|--------|
+| CPM | `Directory.Packages.props`: `<PackageVersion Include="InvariantStringHelper" Version="1.*" />` |
+| Project | `<PackageReference Include="InvariantStringHelper" />` — omit `Version` when CPM enabled |
+| No CPM | `<PackageReference Include="InvariantStringHelper" Version="1.*" />` in `.csproj` |
+| Using | `GlobalUsings.cs`, third-party group: `global using static InvariantStringHelper.InvariantText;` |
+
+- Requires CSharpStyleChecker `1.2.0` or later; `1.1.0` reports the call as CSC009.
+- Usage rule: `tech-csharp.md` § Style.
 
 ## Dependencies (.NET mechanics)
 

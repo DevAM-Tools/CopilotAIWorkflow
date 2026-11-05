@@ -1,5 +1,6 @@
 // Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.
 
+using System.Reflection;
 using System.Threading.Tasks;
 using CSharpStyleChecker.Analyzers;
 using CSharpStyleChecker.Diagnostics;
@@ -12,6 +13,20 @@ namespace CSharpStyleChecker.Tests.Analyzers;
 public sealed class MultipleExitsPerLineAnalyzerTests
 {
     private const string Usings = "using System;\n";
+
+    [Test]
+    public async Task ExitLineKey_EqualsObject_ComparesByValue()
+    {
+        // ExitLineKey is a private nested struct; the dictionary only calls Equals(ExitLineKey), so Equals(object) is reached by reflection.
+        Type keyType = typeof(MultipleExitsPerLineAnalyzer).GetNestedType("ExitLineKey", BindingFlags.NonPublic)!; // Invariant: the nested type exists.
+        object first = Activator.CreateInstance(keyType, "Method", "A.cs", 3)!; // Invariant: the public constructor exists.
+        object sameIgnoringFileCase = Activator.CreateInstance(keyType, "Method", "a.cs", 3)!; // Invariant: same constructor.
+        object otherLine = Activator.CreateInstance(keyType, "Method", "A.cs", 4)!; // Invariant: same constructor.
+
+        await Assert.That(first.Equals(sameIgnoringFileCase)).IsTrue();
+        await Assert.That(first.Equals(otherLine)).IsFalse();
+        await Assert.That(first.Equals("not a key")).IsFalse();
+    }
 
     [Test]
     public async Task MultipleExitsPerLine_SameLineTwoReturns_ReportsCsc006()

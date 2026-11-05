@@ -4,6 +4,17 @@ All notable changes to the **ExitPointGaps** local `dotnet` tool are documented 
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 Bundled exit-point collection lives under [`src/ExitPoints`](../ExitPoints/); consumer-visible collection changes that affect this tool are listed below.
 
+## 1.1.1
+
+### InvariantStringHelper
+
+- Interpolated strings and culture-sensitive messages use `Invariant($"…")` from [InvariantStringHelper](../InvariantStringHelper/CHANGELOG.md) (formerly `FormattableString.Invariant`), which allocates only the result string. The tool package ships `InvariantStringHelper.dll`. CLI surface, report schema, and behavior are unchanged. Building this tool requires **CSharpStyleChecker** 1.2.0 or later, because 1.1.0 rejects the helper.
+
+### Internal
+
+- Project-file discovery builds its `obj` / `bin` path segments once per project instead of once per source file.
+- The sibling test-project lookup builds the test folder and project names once per call.
+
 ## 1.1.0
 
 ### CSC009 alignment
