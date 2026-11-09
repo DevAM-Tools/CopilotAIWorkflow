@@ -17,7 +17,7 @@ Cover:
 - `null` / absence when the type allows it
 - concurrency when shared state exists
 - trust-boundary / misuse cases for public APIs
-- each limit (Section 4.2): at the limit, one above, a configured value out of range, and the default when unset
+- each limit (Section 4.2): at the limit, one above, a configured value out of range, `off` when the mechanism offers it, and the default when unset
 
 ```text
 Wrong: [Arguments(0), (1), (2), … (int.MaxValue)] for Clamp
@@ -31,6 +31,10 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 - Each unit test finishes in ≤ 100 ms (Section 4.5). Slower tests carry the stack’s slow or integration marker. Do not `Sleep` / `time.sleep` / `thread::sleep`.
 - Do not use network, real clock waits, or an extra process when a deterministic fake will do.
 - Assert one behavior per test. Parametrize related inputs; do not copy-paste.
+
+## Allocation tests
+
+- ❗ Measure allocation in several rounds and assert on the smallest round. A real per-item allocation shows in every round; one measurement fails under load.
 
 ## Runs
 

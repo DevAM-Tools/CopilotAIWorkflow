@@ -177,6 +177,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
 | `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set, reading tiers, architecture as contract, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, language contract, Impact search, Sync check |
 | `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide |
+| `tech-limits.md` | A trust-boundary limit in scope (plan, review) — mechanism, project decisions, audit and register, reference implementations |
 | `tech-instructions.md` | Instructions, skills, prompts, or pointer files in scope — authoring rules, compaction without loss, workflow-kit change coupling |
 | `workflow-docs-repair.md` | `/docs-repair`; realign docs with code in an existing project; decision cards; resumable ledger |
 | `workflow-port-dotnet-rust.md` | `/port-dotnet-rust`; intake, alignment into `port/MANIFEST.md`, closing audit |

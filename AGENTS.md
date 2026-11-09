@@ -13,7 +13,7 @@ Structured agent workflow with **single source of truth** in `.github/`. Tool-sp
 
 Workflows: `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`.
 
-Tech: C#, Rust, Python, .NET → Rust port mapping, tests (`tech-test.md` plus TUnit / pytest / Rust / Playwright), Web UI (`tech-web.md`), Blazor, SourceGen, build, documentation (`tech-docs.md`, `tech-docs-templates.md`), instruction and skill authoring (`tech-instructions.md`).
+Tech: C#, Rust, Python, .NET → Rust port mapping, tests (`tech-test.md` plus TUnit / pytest / Rust / Playwright), Web UI (`tech-web.md`), Blazor, SourceGen, build, documentation (`tech-docs.md`, `tech-docs-templates.md`), limits (`tech-limits.md`), instruction and skill authoring (`tech-instructions.md`).
 
 Architecture of this repository: [`docs/architecture.md`](docs/architecture.md) (components, where they are, what is easy to miss).
 

@@ -154,6 +154,7 @@ When publishing or packaging is in scope, ask user for: `VersionSuffix`, `Compan
 - Analyzers load from `analyzers/dotnet/cs`; **`ExitPoints` bundled** — no second package, no `PrivateAssets` / `IncludeAssets`.
 - Violations = compiler errors (CSC*). Rebuild after add.
 - Set `ApplyCSharpStyleChecker=false` only to opt out.
+- ❗ Build every touched project with the checker enabled and read all checker output for the touched files. A filter on guessed line numbers misses violations.
 
 ## InvariantStringHelper
 

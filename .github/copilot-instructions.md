@@ -50,6 +50,7 @@ Chat follows the user. Skills, instructions, and non-temporary documents are Eng
 | `illustrations/**`, illustration HTML | `tech-playwright.md` |
 | `README.md`, `docs/**`, `CHANGELOG.md`, doc comments | `tech-docs.md` |
 | `.github/copilot-instructions.md`, `.github/skills/**`, `.github/prompts/**`, `.cursor/**`, `.claude/skills/**`, `AGENTS.md`, `CLAUDE.md`, `custom_instructions.md` | `tech-instructions.md` |
+| A trust-boundary limit in scope (Section 4.2) | `tech-limits.md` |
 | Measurement needed in C# / Rust / Python (see bullet above) | `tech-csharp-profiling.md` / `tech-rust-profiling.md` / `tech-python-profiling.md` |
 
 - When reviewing C# production APIs, also load `tech-tunit.md` and `tech-test.md`.
@@ -89,10 +90,11 @@ Language-specific mechanisms live in loaded tech skills. This section is intent.
 - Prefer a bound that scales over a small fixed number: stream instead of buffer (Section 4.4), or derive the default from the host (memory, cores).
 - **Constant** only for facts of a format, protocol, or type. A value that depends on host, data, deployment, or risk appetite is **configurable**.
 - ❗ Configurable: record where it lives, who may change it (code, operator, end user), the default, and the allowed range. Validate the configured value as external input. A ceiling that protects other users or the system stays out of end-user reach.
-- ❗ Label the **posture** per limit: **secure by default** (tight default; loosening is opt-in) or **open by default** (loose default; tightening is opt-in). Neither wins by rule. Choose by exposure (untrusted, remote, or multi-user input → secure by default) and record why. Mark an open default in the docs and next to the setting.
+- ❗ Label the **posture** per limit: **secure by default** (tight default; loosening is opt-in) or **open by default** (loose default; tightening is opt-in). Choose by exposure (untrusted, remote, or multi-user input → secure by default) and record why. When the project chose nothing, use secure by default: active, finite, never tighter than the host handles. Mark an open default in the docs and next to the setting.
 - ❗ End-user setting: show what it limits, why it exists, the unit, the allowed range, the default, and the risk of raising or lowering it. Reject an out-of-range value with a message that names the range.
 - ❗ Exceeding a limit is an expected failure (Section 4.1): name the limit in the error. Never truncate or drop silently.
 - ❗ Record per limit, in the plan and in a comment at its definition: value or range · threat · constant or configurable (where, who) · posture and why.
+- Declare, explain, change, and report limits with the mechanism of `tech-limits.md`.
 
 ### 4.3 Thread Safety
 
@@ -291,6 +293,7 @@ A blocker that only names an ID or says “blocked”, a question without contex
 | Kill shot | A flaw that makes the result fail a requirement or a ❗ rule. Forces **Does not hold**. |
 | Briefing | `reviews/briefing_<slug>.md`: the human packet of what `/implement` shipped. |
 | Hot path | A per-item or per-byte loop after setup (Section 4.4). |
+| Limit definition | The one declaration of a trust-boundary limit; see `tech-limits.md`. |
 | Impact search | Before an edit: find every file, doc, and coupling the change touches (Section 4.6; steps in `tech-docs.md`). |
 | Sync check | Before ✅: prove touched docs and comments state the new truth (Section 4.6; steps in `tech-docs.md`). |
 | Architecture Overview | The first section of `docs/architecture.md`: component table with folder, entry, responsibility, allowed dependencies. Read before acting. |

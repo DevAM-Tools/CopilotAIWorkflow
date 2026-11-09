@@ -199,7 +199,7 @@ fn resolve_inside(root: &Path, relative: &Path) -> Option<PathBuf> {
 - **Deserialization:** `#[serde(deny_unknown_fields)]` on boundary types; bound input size first; validate into newtypes.
 - **Hash maps:** keep SipHash for untrusted keys (HashDoS); fast hashers only for internal keys.
 - **SQL:** bind parameters; never format values into queries.
-- **Limits** (Section 4.2): a limits struct with private fields, a documented `Default`, and `TryFrom` / a builder that rejects out-of-range values. Host-derived defaults: `std::thread::available_parallelism()`. Format and protocol facts are `const`. Comment the security decision at the definition:
+- **Limits** (`tech-limits.md`): no reference implementation yet; implement the mechanism as a limits struct with private fields, a documented `Default`, and `TryFrom` / a builder that rejects out-of-range values. Host-derived defaults: `std::thread::available_parallelism()`. Format and protocol facts are `const`. Comment the security decision at the definition:
 
 ```rust
 // Threat: deeply nested input overflows the parser stack. Secure by default: input is remote.

@@ -30,6 +30,7 @@ Plans are for **human acceptance** and for a **weaker executing agent**. Before/
 - Read every user-attached architecture, guide, requirement, or brief **in full**.
 - Run the Impact search (`tech-docs.md` § Impact search). Enumerate all affected files from it, docs included, before planning.
 - A design that breaks a documented boundary, dependency direction, flow, or invariant is a Grill Me question (Section 4.16 form), never a silent choice.
+- Check every existing member the plan names (type, method, enum member, behavior) against the code by name. A snippet that calls a member that does not exist is a gap.
 - Identify interface candidates, hot paths, and (for web UI) Playwright journeys.
 - Build test **content** (Stage 6 Test cases). Apply `tech-test.md`.
 - Identify public API surface when this is a library or other public contract.
@@ -60,7 +61,7 @@ Cover every topic before finalizing scope:
 - performance and allocations (hot paths, budgets) — performance is a feature
 - edge cases and error handling
 - security boundaries and STRIDE
-- trust-boundary limits per Section 4.2: threat; proposed default or range; constant vs configurable (where, who: code / operator / end user); posture (secure or open by default) and why; end-user help text
+- trust-boundary limits per Section 4.2: threat; proposed default or range; constant vs configurable (where, who: code / operator / end user); posture (secure or open by default) and why; end-user help text; the register of limits and the policy slots of `tech-limits.md`
 - concurrency, TOCTOU, async interleaving
 - compatibility, migration, breaking change
 - new dependencies: id, what it does, why needed, license, alternatives
