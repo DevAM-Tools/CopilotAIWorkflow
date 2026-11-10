@@ -295,7 +295,8 @@ public sealed class PrivateNamingAnalyzerTests
     [Test]
     public async Task PrivateNaming_CombiningMarkInName_ReportsCsc003()
     {
-        // U+0301 (combining acute accent) is a legal identifier character, but neither a letter, a digit, nor connector punctuation.
+        // U+0301 (combining acute accent) is a legal identifier character, but neither a letter, a digit,
+        // nor connector punctuation.
         const string source = Usings + """
             namespace N;
             public class C

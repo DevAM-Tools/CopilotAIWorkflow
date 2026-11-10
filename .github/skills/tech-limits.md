@@ -2,6 +2,26 @@
 
 Load when a trust-boundary limit is in scope (Section 4.2): a size, count, depth, time, or retention bound on input, memory, processors, or disk. Decisions of a project: its `custom_instructions.md` or a decision record. Implementations: § Reference implementations.
 
+## Principles
+
+A limit protects; it must not cripple the host. These come first; the mechanism implements them.
+
+- ❗ Agree every limit with the user. Never invent a silent default. Under `/evolve`, the Spec delta is that agreement.
+- ❗ Tie each limit to the threat it stops (exhaustion, amplification, abuse). The host is unknown: do not cap below what it may handle just to pick a number.
+- Prefer a bound that scales: stream instead of buffer (Section 4.4).
+- **Constant** only for facts of a format, protocol, or type. A value that depends on host, data, deployment, or risk appetite is **configurable**.
+- ❗ Configurable: record where it lives, who may change it (code, operator, end user), the default, and the allowed range. Validate the configured value as external input. A ceiling that protects other users or the system stays out of end-user reach.
+- ❗ Label the **posture** per limit: **secure by default** (tight default; loosening is opt-in) or **open by default** (loose default; tightening is opt-in). Choose by exposure (untrusted, remote, or multi-user input → secure) and record why. Mark an open default in the docs and next to the setting.
+- ❗ End-user setting: show what it limits, why it exists, the unit, the allowed range, the default, and the risk of raising or lowering it. Reject an out-of-range value with a message that names the range.
+- ❗ Exceeding a limit is an expected failure. Name the limit in the error.
+- ❗ Record per limit, in the plan and in a comment at its definition: value or range · threat · constant or configurable (where, who) · posture and why.
+
+```text
+Threat: one hostile file exhausts memory. Secure by default: imports come from untrusted senders.
+End user may set 1 MB to available RAM in Settings. Rejected: a constant the user cannot change (cripples large hosts).
+Residual risk: a value near RAM size can still stall the app; the setting warns about it.
+```
+
 ## Mechanism
 
 - ❗ Declare each limit once. The setting, option, field, help, hit text, and any UI read that one declaration. A bound as a bare constant, long option, or attribute at a trust boundary is a defect.

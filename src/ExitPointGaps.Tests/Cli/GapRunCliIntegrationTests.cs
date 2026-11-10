@@ -7,7 +7,7 @@ namespace ExitPointGaps.Tests.Cli;
 [NotInParallel]
 public sealed class GapRunCliIntegrationTests
 {
-    [Test]
+    [Test, Property("Card", "TEST-GAPS-EXIT-PASS")]
     public async Task RunProject_FullCoverage_PassesGate()
     {
         await using GapSampleWorkspace sample = await GapSampleWorkspace.CreateAsync(includeSecondReturnTest: true);
@@ -35,7 +35,7 @@ public sealed class GapRunCliIntegrationTests
         await Assert.That(exitGapCount).IsEqualTo(0);
     }
 
-    [Test]
+    [Test, Property("Card", "TEST-GAPS-EXIT-GAP")]
     public async Task RunProject_PartialCoverage_FailsGate()
     {
         await using GapSampleWorkspace sample = await GapSampleWorkspace.CreateAsync(includeSecondReturnTest: false);
@@ -63,7 +63,7 @@ public sealed class GapRunCliIntegrationTests
         await Assert.That(exitGapCount).IsGreaterThan(0);
     }
 
-    [Test]
+    [Test, Property("Card", "TEST-GAPS-ZERO-TESTS")]
     public async Task RunProject_ZeroTests_Fails()
     {
         await using GapSampleWorkspace sample = await GapSampleWorkspace.CreateAsync(

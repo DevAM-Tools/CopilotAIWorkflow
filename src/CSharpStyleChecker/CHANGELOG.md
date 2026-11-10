@@ -3,6 +3,16 @@
 All notable changes to the **CSharpStyleChecker** NuGet analyzer are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 2.0.0
+
+### Breaking: CSC001 defaults to 130 characters
+
+The default line-length limit falls from 160 to 130, because lines near 160 are hard to read on small screens. A project with visible lines of 131 to 160 characters now fails to build. Wrap those lines, or keep the old limit with `build_property.csc_max_line_length = 160` in `.editorconfig`. A floating `Version="1.*"` reference stays on 1.2.0; move it to `2.*` to get this release.
+
+### Package
+
+- The package carries its own readme instead of the shared readme of all CopilotAIWorkflow packages.
+
 ## 1.2.0
 
 ### Breaking: `FormattableString.Invariant` is an error on .NET 6 and later

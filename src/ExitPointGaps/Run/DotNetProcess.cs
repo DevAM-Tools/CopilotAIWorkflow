@@ -2,7 +2,9 @@
 
 namespace ExitPointGaps;
 
-/// <summary>Runs <c>dotnet</c> subprocesses. Reason: process I/O boundaries are covered by dedicated DotNetProcess and integration tests.</summary>
+/// <summary>
+/// Runs <c>dotnet</c> subprocesses. Reason: process I/O boundaries are covered by dedicated DotNetProcess and integration tests.
+/// </summary>
 [ExcludeFromCodeCoverage]
 internal static class DotNetProcess
 {
@@ -53,7 +55,10 @@ internal static class DotNetProcess
         Task<string> stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
         await Task.WhenAll(stdoutTask, stderrTask, process.WaitForExitAsync(cancellationToken)).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
-        return new DotNetProcessResult(process.ExitCode, await stdoutTask.ConfigureAwait(false), await stderrTask.ConfigureAwait(false));
+        return new DotNetProcessResult(
+            process.ExitCode,
+            await stdoutTask.ConfigureAwait(false),
+            await stderrTask.ConfigureAwait(false));
     }
 
     #endregion

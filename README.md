@@ -1,13 +1,14 @@
 # CopilotAIWorkflow
 
-Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement, invariant string interpolation, and exit-point coverage.
+Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement, invariant string interpolation, exit-point coverage, and requirement traceability.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CSharpStyleChecker](https://img.shields.io/nuget/v/CSharpStyleChecker)](https://www.nuget.org/packages/CSharpStyleChecker/)
 [![ExitPointGaps](https://img.shields.io/nuget/v/ExitPointGaps)](https://www.nuget.org/packages/ExitPointGaps/)
 [![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
+[![ReqTrace](https://img.shields.io/nuget/v/ReqTrace)](https://www.nuget.org/packages/ReqTrace/)
 
-**Release 1.2.0** — **InvariantStringHelper** 1.0.0 is new (`Invariant($"…")` for .NET 6+); **CSharpStyleChecker** 1.2.0 accepts and recommends it in **CSC009** (1.1.0 rejects the helper, so projects that use it need 1.2.0 or later); **breaking on .NET 6+:** CSC009 now also rejects `FormattableString.Invariant` (see the [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md)); **ExitPointGaps** 1.1.1 uses the helper. 1.1.0 added **CSC009** (invariant culture for interpolations / culture-sensitive `ToString`) and tightened CSC001–CSC008. Package histories: [CSharpStyleChecker CHANGELOG](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps CHANGELOG](src/ExitPointGaps/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages). **InvariantStringHelper** 1.0.0 is new: `Invariant($"…")` for .NET 6+ ([InvariantStringHelper CHANGELOG](src/InvariantStringHelper/CHANGELOG.md)).
+**Current packages** — **CSharpStyleChecker** 2.0.0 (**breaking:** CSC001 defaults to 130 characters; reference `2.*`) · **ReqTrace** 0.1.0 (new: checks that each requirement reaches a passing test) · **ExitPointGaps** 1.1.2 (package cleanup) · **InvariantStringHelper** 1.0.0. Each package releases on its own; histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), [InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
 
 ---
 
@@ -36,7 +37,7 @@ dotnet add package CSharpStyleChecker
 Or in `.csproj`:
 
 ```xml
-<PackageReference Include="CSharpStyleChecker" Version="1.*" />
+<PackageReference Include="CSharpStyleChecker" Version="2.*" />
 ```
 
 Rebuild. Violations surface as compiler errors (CSC001–CSC009). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
@@ -79,6 +80,7 @@ CLI options: [ExitPointGaps](#exitpointgaps).
 | [CSharpStyleChecker](https://www.nuget.org/packages/CSharpStyleChecker/) | `netstandard2.0`+ (SDK-style) | `PackageReference` | Roslyn style analyzer (CSC001–CSC009); bundles `ExitPoints` |
 | [InvariantStringHelper](https://www.nuget.org/packages/InvariantStringHelper/) | `net6.0`+ | `PackageReference` | `Invariant($"…")`: invariant-culture interpolation that allocates only the result |
 | [ExitPointGaps](https://www.nuget.org/packages/ExitPointGaps/) | N/A (CLI) | Local `dotnet tool install` | `dotnet tool run exitpointgaps` — lists exit-point gaps |
+| [ReqTrace](https://www.nuget.org/packages/ReqTrace/) | N/A (CLI, any project language) | Local `dotnet tool install` | `dotnet tool run reqtrace check` — checks that each requirement reaches a passing test ([setup and use in the workflows](.github/skills/tech-reqtrace.md), [reference](docs/agents.md)) |
 
 `ExitPoints` is not published separately; it is included in **CSharpStyleChecker**.
 
@@ -90,7 +92,7 @@ CLI options: [ExitPointGaps](#exitpointgaps).
 | `CoverageGap.Tool` | `ExitPointGaps` | CLI: `dotnet tool run exitpointgaps` (was `coveragegap`) |
 | `CoverageGapAnalysis` | `ExitPointGaps` | Analysis merged into the tool assembly — no `PackageReference` |
 
-Version line restarts at **1.0.0** (not a continuation of 2.x). Package histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md). Repo / workflow: [CHANGELOG.md](CHANGELOG.md).
+Each package releases on its own version line, packs alone (`dotnet pack src/{Project}/{Project}.csproj -c Release` → `artifacts/release/`, after emptying the `bin/` output; [guide](docs/guides/release-a-package.md)), and ships its own `PACKAGE_README.md`. The lines restarted at **1.0.0** with the rename; CSharpStyleChecker **2.0.0** continues that new line, not the old `CSharpStyleValidator` 2.x. Package histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), [InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md). Repo / workflow: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -98,10 +100,13 @@ Version line restarts at **1.0.0** (not a continuation of 2.x). Package historie
 
 Default chat behavior is fast but inconsistent across sessions. This setup enforces deterministic, auditable agent behavior.
 
-- No implementation before plan approval.
-- Explicit phases: requirements, plan, implement, review, review-loop, complex-task, council, commit-message, illustrate, docs-repair.
+- Requirements-driven development: `/evolve` takes what the software must do and specifies, plans, builds, tests, verifies, and documents it. A person acts at three gates only, and receives short packets ranked by where attention pays off ([decision record](docs/decisions/requirements-driven-loop.md)).
+- Agents decide details themselves and ask only about decisions that change a requirement, public API, format, security posture, limit, dependency, or architecture boundary; other work continues meanwhile (`copilot-instructions.md` Section 4.16).
+- Requirements and test content live in a tracked `spec/` with stable IDs. `/dream` consolidates domain knowledge and repairs the trace between requirements, tests, and code.
+- Used alone, `/implement` still requires an approved plan.
+- Explicit phases: evolve, requirements, plan, implement, review, dream, council, commit-message, illustrate, docs-repair.
 - Docs move with code: a small doc set (README, architecture with a one-screen Overview, concepts, domain, decision records); agents read in tiers before acting, so context stays small; the architecture is a contract; learned knowledge lands in its home in the same run; contract doc comments on every item with Related links by meaning or dependency (never usages); an Impact search before edits and a Sync check before anything is done ([`tech-docs.md`](.github/skills/tech-docs.md)).
-- Every editing run ends with the same run report, also when it stops early: what is **not done** comes first, then decisions, problems, and deviations. Questions carry context and always allow a free-text answer (`copilot-instructions.md` Section 4.16).
+- Every editing run ends with the same run report, also when it stops early: what is **not done** comes first, then decisions, problems, and deviations. Questions carry context and always allow a free-text answer ([`tech-reporting.md`](.github/skills/tech-reporting.md)).
 - APIs cannot be used wrongly by accident and do not drift apart: misuse-prone shapes and state-dependent members are removed or justified, a new parallel path for an existing task is weighed in planning, and reviews find misuse-prone, redundant, or inconsistent APIs in existing code too (`copilot-instructions.md` Section 4.12).
 - Review loops until zero Error findings (or explicit block).
 - Warnings treated as defects.
@@ -119,7 +124,7 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/skills/tech-*.md`](.github/skills/) | **SSOT** — technology rules (loaded on scope trigger) |
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
-| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
+| [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/evolve`, `/dream`, `/requirements`, `/plan`, `/implement`, `/review`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
 | [`.claude/skills/`](.claude/skills/) | The one skill pointer set → `.github/skills/`; read by Claude Code, Cursor, and VS Code (GitHub Copilot) |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code bootstrap (imports the SSOT instructions; tool mapping) |
 | [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
@@ -169,28 +174,33 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review |
 | `tech-pytest.md` | pytest files in scope |
 | `tech-rust-test.md` | Rust unit/integration tests |
-| `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints, CSS/JS placement, a11y |
+| `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints per device class, width policy, tables that become cards, overflow, icons and tooltips, CSS/JS placement, a11y |
 | `tech-playwright.md` | Web UI (plan time, even before spec files) — test and debug; create-time illustration verify |
 | `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` — Blazor mechanism on top of `tech-web.md` |
 | `tech-sourcegen.md` | Generator code in scope |
-| `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs` |
+| `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs`, packing or releasing a package, NuGet restore failures from vulnerable packages |
 | `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
 | `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set, reading tiers, architecture as contract, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, language contract, Impact search, Sync check |
 | `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide |
-| `tech-limits.md` | A trust-boundary limit in scope (plan, review) — mechanism, project decisions, audit and register, reference implementations |
+| `tech-spec.md` | Requirements, plan, implement, review, evolve, dream; `spec/**`, `docs/domain/**` — living spec format, stable IDs, trace, integrity checks, domain knowledge |
+| `tech-reqtrace.md` | Requirements, plan, implement, review, evolve, dream; `spec/trace.lock`, `.config/dotnet-tools.json` — setting up and calling `reqtrace`: which command at which moment, what to do per finding |
+| `tech-reporting.md` | Before a blocker, decision card, Spec delta, briefing, or run report — reader-first forms and length budgets |
+| `tech-agent-access.md` | An application's UI features, CLI, REST, MCP, or library API — how agents use the product |
+| `tech-sweep.md` | `/plan`, `/review`, `/council` — the five named views |
+| `tech-limits.md` | A trust-boundary limit in scope (plan, review) — principles, mechanism, project decisions, audit and register, reference implementations |
 | `tech-instructions.md` | Instructions, skills, prompts, or pointer files in scope — authoring rules, compaction without loss, workflow-kit change coupling |
 | `workflow-docs-repair.md` | `/docs-repair`; realign docs with code in an existing project; decision cards; resumable ledger |
 | `workflow-port-dotnet-rust.md` | `/port-dotnet-rust`; intake, alignment into `port/MANIFEST.md`, closing audit |
 | `workflow-port-dotnet-rust-loop.md` | `/port-dotnet-rust-loop`; autonomous unit loop with balanced books |
-| `workflow-requirements.md` | `/requirements`; atomic `REQ-<AREA>-<TOPIC>` list; also before `/plan` when none exist |
-| `workflow-plan.md` | `/plan` |
-| `workflow-implement.md` | `/implement`; docs per step; extensive briefing; Closing Review |
-| `workflow-review.md` | `/review`; file mode default; `chat only` opt-in; public-release verdict |
-| `workflow-review-loop.md` | `/review-loop`; default full clean (all buckets) |
-| `workflow-complex-task.md` | `/complex-task`; defers nits; Closing Review after Error-clean |
+| `workflow-evolve.md` | `/evolve`; continuous requirements-driven development with three human gates |
+| `workflow-dream.md` | `/dream`; consolidate and repair domain knowledge, requirements, test content, and the trace |
+| `workflow-requirements.md` | `/requirements`; atomic `REQ-<AREA>-<TOPIC>` entries in `spec/`; also before `/plan` when none exist |
+| `workflow-plan.md`, `workflow-plan-templates.md` | `/plan`; the templates load at the writing stage |
+| `workflow-implement.md` | `/implement`; docs per step; briefing; Closing Review |
+| `workflow-review.md`, `workflow-review-templates.md` | `/review`; file mode default; `chat only` opt-in; public-release verdict; the templates load at the output stage |
 | `workflow-council.md` | `/council`; Sweep on `/plan` (five views); `/review` uses Skeptic + Outsider only; Exam on request |
 | `workflow-commit-message.md` | `/commit-message`; complete message; git after the file is out of scope |
-| `workflow-illustrate.md` | `/illustrate`; HTML zip; ask before vendoring libraries into `vendor/` |
+| `workflow-illustrate.md` | `/illustrate`; didactic HTML zip; ask before vendoring libraries into `vendor/` |
 
 Agents must read matching skills before edits. Missing skill when trigger matches = Error in review.
 
@@ -198,7 +208,7 @@ Always-on policy: [`.github/copilot-instructions.md`](.github/copilot-instructio
 (terms in §5.1). Skills load only on trigger. Do not record instruction line
 counts here.
 
-`plans/`, `reviews/`, `councils/`, `illustrations/`, and `docs-repair/` are git-ignored workflow history. Existing files there are historical unless the user names one. Follow the matching workflow-skill templates, not those artifacts.
+`spec/` and `docs/domain/` are tracked. `plans/`, `reviews/`, `councils/`, `illustrations/`, and `docs-repair/` are git-ignored workflow history. Existing files there are historical unless the user names one. Follow the matching workflow-skill templates, not those artifacts.
 
 ---
 
@@ -206,14 +216,17 @@ counts here.
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`); context prose has no IDs; skip reinventing when the user already supplied them
-- **Plan:** `workflow-plan.md` — full attached docs, sweep, Grill Me, locked `How` + Before/After (prefer snippets over prose; extra illustration code welcome), schematic API and interface snippets immediately before the steps, link requirements (do not copy the requirement list; Section 4.6 clickable relative links for every file), first-class `TEST-<AREA>-<TOPIC>` test **content**, step Experience/Acceptance, an **Expected Experience** section right after Step Overview (per phase when the plan has phases), linked Step Overview / checklist / test index rows, an Impact search and a required `Docs` field per step, then a requirements walk **and** a conversation walk, Requirements-fit; Grill Me questions carry context, why it matters, options with consequences, and a recommendation
+- **Evolve:** `workflow-evolve.md` — dictated input → Spec delta → **Gate A** → one slice at a time: plan, tests first, implement, prove as a user → Heal → **Gate B**. Decisions wait as cards (**Gate E**) while other work continues. Work is sized S, M, or L. State resumes from `spec/state.md`
+- **Dream:** `workflow-dream.md` — folds accumulated knowledge back into one consistent state: integrity checks, domain inbox and pages, requirements, test content, trace, docs. `touched` after each slice, `full` on request. Never changes production code
+- **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`) kept in `spec/`, checked against the existing spec; Full or Delta mode; context prose has no IDs; skip reinventing when the user already supplied them
+- **Plan:** `workflow-plan.md` — Interactive, or Autonomous inside `/evolve`; attached docs, sweep, Grill Me on Decision-class points only, locked `How` + Before/After, schematic API and interface snippets immediately before the steps, links to requirements and `TEST-<AREA>-<TOPIC>` cards, step Experience/Acceptance, an **Expected Experience** section right after Step Overview, an Impact search and a required `Docs` field per step, then a requirements walk **and** a conversation walk, Requirements-fit
 - **Implement:** `workflow-implement.md` — read the plan in full, execute steps
   and `TEST-<AREA>-<TOPIC>` content, update the step’s docs and run the Sync
   check, verify requirements at step close (tick `Met` in the linked
   requirements file), Step `{n}R` on the step’s change, tick accepted finding
   Status in the review Summary together with the finding Status line,
-  extensive **briefing** (file cards are Section 4.6 links), one full-scope
+  a **briefing** ranked by where attention pays off (concept, type roles, data
+  flow, a card per Judge and Sample file), one full-scope
   **Closing Review** (Exam only on request), and a **run report** in chat on
   every exit (not done, needs you, problems, deviations)
 - **Review:** `workflow-review.md` — skeptical auditor (Skeptic + Outsider);
@@ -225,12 +238,10 @@ Stages live in workflow skills only. Prompts do not repeat them.
   before/after code (extra illustration snippets welcome); Section 4.6 links;
   **default** runs tests and writes `reviews/review_<slug>_<n>.md`; static on
   explicit reduced scope; `chat only` / `ohne Review-Datei` opt-in
-- **Review-loop:** `workflow-review-loop.md` — review → remediate → re-review until zero findings in all buckets unless deferred (no plan required); `errors only` on request
-- **Complex-task:** `workflow-complex-task.md` — requirements (if needed) → plan → checkpoint → implement with step reviews → one Closing Review
 - **Council:** `workflow-council.md` — five views in the **same agent** (no subagents); Sweep in `/plan`; Lite/Full on `/council`; Exam on request after the Closing Review
 - **Docs-repair:** `workflow-docs-repair.md` — existing projects: inventory docs and code units, audit each unit’s claims against code and tests, fix doc-side drift when evidence decides, ask with self-contained `DRIFT-<AREA>-<TOPIC>` decision cards when it does not, hand code-side fixes to `/implement` as findings, backfill doc comments with Related links, the architecture Overview and component sections, concepts, and the domain doc; resumable ledger in `docs-repair/<slug>.md` (git-ignored; durable answers move to `docs/`)
 - **Commit-message:** `workflow-commit-message.md` — named scope, complete specific message (names, before/after, examples) in `commit_message.md`; `CHANGELOG.md` when the scope is a release; git after the file is out of scope
-- **Illustrate:** `workflow-illustrate.md` — HTML zip, no build; asks before
+- **Illustrate:** `workflow-illustrate.md` — teaching design and storyboard first; every motion shows a real state change of the subject; teaching checks at create time; HTML zip, no build; asks before
   vendoring allowlisted libraries (download into `vendor/`, relative paths,
   offline); Playwright verifies at create time only
 
@@ -245,7 +256,7 @@ Cursor picks up the workflow automatically when this repo (or a copy) is open:
 | Mechanism | How to use |
 |-----------|------------|
 | Always-on rule | `.cursor/rules/copilot-ai-workflow.mdc` loads on every session |
-| Slash commands | Type `/requirements`, `/plan`, `/implement`, `/review`, `/review-loop`, `/complex-task`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, or `/port-dotnet-rust-loop` in chat |
+| Slash commands | Type `/evolve`, `/dream`, `/requirements`, `/plan`, `/implement`, `/review`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, or `/port-dotnet-rust-loop` in chat |
 | Agent skills | Cursor loads `.claude/skills/` for compatibility; each points to `.github/skills/` SSOT. Do not add `.cursor/skills/` — Cursor would list every skill twice |
 | `AGENTS.md` | Overview and SSOT map for any agent reading project instructions |
 
@@ -288,6 +299,7 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 | [`ExitPoints`](src/ExitPoints/) | Roslyn exit-point collection (bundled in analyzer package) |
 | [`InvariantStringHelper`](src/InvariantStringHelper/) | NuGet library: `Invariant($"…")` for .NET 6+ |
 | [`ExitPointGaps`](src/ExitPointGaps/) | CLI + analysis — `dotnet tool run exitpointgaps` (`run` / `plan`; lists exit-point gaps) |
+| [`ReqTrace`](src/ReqTrace/) | CLI — checks the links between requirements, test cards, and tests ([usage](docs/agents.md)); dotnet tool `reqtrace` |
 | [`samples/CSharpStyleChecker.Demo`](samples/CSharpStyleChecker.Demo/) | `netstandard2.0` analyzer demo (CSC*), source generator, packed NuGet verification |
 
 ---
@@ -298,7 +310,7 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 
 | ID | Rule |
 |----|------|
-| CSC001 | Line length ≤ 160 (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
+| CSC001 | Line length ≤ 130 (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
 | CSC002 | No `var` |
 | CSC003 | Private `_PascalCase` (exempt: private nested types, explicit interface impl, local functions) |
 | CSC004 | No `.Result` / `.Wait()` / `GetAwaiter().GetResult()` on `Task` / `Task<T>` / `ValueTask` / `ValueTask<T>`; no `Task.WaitAll` / `Task.WaitAny` |
@@ -314,7 +326,7 @@ XML documentation on public APIs is enforced by built-in **CS1591** when `Genera
 
 | Setting | Purpose |
 |---------|---------|
-| `build_property.csc_max_line_length = N` in `.editorconfig` | Override CSC001 line length (default 160) |
+| `build_property.csc_max_line_length = N` in `.editorconfig` | Override CSC001 line length (default 130) |
 
 **Build from source**
 
@@ -322,7 +334,7 @@ XML documentation on public APIs is enforced by built-in **CS1591** when `Genera
 dotnet build CopilotAIWorkflow.slnx -c Release
 ```
 
-Release build writes `.nupkg` files to `artifacts/` for packable projects (`ExitPointGaps`, `CSharpStyleChecker`, `InvariantStringHelper`).
+A build writes no package. `dotnet pack src/{Project}/{Project}.csproj -c Release` writes `artifacts/release/{Project}.{version}.nupkg` for `CSharpStyleChecker`, `InvariantStringHelper`, `ExitPointGaps`, and `ReqTrace` ([guide](docs/guides/release-a-package.md)).
 
 ---
 

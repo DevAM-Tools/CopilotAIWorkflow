@@ -12,5 +12,7 @@
     <Project Path="src/ExitPoints/ExitPoints.csproj" />
     <Project Path="src/InvariantStringHelper.Tests/InvariantStringHelper.Tests.csproj" />
     <Project Path="src/InvariantStringHelper/InvariantStringHelper.csproj" />
+    <Project Path="src/ReqTrace/ReqTrace.csproj" />
+    <Project Path="src/ReqTrace.Tests/ReqTrace.Tests.csproj" />
   </Folder>
 </Solution>

@@ -2,7 +2,7 @@
 
 ## Overview
 
-An agent-workflow kit (rules, workflows, tech skills for GitHub Copilot, Cursor, and Claude Code) plus three .NET projects that enforce parts of those rules in C# code. What the repository is: [README](../README.md).
+An agent-workflow kit (rules, workflows, tech skills for GitHub Copilot, Cursor, and Claude Code) plus .NET projects that enforce parts of those rules in code. What the repository is: [README](../README.md).
 
 | Component | Folder · entry | Responsibility | May depend on |
 |-----------|----------------|----------------|---------------|
@@ -12,15 +12,22 @@ An agent-workflow kit (rules, workflows, tech skills for GitHub Copilot, Cursor,
 | [ExitPoints](#exitpoints) | [`src/ExitPoints/`](../src/ExitPoints/) · `ExitPointCollector` | Collects the exit points of every callable | — |
 | [InvariantStringHelper](#invariantstringhelper) | [`src/InvariantStringHelper/`](../src/InvariantStringHelper/) · `InvariantText.Invariant` | Invariant-culture string interpolation for .NET 6+ (NuGet) | — |
 | [ExitPointGaps](#exitpointgaps) | [`src/ExitPointGaps/`](../src/ExitPointGaps/) · `Program.Main` | dotnet tool: exit points no test reached | ExitPoints, InvariantStringHelper |
+| [ReqTrace](#reqtrace) | [`src/ReqTrace/`](../src/ReqTrace/) · `Program.Main` | dotnet tool: checks the links between requirements, test cards, and tests | InvariantStringHelper |
 
-A dependency not listed in **May depend on** is a defect or needs a decision record. Build settings: [`Directory.Build.props`](../Directory.Build.props), [`Directory.Build.targets`](../Directory.Build.targets) (applies the analyzer in this repository), [`Directory.Packages.props`](../Directory.Packages.props), [`global.json`](../global.json), [`.editorconfig`](../.editorconfig).
+A dependency not listed in **May depend on** is a defect or needs a decision record. Build settings: [`Directory.Build.props`](../Directory.Build.props), [`Directory.Build.targets`](../Directory.Build.targets) (applies the analyzer in this repository; makes each project with a `PackageId` a package of its own, packed only by `dotnet pack -c Release` into `artifacts/release/` after emptying `bin/`: [decision record](decisions/release-pack-path.md)), [`Directory.Packages.props`](../Directory.Packages.props), [`global.json`](../global.json), [`.editorconfig`](../.editorconfig).
+
+**Easy to miss:** a package (CSharpStyleChecker, InvariantStringHelper, ExitPointGaps, ReqTrace) → its `VersionPrefix` in its project file · its `PACKAGE_README.md` · its `CHANGELOG.md` · the root CHANGELOG package table · README § NuGet packages. Release steps: [guide](guides/release-a-package.md).
 
 ## Workflow kit
 
-[`copilot-instructions.md`](../.github/copilot-instructions.md) is always loaded: quality contract, the Tech Load Protocol (§3), and the workflow router (§6). `workflow-*.md` skills hold stages; `tech-*.md` skills hold technology rules and load on a scope trigger. Authoring rules: [`tech-instructions.md`](../.github/skills/tech-instructions.md).
+[`copilot-instructions.md`](../.github/copilot-instructions.md) is always loaded: quality contract, the Tech Load Protocol (§3), and the workflow router (§6). `workflow-*.md` skills hold stages; `*-templates.md` companions load at the writing stage; `tech-*.md` skills hold technology rules and load on a scope trigger. Authoring rules: [`tech-instructions.md`](../.github/skills/tech-instructions.md).
+
+[`workflow-evolve.md`](../.github/skills/workflow-evolve.md) composes the other workflows into a requirements-driven loop with three human gates. [`tech-spec.md`](../.github/skills/tech-spec.md) defines the `spec/` format that a product using the kit keeps; this repository's [`spec/`](../spec/index.md) covers ReqTrace and a pilot on ExitPointGaps. Why this shape: [decision record](decisions/requirements-driven-loop.md).
 
 **Invariants:**
 - One home per rule. A rule stated in two files is a defect; the other file points to the home.
+- `copilot-instructions.md` keeps its section numbers; skills cite them.
+- A workflow names each skill it needs in the stage that uses it.
 
 **Easy to miss:** adding, renaming, or removing a workflow or tech skill, a description, a stage name, a term, or a Shared Block field touches pointer files and README tables that nothing checks. The full list is the change-coupling table in [`tech-instructions.md`](../.github/skills/tech-instructions.md).
 
@@ -65,3 +72,18 @@ A dotnet tool. `run` builds and tests with coverage and lists exit points no tes
 **Easy to miss:**
 - A CLI option → `CliOptions` · `CliParser` · `CliUsage` · README options table · package CHANGELOG. Usage text and README are strings.
 - The aggregated report schema → `AggregatedGapReport` · `AggregatedGapReportSerializer` · README schema version · package CHANGELOG. Consumers parse JSON, not types.
+
+## ReqTrace
+
+A command-line tool that reads `spec/`, test markers, and test result files, and compares them with the state a person accepted. `Program.Main` → `TraceApp` → `TraceChecker`, which runs the layers in order: `SnapshotReader` (`SpecReader`, `MarkerScanner`) → `LinkChecker` → `ChangeChecker` → `EvidenceChecker`. `FindingWriter` and `ReportWriter` print. How agents call it: [`docs/agents.md`](agents.md). Why it exists: [decision record](decisions/spec-trace.md). Tests: [`src/ReqTrace.Tests/`](../src/ReqTrace.Tests/).
+
+**Invariants:**
+- An unreadable line is never skipped silently.
+- Every finding comes from the `Rules` table, so it has a location, message, and fix.
+- Only `accept` and `confirm` write, and only `spec/trace.lock`.
+- A gap in an unchanged entry never fails the run.
+- No regular expressions: start-up time counts on every agent call. One framework-dependent build runs on every platform.
+
+**Easy to miss:**
+- The spec format lives in [`tech-spec.md`](../.github/skills/tech-spec.md) and is parsed by `SpecReader`; the compiler connects neither. Marker forms: `MarkerScanner` ↔ `tech-spec.md` § Trace.
+- A rule → `Rules` · [`docs/agents.md`](agents.md) § Rules · [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md) § Findings. A command, option, or output line → `CliOptions`, `FindingWriter`, `ReportWriter` · `docs/agents.md` § Commands · `tech-reqtrace.md`.

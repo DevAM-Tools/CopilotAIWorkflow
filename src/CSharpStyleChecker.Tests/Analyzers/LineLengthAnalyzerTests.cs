@@ -29,7 +29,28 @@ public sealed class LineLengthAnalyzerTests
     }
 
     [Test]
-    public async Task LineLengthOver160ReportsCsc001()
+    public async Task LineLengthAtDefaultLimitNoDiagnostic()
+    {
+        string source = Usings + "namespace N;\n// " + new string('x', 127) + "\npublic class C\n{\n}\n";
+
+        await AnalyzerVerifier.VerifyAsync<LineLengthAnalyzer>(source);
+    }
+
+    [Test]
+    public async Task LineLengthOneAboveDefaultLimitReportsCsc001()
+    {
+        string comment = "// " + new string('x', 128);
+        string source = Usings + "namespace N;\n" + comment + "\npublic class C\n{\n}\n";
+
+        await AnalyzerVerifier.VerifyAsync<LineLengthAnalyzer>(
+            source,
+            new DiagnosticResult(DiagnosticDescriptors.LineLength)
+                .WithSpan(3, 1, 3, comment.Length + 1)
+                .WithArguments("130", "131"));
+    }
+
+    [Test]
+    public async Task LineLengthOver130ReportsCsc001()
     {
         string longName = new string('x', 170);
         string source = Usings + $$"""
@@ -45,7 +66,7 @@ public sealed class LineLengthAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(5, 1, 5, lineLength + 1)
-                .WithArguments("160", "190"));
+                .WithArguments("130","190"));
     }
 
     [Test]
@@ -67,14 +88,14 @@ public sealed class LineLengthAnalyzerTests
     public async Task LineLengthCommentOnlyLineReportsCsc001()
     {
         const string comment =
-            "// this is a very long comment that would exceed one hundred sixty characters if it were counted as code on the line and comments now count toward the limitxxxxxx";
+            "// this is a very long comment that would exceed one hundred thirty characters if it were counted as code on the line and comments now count toward the limitxxxxxx";
         string source = Usings + "namespace N;\n" + comment + "\npublic class C\n{\n}\n";
 
         await AnalyzerVerifier.VerifyAsync<LineLengthAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(3, 1, 3, comment.Length + 1)
-                .WithArguments("160", comment.Length.ToString(CultureInfo.InvariantCulture)));
+                .WithArguments("130",comment.Length.ToString(CultureInfo.InvariantCulture)));
     }
 
     [Test]
@@ -117,18 +138,18 @@ public sealed class LineLengthAnalyzerTests
     public async Task LineLengthBlockCommentLineReportsCsc001()
     {
         const string longStarLine =
-            " * very long block comment line that exceeds one hundred sixty characters if counted as code and comments now count toward the configured maximum length limitxxxx";
+            " * very long block comment line that exceeds one hundred thirty characters if counted as code and comments now count toward the configured maximum length limitxxxx";
         string source = Usings + "namespace N;\n/*\n" + longStarLine + "\n*/\npublic class C\n{\n}\n";
 
         await AnalyzerVerifier.VerifyAsync<LineLengthAnalyzer>(
             source,
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(4, 1, 4, longStarLine.Length + 1)
-                .WithArguments("160", longStarLine.Length.ToString(CultureInfo.InvariantCulture)));
+                .WithArguments("130",longStarLine.Length.ToString(CultureInfo.InvariantCulture)));
     }
 
     [Test]
-    public async Task LineLengthInvalidMaxLengthUsesDefault160()
+    public async Task LineLengthInvalidMaxLengthUsesDefault130()
     {
         string longName = new string('x', 170);
         string source = Usings + $$"""
@@ -151,7 +172,7 @@ public sealed class LineLengthAnalyzerTests
             new[] { ("/.editorconfig", editorConfig) },
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(5, 1, 5, lineLength + 1)
-                .WithArguments("160", "190"));
+                .WithArguments("130","190"));
     }
 
     [Test]
@@ -173,7 +194,7 @@ public sealed class LineLengthAnalyzerTests
     }
 
     [Test]
-    public async Task LineLengthStarPrefixedCodeOver160ReportsCsc001()
+    public async Task LineLengthStarPrefixedCodeOver130ReportsCsc001()
     {
         // Trimmed line starts with '*'; must still report CSC001 (not treated as a doc comment).
         const string starLine =
@@ -184,11 +205,11 @@ public sealed class LineLengthAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(9, 1, 9, starLine.Length + 1)
-                .WithArguments("160", starLine.Length.ToString(CultureInfo.InvariantCulture)));
+                .WithArguments("130",starLine.Length.ToString(CultureInfo.InvariantCulture)));
     }
 
     [Test]
-    public async Task LineLengthInterpolationHoleOver160ReportsCsc001()
+    public async Task LineLengthInterpolationHoleOver130ReportsCsc001()
     {
         // Hole is code and must count; keep other lines short.
         string hole = string.Join("+", System.Linq.Enumerable.Repeat("1", 90));
@@ -199,7 +220,7 @@ public sealed class LineLengthAnalyzerTests
             source,
             new DiagnosticResult(DiagnosticDescriptors.LineLength)
                 .WithSpan(7, 1, 7, line.Length + 1)
-                .WithArguments("160", line.TrimEnd().Length.ToString(CultureInfo.InvariantCulture)));
+                .WithArguments("130",line.TrimEnd().Length.ToString(CultureInfo.InvariantCulture)));
     }
 
     [Test]

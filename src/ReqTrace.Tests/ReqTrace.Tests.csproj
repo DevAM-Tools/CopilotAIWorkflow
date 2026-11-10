@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ReqTrace.Tests</RootNamespace>
+    <AssemblyName>ReqTrace.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReqTrace\ReqTrace.csproj" />
+    <ProjectReference Include="..\InvariantStringHelper\InvariantStringHelper.csproj" />
+  </ItemGroup>
+</Project>

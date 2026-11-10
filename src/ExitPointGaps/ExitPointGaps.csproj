@@ -6,6 +6,8 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>exitpointgaps</ToolCommandName>
     <PackageId>ExitPointGaps</PackageId>
+    <!-- Each package releases on its own version line (Directory.Build.props sets none). -->
+    <VersionPrefix>1.1.2</VersionPrefix>
     <Description>Lists exit-point gaps from Cobertura and Roslyn exit-point collection.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

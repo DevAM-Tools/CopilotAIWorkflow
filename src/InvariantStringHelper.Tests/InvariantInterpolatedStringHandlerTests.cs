@@ -16,8 +16,11 @@ public sealed class InvariantInterpolatedStringHandlerTests
         string text = Invariant($"[{formattable}] [{formattable:custom}] [{spanFormattable}] [{spanFormattable:custom}]");
 
         await Assert.That(text).IsEqualTo("[f] [f] [s] [s]");
-        await Assert.That(formattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture))).IsTrue();
-        await Assert.That(spanFormattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture))).IsTrue();
+        await Assert.That(formattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
+            .IsTrue();
+        await Assert.That(
+                spanFormattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
+            .IsTrue();
         await Assert.That(formattable.Formats.Count).IsEqualTo(2);
         await Assert.That(formattable.Formats[0]).IsNull();
         await Assert.That(formattable.Formats[1]).IsEqualTo("custom");
@@ -26,7 +29,9 @@ public sealed class InvariantInterpolatedStringHandlerTests
         await Assert.That(spanFormattable.Formats[1]).IsEqualTo("custom");
     }
 
-    /// <summary>Records the provider and format it receives through <see cref="IFormattable.ToString(string, IFormatProvider)"/>.</summary>
+    /// <summary>
+    /// Records the provider and format it receives through <see cref="IFormattable.ToString(string, IFormatProvider)"/>.
+    /// </summary>
     private sealed class FormattableProbe : IFormattable
     {
         public List<IFormatProvider?> Providers { get; } = [];
@@ -41,7 +46,10 @@ public sealed class InvariantInterpolatedStringHandlerTests
         }
     }
 
-    /// <summary>Records the provider and format it receives through <see cref="ISpanFormattable.TryFormat"/>, the framework's preferred path.</summary>
+    /// <summary>
+    /// Records the provider and format it receives through <see cref="ISpanFormattable.TryFormat"/>,
+    /// the framework's preferred path.
+    /// </summary>
     private sealed class SpanFormattableProbe : ISpanFormattable
     {
         public List<IFormatProvider?> Providers { get; } = [];

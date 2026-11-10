@@ -86,7 +86,10 @@ internal static class TestProjectPairer
             IReadOnlyList<string> references = ProjectReferenceScanner.ReadProjectReferences(testProjectPath);
             for (int referenceIndex = 0; referenceIndex < references.Count; referenceIndex++)
             {
-                if (string.Equals(Path.GetFullPath(references[referenceIndex]), normalizedProduction, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(
+                        Path.GetFullPath(references[referenceIndex]),
+                        normalizedProduction,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return testProjectPath;
                 }

@@ -41,7 +41,12 @@ internal static class PlanOrchestrator
         {
             if (projects.Count == 1)
             {
-                return await _WriteSingleProjectAsync(projects[0], options, workDirectory, forceSkipBuild: false, cancellationToken)
+                return await _WriteSingleProjectAsync(
+                        projects[0],
+                        options,
+                        workDirectory,
+                        forceSkipBuild: false,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -80,7 +85,8 @@ internal static class PlanOrchestrator
 
                     string output = ExitManifestFormatter.Format(exits, options.Format);
                     string projectFile = Path.Combine(outputDirectory, Invariant($"{project.Name}-exits.json"));
-                    await File.WriteAllTextAsync(projectFile, output, Encoding.UTF8, projectCancellationToken).ConfigureAwait(false);
+                    await File.WriteAllTextAsync(projectFile, output, Encoding.UTF8, projectCancellationToken)
+                        .ConfigureAwait(false);
 
                     ProjectSummaryEntry entry = new ProjectSummaryEntry(
                         project.ProjectPath,

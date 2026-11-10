@@ -22,7 +22,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
         "Add the InvariantStringHelper package and use Invariant($\"…\") (StringBuilder.Append with CultureInfo.InvariantCulture "
         + "for builders) instead of a bare interpolated string";
 
-    // Targets or language versions without interpolated string handlers (netstandard2.0, C# 9): FormattableString.Invariant is the only option.
+    // Targets or language versions without interpolated string handlers (netstandard2.0, C# 9): FormattableString.Invariant
+    // is the only option.
     private const string LegacyBareMessage =
         "Use FormattableString.Invariant($\"…\") (for example Invariant($\"…\") with 'using static System.FormattableString;') "
         + "instead of a bare interpolated string; this target has no allocation-free alternative";
@@ -32,7 +33,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
         "FormattableString.Invariant allocates a FormattableString and boxes its arguments; "
         + "add the InvariantStringHelper package and use Invariant($\"…\") instead";
 
-    // The InvariantStringHelper package is referenced (stub below): both bare interpolation and the FormattableString wrapper name its helper.
+    // The InvariantStringHelper package is referenced (stub below): both bare interpolation and the FormattableString
+    // wrapper name its helper.
     private const string PackageBareMessage =
         "Use Invariant($\"…\") from the InvariantStringHelper package (StringBuilder.Append with CultureInfo.InvariantCulture "
         + "for builders) instead of a bare interpolated string";
@@ -41,12 +43,13 @@ public sealed class InvariantCultureFormattingAnalyzerTests
         "FormattableString.Invariant allocates a FormattableString and boxes its arguments; "
         + "use Invariant($\"…\") from the InvariantStringHelper package instead";
 
-    // Both helpers are named Invariant; importing both statics would make the call ambiguous, so package tests import only the package.
+    // Both helpers are named Invariant; importing both statics would make the call ambiguous, so package tests import only
+    // the package.
     private const string PackageUsings =
         "using System;\nusing System.Globalization;\nusing System.Text;\nusing static InvariantStringHelper.InvariantText;\n";
 
-    // Same namespace, type, and member names as the real package, so the analyzer's metadata-name lookup resolves it in a compilation
-    // without the real assembly (the real assembly targets a newer framework than the verifier's reference set).
+    // Same namespace, type, and member names as the real package, so the analyzer's metadata-name lookup resolves it in a
+    // compilation without the real assembly (the real assembly targets a newer framework than the verifier's reference set).
     private const string PackageStub = """
         namespace InvariantStringHelper
         {
@@ -506,7 +509,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     [Test]
     public async Task Interpolation_PackageInvariantWrittenInOtherForms_NoDiagnostic()
     {
-        // Every spelling of the call that the compiler accepts must pass: the analyzer keys on the bound method, not on the syntax.
+        // Every spelling of the call that the compiler accepts must pass: the analyzer keys on the bound method,
+        // not on the syntax.
         const string source = PackageUsings + """"
             namespace N;
             public class C
@@ -683,7 +687,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     [Test]
     public async Task Interpolation_PackageTypesWithoutMatchingMethod_UsesPlainMessage()
     {
-        // InvariantText has only a by-value overload and a two-parameter overload: neither is the helper, so the package is not recognized.
+        // InvariantText has only a by-value overload and a two-parameter overload: neither is the helper,
+        // so the package is not recognized.
         const string stub = """
             namespace InvariantStringHelper
             {
@@ -838,7 +843,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     [Test]
     public async Task ToString_OptionalProviderOmitted_ReportsCsc009()
     {
-        // The call binds to the derived overload with a defaulted provider, so the argument list is shorter than the parameter list.
+        // The call binds to the derived overload with a defaulted provider,
+        // so the argument list is shorter than the parameter list.
         const string source = Usings + """
             namespace N;
             public sealed class Money
@@ -865,7 +871,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     [Test]
     public async Task Interpolation_BareOnNet6WithCSharp9_PointsAtFormattableString()
     {
-        // The framework has string.Create with a handler, but C# 9 cannot build handlers: the package and string.Create are unusable.
+        // The framework has string.Create with a handler, but C# 9 cannot build handlers:
+        // the package and string.Create are unusable.
         const string source = Usings + """
             namespace N
             {
@@ -909,7 +916,8 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     [Test]
     public async Task Interpolation_HandlerTypeWithoutStringCreateOverload_KeepsFormattableStringInvariant()
     {
-        // netstandard2.0 has no DefaultInterpolatedStringHandler; a source-defined type of that name must not make string.Create look available.
+        // netstandard2.0 has no DefaultInterpolatedStringHandler;
+        // a source-defined type of that name must not make string.Create look available.
         const string source = Usings + """
             namespace System.Runtime.CompilerServices
             {
@@ -939,12 +947,14 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     public async Task Package_NamesMatchAnalyzerLookup()
     {
         Type text = typeof(InvariantText);
-        MethodInfo method = text.GetMethod(InvariantCultureFormattingAnalyzer.InvariantMethodName)!; // Invariant: the method exists, else the next line throws.
+        MethodInfo method = text.GetMethod(
+            InvariantCultureFormattingAnalyzer.InvariantMethodName)!; // Invariant: the method exists, else the next line throws.
         ParameterInfo parameter = method.GetParameters().Single();
 
         await Assert.That(text.FullName).IsEqualTo(InvariantCultureFormattingAnalyzer.InvariantTextMetadataName);
         await Assert.That(parameter.ParameterType.IsByRef).IsTrue();
-        await Assert.That(parameter.ParameterType.GetElementType()!.FullName) // Invariant: a by-reference parameter has an element type.
+        await Assert.That(
+                parameter.ParameterType.GetElementType()!.FullName) // Invariant: a by-reference parameter has an element type.
             .IsEqualTo(InvariantCultureFormattingAnalyzer.InvariantHandlerMetadataName);
     }
 }

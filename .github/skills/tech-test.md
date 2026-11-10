@@ -58,7 +58,7 @@ Trace on failure. No `waitForTimeout` as sync. Mechanics: `tech-playwright.md`. 
 
 ## Plan and Grill Me
 
-Write test **content** as first-class `TEST-<AREA>-<TOPIC>` cards in `workflow-plan.md` (schema there). Agree the **minimum** the plan must cover: important scenarios, edges, special constellations, contradictions, gaps, what is out, and the time budget. Class and Layer may be named. Test code in the plan is allowed; it does not replace Content.
+Write test **content** as `TEST-<AREA>-<TOPIC>` cards in `spec/tests/` (`tech-spec.md`). Agree the **minimum**: important scenarios, edges, special constellations, contradictions, gaps, what is out, and the time budget. Test code in the plan is allowed; it does not replace Content.
 
 Implement those cards as steps. Extra tests at implement time are allowed. Do not treat a green build as a test case.
 
@@ -68,7 +68,7 @@ Implement those cards as steps. Extra tests at implement time are allowed. Do no
 - Write tests that can fail. A test that cannot fail is not coverage.
 - Name tests `unit_scenario_expected` unless the tech test skill says
   otherwise. **C#:** PascalCase methods (`tech-tunit.md`). The plan ID
-  (`TEST-<AREA>-<TOPIC>`) stays in the plan. Do not use it as the method name.
+  (`TEST-<AREA>-<TOPIC>`) goes into the test's marker (`tech-spec.md` § Trace), never into the method name.
 - Separate Arrange, Act, Assert with a blank line.
 - Cover Windows/Linux/macOS, x64/ARM64 unless the user scoped otherwise.
 

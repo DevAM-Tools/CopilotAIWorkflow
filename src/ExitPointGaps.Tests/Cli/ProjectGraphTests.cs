@@ -86,7 +86,11 @@ public sealed class ProjectGraphTests
             </Solution>
             """));
 
-        IReadOnlyList<string> projects = SolutionParser.TryReadProjectPaths(solutionPath, root, out IReadOnlyList<string> parsed, out string? _)
+        IReadOnlyList<string> projects = SolutionParser.TryReadProjectPaths(
+                solutionPath,
+                root,
+                out IReadOnlyList<string> parsed,
+                out string? _)
             ? parsed
             : [];
 
@@ -101,7 +105,11 @@ public sealed class ProjectGraphTests
         string solutionPath = Path.Combine(root, "Broken.slnx");
         await File.WriteAllTextAsync(solutionPath, "<Solution><NotClosed>");
 
-        bool success = SolutionParser.TryReadProjectPaths(solutionPath, root, out IReadOnlyList<string> projects, out string? error);
+        bool success = SolutionParser.TryReadProjectPaths(
+            solutionPath,
+            root,
+            out IReadOnlyList<string> projects,
+            out string? error);
 
         await Assert.That(success).IsFalse();
         await Assert.That(projects.Count).IsEqualTo(0);
@@ -149,7 +157,10 @@ public sealed class ProjectGraphTests
         options.ProjectPaths.Add(pairedProduction);
         options.ProjectPaths.Add(lonelyProduction);
 
-        bool success = ProjectGraphBuilder.TryBuild(options, out IReadOnlyList<ProductionProjectRecord> projects, out string? error);
+        bool success = ProjectGraphBuilder.TryBuild(
+            options,
+            out IReadOnlyList<ProductionProjectRecord> projects,
+            out string? error);
 
         await Assert.That(success).IsTrue();
         await Assert.That(error).IsNull();
@@ -175,7 +186,10 @@ public sealed class ProjectGraphTests
         };
         options.ProjectPaths.Add(lonelyProduction);
 
-        bool success = ProjectGraphBuilder.TryBuild(options, out IReadOnlyList<ProductionProjectRecord> projects, out string? error);
+        bool success = ProjectGraphBuilder.TryBuild(
+            options,
+            out IReadOnlyList<ProductionProjectRecord> projects,
+            out string? error);
 
         await Assert.That(success).IsTrue();
         await Assert.That(error).IsNull();

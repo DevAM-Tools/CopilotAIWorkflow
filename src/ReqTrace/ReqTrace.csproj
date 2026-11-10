@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ReqTrace</RootNamespace>
+    <AssemblyName>reqtrace</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>reqtrace</ToolCommandName>
+    <PackageId>ReqTrace</PackageId>
+    <!-- Each package releases on its own version line (Directory.Build.props sets none). -->
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Description>Checks that every requirement reaches a test that ran and passed: links between spec/ requirements, test cards, and test markers in C#, Python, and Rust, checked against an accepted state.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>requirements;traceability;spec;testing;agents</PackageTags>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TieredPGO>false</TieredPGO>
+    <EventSourceSupport>false</EventSourceSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InvariantStringHelper\InvariantStringHelper.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReqTrace.Tests" />
+  </ItemGroup>
+</Project>

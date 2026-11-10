@@ -35,10 +35,17 @@
       <Analyzer Include="$(_ExitPointsAnalyzerPath)" />
     </ItemGroup>
   </Target>
+  <!--
+    A project with a PackageId is a package of its own and ships the PACKAGE_README.md beside its
+    project file as the NuGet readme. It has one release path, for libraries, the analyzer, and tools:
+    `dotnet pack src/{Project}/{Project}.csproj -c Release` → artifacts/release/{PackageId}.{version}.nupkg.
+    A build never packs (no GeneratePackageOnBuild): a Release build would overwrite the released package
+    of the current version, and a tool would pack before its publish files exist (MSB3030).
+    Sync: .github/skills/tech-solution.md § Release packages; docs/guides/release-a-package.md.
+  -->
   <PropertyGroup Condition="'$(PackageId)' != ''">
     <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageOutputPath Condition="'$(Configuration)' == 'Release'">$(MSBuildThisFileDirectory)artifacts\</PackageOutputPath>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\release\</PackageOutputPath>
     <PackageReadmeFile>PACKAGE_README.md</PackageReadmeFile>
     <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/DevAM/CopilotAIWorkflow</PackageProjectUrl>
     <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/DevAM/CopilotAIWorkflow</RepositoryUrl>
@@ -46,7 +53,41 @@
   <PropertyGroup Condition="'$(PackageId)' == ''">
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <!--
+    The SDK packs a dotnet tool from a glob over $(PublishDir) (Microsoft.NET.PackTool.targets), and
+    publish never deletes what an earlier publish left there. A file from an old build, such as an
+    assembly of a renamed project, would ship in the package. Empty the folder before every publish of
+    a tool, so the package holds exactly what this publish produced. On the pack path
+    CleanOutputBeforePack already removed it with bin/; this target also guards a plain `dotnet publish`.
+  -->
+  <Target Name="CleanToolPublishDir" BeforeTargets="PrepareForPublish" Condition="'$(PackAsTool)' == 'true'">
+    <RemoveDir Directories="$(PublishDir)" />
+  </Target>
+  <!--
+    `dotnet pack` sets the global property _IsPacking=true; it reaches every project of that build,
+    project references included (the SDK itself reads it in Microsoft.NET.PackTool.targets). Before such
+    a build compiles a project, empty its output folder: a file that an earlier build left in bin/, such
+    as an assembly of a renamed project, cannot reach a package. BeforeBuild runs before the project
+    references build, so each project empties only its own folder. obj/ stays: restore already wrote it,
+    and the build regenerates what it packs from it.
+    Rejected: `dotnet clean` first (deletes only the files it listed itself, not the stale ones).
+  -->
+  <Target Name="CleanOutputBeforePack" BeforeTargets="BeforeBuild" Condition="'$(_IsPacking)' == 'true' and '$(OutDir)' != ''">
+    <RemoveDir Directories="$(OutDir)" />
+  </Target>
+  <!--
+    The release path is one command; every other way into a package stops here with the command to use:
+    a Debug pack, a pack without its clean build (`no-build`), and a pack without _IsPacking (an IDE, or
+    `dotnet msbuild -t:Pack`), which skipped CleanOutputBeforePack. Then delete this version's old package,
+    so a failed pack cannot leave a stale file that looks fresh. Runs only in the project that is packed.
+  -->
+  <Target Name="RequireReleasePackPath" BeforeTargets="GenerateNuspec" Condition="'$(PackageId)' != ''">
+    <Error Condition="'$(Configuration)' != 'Release'" Text="$(PackageId): packages are built in Release only. Run: dotnet pack $(MSBuildProjectFullPath) -c Release" />
+    <Error Condition="'$(NoBuild)' == 'true'" Text="$(PackageId): a pack builds from a clean output folder; --no-build would pack old files. Run: dotnet pack $(MSBuildProjectFullPath) -c Release" />
+    <Error Condition="'$(_IsPacking)' != 'true'" Text="$(PackageId): pack only through the dotnet CLI, which empties the output folders first. Run: dotnet pack $(MSBuildProjectFullPath) -c Release" />
+    <Delete Files="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg;$(PackageOutputPath)$(PackageId).$(PackageVersion).snupkg" />
+  </Target>
   <ItemGroup Condition="'$(PackageId)' != ''">
-    <None Include="$(MSBuildThisFileDirectory)PACKAGE_README.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildProjectDirectory)\PACKAGE_README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

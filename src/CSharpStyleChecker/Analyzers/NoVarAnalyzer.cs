@@ -85,7 +85,8 @@ public sealed class NoVarAnalyzer : DiagnosticAnalyzer
         // Registered for ForEachVariableStatement only, so the cast cannot fail.
         ForEachVariableStatementSyntax statement = (ForEachVariableStatementSyntax)context.Node;
 
-        // The deconstruction target of a foreach holds declaration expressions, never variable declarations; report the first var once.
+        // The deconstruction target of a foreach holds declaration expressions, never variable declarations;
+        // report the first var once.
         foreach (SyntaxNode node in statement.Variable.DescendantNodesAndSelf())
         {
             if (node is DeclarationExpressionSyntax { Type.IsVar: true } declaration)

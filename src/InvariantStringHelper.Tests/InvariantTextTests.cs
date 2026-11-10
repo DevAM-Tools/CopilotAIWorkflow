@@ -4,9 +4,9 @@ namespace InvariantStringHelper.Tests;
 
 /// <summary>Tests for <see cref="InvariantText"/>: culture independence, hole formatting, allocation, and concurrency.</summary>
 /// <remarks>
-/// Expected texts come from reference calls (<c>ToString(format, CultureInfo.InvariantCulture)</c>, <c>PadLeft</c>, <c>PadRight</c>),
-/// never from literals typed from memory. A <see cref="ReadOnlySpan{T}"/> local must not live across an <c>await</c>, so the strings are
-/// built in synchronous helpers and only the assertion is awaited.
+/// Expected texts come from reference calls (<c>ToString(format, CultureInfo.InvariantCulture)</c>, <c>PadLeft</c>,
+/// <c>PadRight</c>), never from literals typed from memory. A <see cref="ReadOnlySpan{T}"/> local must not live across
+/// an <c>await</c>, so the strings are built in synchronous helpers and only the assertion is awaited.
 /// </remarks>
 public sealed class InvariantTextTests
 {
@@ -23,9 +23,11 @@ public sealed class InvariantTextTests
             int count = 1234567;
 
             string actual = Invariant($"rate={rate} count={count:N0}");
-            string expected = "rate=" + rate.ToString(CultureInfo.InvariantCulture) + " count=" + count.ToString("N0", CultureInfo.InvariantCulture);
+            string expected = "rate=" + rate.ToString(CultureInfo.InvariantCulture)
+                + " count=" + count.ToString("N0", CultureInfo.InvariantCulture);
 
-            // The comparison under the current culture must differ, or the test cannot fail when the machine culture is invariant.
+            // The comparison under the current culture must differ, or the test cannot fail when the machine culture
+            // is invariant.
             string underCurrentCulture = string.Format(CultureInfo.CurrentCulture, "rate={0}", rate);
 
             await Assert.That(actual).IsEqualTo(expected);
@@ -147,7 +149,7 @@ public sealed class InvariantTextTests
         int? missingNumber = null;
         int? presentNumber = 7;
 
-        // Two calls keep each line within 160 characters; together they cover every hole kind.
+        // Two calls keep each line within the line-length limit; together they cover every hole kind.
         string numeric = Invariant($"{number}|{big}|{real}|{money}|{when:O}|{id}|{flag}");
         string textual = Invariant($"{letter}|{day}|{text}|{missingText}|{missingObject}|{missingNumber}|{presentNumber}");
         return numeric + "|" + textual;

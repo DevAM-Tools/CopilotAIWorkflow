@@ -44,7 +44,8 @@ internal static class ProjectCompilationLoader
         string projectName = Path.GetFileNameWithoutExtension(fullProjectPath);
 
         if (!skipBuild
-            && !await _EnsureBuiltAsync(fullProjectPath, projectDirectory, configuration, cancellationToken).ConfigureAwait(false))
+            && !await _EnsureBuiltAsync(fullProjectPath, projectDirectory, configuration, cancellationToken)
+                .ConfigureAwait(false))
         {
             return (null, "dotnet restore or build failed.");
         }

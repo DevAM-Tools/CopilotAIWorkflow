@@ -4,6 +4,13 @@ All notable changes to the **ExitPointGaps** local `dotnet` tool are documented 
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 Bundled exit-point collection lives under [`src/ExitPoints`](../ExitPoints/); consumer-visible collection changes that affect this tool are listed below.
 
+## 1.1.2
+
+### Package
+
+- The package holds only the files of this tool. 1.1.1 also carried seven files of the tool from before its rename (`CoverageGap.Tool.exe`, `CoverageGap.Tool.dll`, `CoverageGapAnalysis.dll`, and their `.deps.json`, `.runtimeconfig.json`, and `.xml`), which an old publish folder leaked into the package. The tool started `ExitPointGaps.dll` and worked; the extra files only took space and could confuse. CLI surface, report schema, and behavior are unchanged.
+- The package carries its own readme instead of the shared readme of all CopilotAIWorkflow packages.
+
 ## 1.1.1
 
 ### InvariantStringHelper

@@ -125,7 +125,14 @@ public static class ExitPointCollector
                     CollectFromCallable(method, method.Body, method.ExpressionBody, method.Identifier, model, results, options);
                     break;
                 case ConstructorDeclarationSyntax constructor:
-                    CollectFromCallable(constructor, constructor.Body, constructor.ExpressionBody, constructor.Identifier, model, results, options);
+                    CollectFromCallable(
+                        constructor,
+                        constructor.Body,
+                        constructor.ExpressionBody,
+                        constructor.Identifier,
+                        model,
+                        results,
+                        options);
                     break;
                 case DestructorDeclarationSyntax destructor:
                     CollectFromCallable(destructor, destructor.Body, null, destructor.TildeToken, model, results, options);
@@ -151,13 +158,36 @@ public static class ExitPointCollector
                         options);
                     break;
                 case AccessorDeclarationSyntax accessor:
-                    CollectFromCallable(accessor, accessor.Body, accessor.ExpressionBody, accessor.Keyword, model, results, options);
+                    CollectFromCallable(
+                        accessor,
+                        accessor.Body,
+                        accessor.ExpressionBody,
+                        accessor.Keyword,
+                        model,
+                        results,
+                        options);
                     break;
                 case PropertyDeclarationSyntax property:
-                    CollectExpressionBody(property, property.ExpressionBody, property.Identifier, property.AccessorList, model, results, options, cancellationToken);
+                    CollectExpressionBody(
+                        property,
+                        property.ExpressionBody,
+                        property.Identifier,
+                        property.AccessorList,
+                        model,
+                        results,
+                        options,
+                        cancellationToken);
                     break;
                 case IndexerDeclarationSyntax indexer:
-                    CollectExpressionBody(indexer, indexer.ExpressionBody, indexer.ThisKeyword, indexer.AccessorList, model, results, options, cancellationToken);
+                    CollectExpressionBody(
+                        indexer,
+                        indexer.ExpressionBody,
+                        indexer.ThisKeyword,
+                        indexer.AccessorList,
+                        model,
+                        results,
+                        options,
+                        cancellationToken);
                     break;
                 case EventDeclarationSyntax eventDeclaration:
                     if (eventDeclaration.AccessorList is not null)

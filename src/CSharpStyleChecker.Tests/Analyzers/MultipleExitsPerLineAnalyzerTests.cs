@@ -17,8 +17,10 @@ public sealed class MultipleExitsPerLineAnalyzerTests
     [Test]
     public async Task ExitLineKey_EqualsObject_ComparesByValue()
     {
-        // ExitLineKey is a private nested struct; the dictionary only calls Equals(ExitLineKey), so Equals(object) is reached by reflection.
-        Type keyType = typeof(MultipleExitsPerLineAnalyzer).GetNestedType("ExitLineKey", BindingFlags.NonPublic)!; // Invariant: the nested type exists.
+        // ExitLineKey is a private nested struct; the dictionary only calls Equals(ExitLineKey), so Equals(object) is
+        // reached by reflection.
+        Type keyType = typeof(MultipleExitsPerLineAnalyzer)
+            .GetNestedType("ExitLineKey", BindingFlags.NonPublic)!; // Invariant: the nested type exists.
         object first = Activator.CreateInstance(keyType, "Method", "A.cs", 3)!; // Invariant: the public constructor exists.
         object sameIgnoringFileCase = Activator.CreateInstance(keyType, "Method", "a.cs", 3)!; // Invariant: same constructor.
         object otherLine = Activator.CreateInstance(keyType, "Method", "A.cs", 4)!; // Invariant: same constructor.

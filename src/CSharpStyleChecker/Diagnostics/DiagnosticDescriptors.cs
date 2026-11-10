@@ -5,7 +5,9 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpStyleChecker.Diagnostics;
 
-/// <summary>Diagnostic descriptors for CSharpStyleChecker rules. No mutable state; safe to read from concurrent analyzer actions.</summary>
+/// <summary>
+/// Diagnostic descriptors for CSharpStyleChecker rules. No mutable state; safe to read from concurrent analyzer actions.
+/// </summary>
 internal static class DiagnosticDescriptors
 {
     #region Fields

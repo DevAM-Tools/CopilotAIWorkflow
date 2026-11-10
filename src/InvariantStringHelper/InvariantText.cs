@@ -24,7 +24,8 @@ public static class InvariantText
     /// </code>
     /// </example>
     /// <remarks>
-    /// Cost: one allocation, the result string; the working buffer comes from <see cref="System.Buffers.ArrayPool{T}"/> and is returned here.
+    /// Cost: one allocation, the result string; the working buffer comes from <see cref="System.Buffers.ArrayPool{T}"/>
+    /// and is returned here.
     /// A hand-built or default handler yields its parts or an empty string.
     /// </remarks>
     public static string Invariant(ref InvariantInterpolatedStringHandler handler) => handler.ToStringAndClear();

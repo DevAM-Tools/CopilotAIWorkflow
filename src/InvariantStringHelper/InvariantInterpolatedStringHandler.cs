@@ -24,9 +24,12 @@ public ref struct InvariantInterpolatedStringHandler
     private DefaultInterpolatedStringHandler _Inner;
 
     /// <summary>Starts a handler for one interpolated string.</summary>
-    /// <param name="literalLength">Total length of the literal parts; the compiler supplies it as a first-buffer size hint.</param>
+    /// <param name="literalLength">Total length of the literal parts;
+    /// the compiler supplies it as a first-buffer size hint.</param>
     /// <param name="formattedCount">Number of holes; the compiler supplies it as a first-buffer size hint.</param>
-    /// <remarks>Omitted validation: both values are compiler-supplied hints; a wrong value only changes the first buffer size.</remarks>
+    /// <remarks>
+    /// Omitted validation: both values are compiler-supplied hints; a wrong value only changes the first buffer size.
+    /// </remarks>
     public InvariantInterpolatedStringHandler(int literalLength, int formattedCount)
     {
         _Inner = new DefaultInterpolatedStringHandler(literalLength, formattedCount, CultureInfo.InvariantCulture);
@@ -64,7 +67,9 @@ public ref struct InvariantInterpolatedStringHandler
     /// <param name="value">The characters to copy.</param>
     public void AppendFormatted(ReadOnlySpan<char> value) => _Inner.AppendFormatted(value);
 
-    /// <summary>Appends a character span padded to an alignment. The format string is ignored, as in the framework handler.</summary>
+    /// <summary>
+    /// Appends a character span padded to an alignment. The format string is ignored, as in the framework handler.
+    /// </summary>
     /// <param name="value">The characters to copy.</param>
     /// <param name="alignment">Minimum width; negative pads on the right, positive on the left.</param>
     /// <param name="format">Ignored for spans.</param>

@@ -5,6 +5,7 @@
     <TargetFrameworks>net6.0;net10.0</TargetFrameworks>
     <RootNamespace>InvariantStringHelper</RootNamespace>
     <AssemblyName>InvariantStringHelper</AssemblyName>
+    <!-- Each package releases on its own version line (Directory.Build.props sets none). -->
     <VersionPrefix>1.0.0</VersionPrefix>
     <PackageId>InvariantStringHelper</PackageId>
     <Description>Invariant-culture string interpolation that allocates only the result string: Invariant($"…") for .NET 6 and later.</Description>

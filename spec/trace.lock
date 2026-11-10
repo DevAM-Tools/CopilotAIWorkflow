@@ -1,0 +1,63 @@
+# reqtrace lock v1
+REQ-GAPS-EXIT-GAP	b4283763ace9	active	-	0	-	-	The tool shall exit with code 1 when an exit-point gap remains. | A person runs the gate on a project with one untested exit point and the process ends with code 1.
+REQ-GAPS-EXIT-PASS	d6e89ce67dd5	active	-	0	-	-	The tool shall exit with code 0 when no exit-point gap remains. | A person runs the gate on a fully covered project and the process ends with code 0.
+REQ-GAPS-EXIT-USAGE	9f61400c16da	active	-	0	-	-	The tool shall exit with code 2 on invalid options. | A person passes an invalid value for `--format` and the process ends with code 2.
+REQ-GAPS-ZERO-TESTS	e19ce5614f31	active	-	0	-	-	The tool shall fail the gate when no test ran. | A person runs the gate on a project whose test project holds no tests and the process ends with code 1.
+REQ-TRACE-ACTIONABLE	d99066d43a1f	active	-	0	-	-	The tool shall state for each finding where it is, what is wrong, and what to do. | A person reads any finding and can name the file, the problem, and the fix without opening the tool's documentation.
+REQ-TRACE-ALLOW-GAP	1ad087fff6a5	active	-	0	-	-	The tool shall accept a new open gap only with a stated reason, and shall list that reason in `report`. | A person runs `accept` on a new requirement without a test: it refuses; with `--allow-gap "reason"` it succeeds, and `report` shows the reason.
+REQ-TRACE-CHANGED-VISIBLE	1eb1c0807e46	active	-	0	-	-	The tool shall show each requirement whose text changed since the last accepted state, with the removed and added words. | An agent changes "always" to "usually" in an accepted requirement, a person runs `report`, and sees that requirement with "always" removed and "usually" added.
+REQ-TRACE-CLAIM-NEEDS-PASS	71c9b4324ef0	active	-	0	-	-	The tool shall report a requirement ticked as met whose marked tests are missing from the results or did not pass. | An agent ticks Met on a requirement whose test failed, runs the check with the result file, and sees the requirement and the failing test named.
+REQ-TRACE-COUNTS	1e2d45849041	active	-	0	-	-	The tool shall state on every run how many requirements, test cards, markers, and ignored paths it read. | A person runs the check on a repository with 3 requirements and sees the count 3 in the output.
+REQ-TRACE-DUPLICATE-ID	e7d09e6d6a2b	active	-	0	-	-	The tool shall report an ID that heads more than one entry. | An agent copies a requirement entry into another area file, runs the check, and sees both locations named.
+REQ-TRACE-IGNORE-PATH	f67880c22d1f	active	-	0	-	-	The tool shall skip a path listed with a reason in the ignore file, and shall list every ignored path in `report`. | A person adds a folder with a reason to the ignore file and sees markers there not scanned and the folder listed in `report`. An entry without a reason is reported as an error.
+REQ-TRACE-JSON	be5b3c23af36	active	-	0	-	-	The tool shall offer its findings in a documented JSON form with a schema version. | An agent runs `check --json` and reads a finding's rule, file, line, message, and fix from stable fields.
+REQ-TRACE-MARKER-LANGUAGES	d54ed1518066	active	-	0	-	-	The tool shall recognize test markers in C#, Python, and Rust test files. | A person places one marker in a file of each language and sees all three listed for their test cards by `show`.
+REQ-TRACE-MARKER-REMOVED	c9933329dc71	active	-	0	-	-	The tool shall report a test card that had a marked test at the last accepted state and has none now. | An agent deletes a marked test, runs the check, and sees the test card named with a failing exit code.
+REQ-TRACE-MISSING-FIELD	2c36d0e85f6d	active	-	0	-	-	The tool shall report an entry that lacks a required field or holds a value outside its closed set. | An agent removes the Done-when line of one requirement, runs the check, and sees that requirement and the missing field named.
+REQ-TRACE-NEAR-MISS	3c393c8f2c80	active	-	0	-	-	The tool shall report text at an entry position that resembles a requirement or test ID but breaks the ID form. | An agent writes an entry headed `req-export-x`, runs the check, and sees it named as a malformed ID, not ignored.
+REQ-TRACE-NO-PRODUCTION-MARKS	fc25d3f7e81f	active	-	0	-	-	The tool shall not require any mark in production code. | A repository with markers only in test files and none in production files passes the check.
+REQ-TRACE-NO-RESULTS-HONEST	c2d1729b16d4	active	-	0	-	-	The tool shall state that evidence was not checked when it was given no result file, and shall not count that as passed. | A person runs the check without a result file and sees "evidence not checked".
+REQ-TRACE-ONE-COMMAND	5414ae3a438c	active	-	0	-	-	The tool shall run with no arguments from anywhere inside a repository that has a spec. | A person runs the tool without arguments from a subfolder and receives the check result.
+REQ-TRACE-ONLY-CHANGE-BLOCKS	989ffd3f6b75	active	-	0	-	-	The tool shall fail only for problems in entries or markers changed since the last accepted state, and for reading and identity errors; other gaps shall be listed without failing. | A repository holds 50 accepted gaps, an agent changes one unrelated requirement correctly, runs the check, and it passes while stating 50 open gaps.
+REQ-TRACE-PROOF-KINDS	d7960f2f3384	active	-	0	-	-	The tool shall accept the proof kinds test, demo, review, and waived on a requirement, and shall not demand a test for the last three. | A person marks a requirement `review — {reason}`, runs the check, and sees no gap reported for it and the review counted separately.
+REQ-TRACE-REPORT	afaf138b15a6	active	-	0	-	-	The tool shall print one report for a person that lists changed, weakened, vanished, and retired requirements, unconfirmed test cards, allowed gaps, proof-kind changes, ignored paths, and counts. | An agent performs one of each change, a person runs `report`, and sees each listed once.
+REQ-TRACE-SHOW	78396e707656	active	-	0	-	-	The tool shall list, for a given requirement or test-card ID, its text and every linked entry and marked test. | An agent runs `show` with a requirement ID and sees its text, its test cards, and each test's file, line, and method name.
+REQ-TRACE-SPEED	17f0f0d7157e	active	-	0	-	-	The tool shall exhibit a check time of at most 200 milliseconds on this repository, without building or running anything. | A person runs the check on this repository with the tool already built and it finishes within 200 milliseconds.
+REQ-TRACE-STALE-RESULTS	24aeb1ad106e	active	-	0	-	-	The tool shall treat a result file older than a marked test file as no evidence for that test. | A person edits a marked test file after the test run, runs the check with the old result file, and sees that test reported as stale.
+REQ-TRACE-SUSPECT	b7af71b74648	active	-	0	-	-	The tool shall treat each test card proving a changed requirement as unconfirmed until someone confirms it with a note. | An agent changes a requirement's text, the check fails naming its test card, and after `confirm` with a note the note appears in `report` and the check passes.
+REQ-TRACE-UNKNOWN-REFERENCE	0034f487b9d3	active	-	0	-	-	The tool shall report a reference to a requirement or test card that does not exist or is retired, and name the closest existing ID. | An agent misspells a test ID in a test marker, runs the check, and sees the marker location and the correct spelling suggested.
+REQ-TRACE-UNPROVEN	19c1ebc45cbe	active	-	0	-	-	The tool shall report an active requirement with proof kind test that no active test card proves, and an active test card that no test marker names. | A person adds a requirement without a test card and adds a test card without a marked test, runs the check, and sees both listed.
+REQ-TRACE-UNREADABLE-LINE	e49469608b14	active	-	0	-	-	The tool shall report every line inside a requirement or test-card area that matches no known form, with file, line number, and the expected form. | An agent adds a free-text line between two requirement entries, runs the check, and sees that file, that line number, and the expected form, with a failing exit code.
+REQ-TRACE-VANISHED	95d65b2ca894	active	-	0	-	-	The tool shall report an entry that was accepted earlier and no longer exists, unless it was retired. | An agent deletes an accepted requirement entry, runs the check, and sees the ID named as vanished with a failing exit code.
+REQ-TRACE-WEAKENED	a9c19a2a1b12	active	-	0	-	-	The tool shall flag a requirement change that removes a strong word, adds a weak word, or changes a number. | An agent changes "at most 30" to "at most 60" in a requirement, a person runs `report`, and sees it flagged as possibly weakened.
+TEST-GAPS-EXIT-GAP	f8f3b578da45	active	-	1	b4283763ace9	-	-
+TEST-GAPS-EXIT-PASS	057afba7444a	active	-	1	d6e89ce67dd5	-	-
+TEST-GAPS-EXIT-USAGE	04fd787333d8	active	-	1	9f61400c16da	-	-
+TEST-GAPS-ZERO-TESTS	fac389b2e870	active	-	1	e19ce5614f31	-	-
+TEST-TRACE-ACTIONABLE	558f221619d8	active	-	1	d99066d43a1f	-	-
+TEST-TRACE-ALLOW-GAP	5cdae3d02734	active	-	1	1ad087fff6a5	-	-
+TEST-TRACE-CHANGED-VISIBLE	f0c068a52b93	active	-	1	1eb1c0807e46	-	-
+TEST-TRACE-CLAIM-NEEDS-PASS	ec526c46679f	active	-	1	71c9b4324ef0	-	-
+TEST-TRACE-COUNTS	8a6f606e9b9d	active	-	1	1e2d45849041	-	-
+TEST-TRACE-DUPLICATE-ID	2e29406d6c1e	active	-	1	e7d09e6d6a2b	-	-
+TEST-TRACE-IGNORE-PATH	1556930af171	active	-	1	f67880c22d1f	-	-
+TEST-TRACE-JSON	3e46566d0e55	active	-	1	be5b3c23af36	-	-
+TEST-TRACE-MARKER-LANGUAGES	883122abeafe	active	-	1	d54ed1518066	-	-
+TEST-TRACE-MARKER-REMOVED	071b58e1cd84	active	-	1	c9933329dc71	-	-
+TEST-TRACE-MISSING-FIELD	614d36fa7cd6	active	-	1	2c36d0e85f6d	-	-
+TEST-TRACE-NEAR-MISS	031ec8e181bf	active	-	1	3c393c8f2c80	-	-
+TEST-TRACE-NO-PRODUCTION-MARKS	874e8e72653e	active	-	1	fc25d3f7e81f	-	-
+TEST-TRACE-NO-RESULTS-HONEST	442ac2bdc54f	active	-	1	c2d1729b16d4	-	-
+TEST-TRACE-ONE-COMMAND	326ed9f9c267	active	-	1	5414ae3a438c	-	-
+TEST-TRACE-ONLY-CHANGE-BLOCKS	f05e2460a1c6	active	-	1	989ffd3f6b75	-	-
+TEST-TRACE-PROOF-KINDS	fe8d4ff4db70	active	-	1	d7960f2f3384	-	-
+TEST-TRACE-REPORT	53c1287a06fc	active	-	1	afaf138b15a6	-	-
+TEST-TRACE-SABOTAGE	2adb37fd412d	active	-	1	-	-	-
+TEST-TRACE-SHOW	6879aa75fdad	active	-	1	78396e707656	-	-
+TEST-TRACE-STALE-RESULTS	27da1f711d4e	active	-	1	24aeb1ad106e	-	-
+TEST-TRACE-SUSPECT	f832c1a210a9	active	-	1	b7af71b74648	-	-
+TEST-TRACE-UNKNOWN-REFERENCE	0e35feb30fff	active	-	1	0034f487b9d3	-	-
+TEST-TRACE-UNPROVEN	ab9d23e010f0	active	-	1	19c1ebc45cbe	-	-
+TEST-TRACE-UNREADABLE-LINE	bc0cfb02d9c2	active	-	1	e49469608b14	-	-
+TEST-TRACE-VANISHED	e58244378a5f	active	-	1	95d65b2ca894	-	-
+TEST-TRACE-WEAKENED	06ff1fa2d10d	active	-	1	a9c19a2a1b12	-	-

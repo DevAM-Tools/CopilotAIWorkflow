@@ -50,7 +50,11 @@ internal static class CoberturaReader
 
     #region Private helpers
 
-    private static bool _TryReadCore(string path, BranchGapScope? scope, out Models.CoberturaDocument? document, out string? error)
+    private static bool _TryReadCore(
+        string path,
+        BranchGapScope? scope,
+        out Models.CoberturaDocument? document,
+        out string? error)
     {
         document = null;
         error = null;
@@ -98,7 +102,12 @@ internal static class CoberturaReader
         }
     }
 
-    private static bool _TryParse(XmlReader reader, string path, BranchGapScope? scope, out Models.CoberturaDocument? document, out string? error)
+    private static bool _TryParse(
+        XmlReader reader,
+        string path,
+        BranchGapScope? scope,
+        out Models.CoberturaDocument? document,
+        out string? error)
     {
         document = null;
         error = null;

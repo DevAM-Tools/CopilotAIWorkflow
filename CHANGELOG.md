@@ -2,6 +2,71 @@
 
 All notable changes to this project are documented in this file.
 
+## Unreleased
+
+Package release notes (full detail):
+
+| Package | Version | Changelog |
+|---------|---------|-----------|
+| CSharpStyleChecker | 2.0.0 (breaking) | [src/CSharpStyleChecker/CHANGELOG.md](src/CSharpStyleChecker/CHANGELOG.md) |
+| ExitPointGaps | 1.1.2 | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
+| ReqTrace | 0.1.0 (new) | [src/ReqTrace/CHANGELOG.md](src/ReqTrace/CHANGELOG.md) |
+| InvariantStringHelper | 1.0.0 (unchanged) | [src/InvariantStringHelper/CHANGELOG.md](src/InvariantStringHelper/CHANGELOG.md) |
+
+### Packages
+
+- Each package releases on its own version line and packs alone: `dotnet pack src/{Project}/{Project}.csproj -c Release`. `Directory.Build.props` sets no shared version; each package ships its own `PACKAGE_README.md` instead of the shared one. Steps: [docs/guides/release-a-package.md](docs/guides/release-a-package.md).
+- A dotnet tool package holds exactly what its publish produced: the publish folder is emptied before each publish of a tool. ExitPointGaps 1.1.1 on nuget.org carried seven files of the pre-rename `CoverageGap.Tool`; 1.1.2 ships without them.
+- **Rule change** one release path for every package: `dotnet pack src/{Project}/{Project}.csproj -c Release` writes `artifacts/release/{PackageId}.{version}.nupkg`. A build no longer packs, so a Release build leaves released packages alone (before: libraries and the analyzer were packed into `artifacts/` on every Release build). Before the pack builds, each project, project references included, empties its `bin/` output. A Debug pack, `--no-build`, and a pack from an IDE or `dotnet msbuild -t:Pack` stop with an error that names the command. The sample's packed-package check restores from `artifacts/release/` into a private packages folder. `tech-solution.md` § Release packages; [decision record](docs/decisions/release-pack-path.md).
+- **Rule change** `tech-csharp.md` and `tech-solution.md`: reference CSharpStyleChecker `2.*` (was `1.*`). A `1.*` reference stays on 1.2.0 and its 160-character default.
+
+### ReqTrace 0.1.0 (new)
+
+- The dotnet tool `ReqTrace` (`dotnet tool install ReqTrace --version 0.*`, command `reqtrace`). The name `SpecTrace` belongs to an unrelated package on nuget.org.
+- `reqtrace` checks the links between requirements, test cards, and tests: closed-world reading of `spec/`, markers in C#, Python, and Rust tests, comparison with the accepted state in `spec/trace.lock`, and test evidence from TRX files. About 80 ms per run on this repository on Windows, 40 ms on Linux. See [`docs/agents.md`](docs/agents.md).
+- `/requirements`, `/plan`, `/implement`, `/review`, `/dream`, `/evolve`, the Spec delta, and the briefing use it; `tech-spec.md` § Integrity checks says what it covers, `tech-reqtrace.md` how to set it up, call it, and proceed without it.
+- Pilot on ExitPointGaps: four exit-code behaviors are traced end to end.
+- New `tech-reqtrace.md`, loaded with `tech-spec.md`: how to call the tool in this repository and in others, one-time setup as a local dotnet tool (install only after approval, exact version, `dotnet tool restore` on a fresh clone), which command runs at which workflow moment, exit codes, what to do and never do per rule, test evidence from TRX (.NET only), and the ignore list. `docs/agents.md` stays the product reference.
+- **Rule change** every person's approval records the accepted state: `/requirements` approval of the Spec delta and `/plan` approval now set their entries `active` and run `reqtrace accept --allow-gap "<where the proof follows>"`; Gate A passes `--allow-gap` (before: plain `accept`, which refused new entries without tests); Gate B and an `accept` reply to the `/implement` run report record the new test markers, so a later deleted test is an error instead of an open gap. Entries are `proposed` until that approval (before: until Gate A only).
+- `/plan` runs `reqtrace check` after writing cards and `show` before changing one; `/implement` step 9 and Stage 3 check with test evidence; `/review` treats exit `2` as a check that did not run and never accepts; `/dream` never accepts and leaves C3 of its own rewording to the next review.
+
+### Workflow kit
+
+- **Rule change** Section 4.1 and `tech-spec.md`: a test may carry the one marker of its test card. Production code still may not hold IDs. The card field `Code` is replaced by the marker. Requirements gain a required `Proof` field (`test`, `demo`, `review`, `waived`).
+
+- New `/evolve` (`workflow-evolve.md`): continuous requirements-driven development with three human gates (Spec, Escalation, Release), work sized S, M, or L, tests first, proof as a user, and state in `spec/state.md`.
+- New `/dream` (`workflow-dream.md`): consolidates domain knowledge, requirements, and test content and repairs the trace; never changes production code.
+- New `tech-spec.md`: tracked `spec/` per area, stable IDs, requirement entries, test cards, one-home trace to code, integrity checks I1–I11, rules for editing shared knowledge, domain knowledge in `docs/domain/` with index and inbox.
+- New `tech-reporting.md`: reader-first rules, attention marks, length budgets, decision cards, blocker form, Spec delta, briefing, run report. Blocker and run report forms move here from Section 4.16.
+- New `tech-agent-access.md` and Section 4.18: every application has an agent surface unless a requirement waives it.
+- New `tech-sweep.md`: views and Sweep move out of `workflow-council.md`, so `/plan` and `/review` no longer load the council skill.
+- New `workflow-plan-templates.md` and `workflow-review-templates.md`: templates load at the writing stage.
+- **Rule change** Section 4.16: every open point is Covered, Detail, Assumption, or Decision. Only Decision reaches a person, and other work continues. Grill Me asks Decision-class points only.
+- **Rule change** Section 1: out-of-scope discoveries are recorded and the run continues, unless the scope depends on them.
+- **Rule change** Section 3: print `Loaded: <skills>` before the first edit; read a skill again when it cannot be quoted.
+- New Section 4.17 Context budget. New rule in Section 4.5: never delete or weaken a test to get green. Section 6: `/implement` also runs inside `/evolve` after Gate A.
+- **Rule change** `/requirements`: requirements live per area in `spec/`, not per task in `requirements/req_<slug>.md`; Full and Delta mode; each entry is checked against the existing spec; test cards move from the plan to `spec/tests/`.
+- **Rule change** the briefing is a reviewer’s guide: a one-screen head, a **Concept** section (the idea, a type-and-data-flow diagram, one row per new or changed type with its role, why it exists, and which similar type it must not be confused with), and a structured card with a reduced code snippet per file marked Judge or Sample. Routine files get one table row. Attention marks are the words Judge, Sample, and Routine; red, yellow, and green symbols are not used, because red reads as a failure.
+- **Rule change** `tech-web.md`: breakpoints are 744, 1280, 1920, 2560 (were 768, 1024, 1280), floor test at 320 × 568; width policy per page type; tables become card lists and never scroll horizontally; overflow rules; icon language with tooltips, including keyboard and touch. `tech-playwright.md` asserts overflow at each viewport.
+- `copilot-instructions.md` falls from 30 KB to about 22 KB: limit details move to `tech-limits.md` § Principles, and UI and doc details to their skills. `workflow-plan.md` falls from 28 KB to 11 KB plus 14 KB of templates, and `workflow-review.md` from 30 KB to 16 KB plus 8 KB of templates.
+- **Rule change** `tech-instructions.md`: a workflow skill loads once for its task, so precision wins over size there. Budgets rise to 20 KB per workflow skill and 16 KB per templates companion. Every step leaves a checkable trace; every demanded artifact section has a template or a filled example; a term that draws a line gets a decision rule with one example per side; a table cell that only names a topic is not a rule.
+- **Rule change** `/plan`: Grill Me records one line per topic in the Context Anchor **Topics** (`n/a — why` included); a topic without a line was not walked. The topic table says what to settle per topic. Test cards cover each applicable class per behavior or name an `Out`. `workflow-plan-templates.md` gains a filled step as worked example, a Wrong `How`, and templates for the Context Anchor, Slices, Edge Cases and Risks, `C{n}`, and the Task Checklist.
+- **Rule change** `/review`: Category Rules decide the bucket by four ordered questions with an example each, and define High, Medium, and Low for Errors and Performance findings. Cosmetic means the fix changes no content (form only: order, layout, wording); which rule was missed does not decide the bucket. Templates for **Scope** and **Test Execution**; a bucket section without findings says `none`.
+- `/implement`: each Stage 2 item names its trace (status surfaces, Deviation record, ticked Acceptance boxes, domain page); an `After` that cannot work as written is a Deviation or needs approval; four Wrong/Right pairs for the common shortcuts.
+- `/requirements`: examples for splitting and keeping entries, for conflict versus narrower entry, and for Decision versus Assumption.
+- `/evolve`: a filled `spec/state.md` with one **Queue** line per slice, a worked intake example, only explicit words approve at Gate A, the expected reason of a failing first test, size S reviews until clean, proof as a user also for libraries, and what Gate B shows in chat.
+- `tech-instructions.md`: size budgets, a named load in the stage that needs it, a rule for when an example earns its place, and new coupling rows. A compaction keeps sentences that exclude a known shortcut, the examples inside a definition, and the check keywords of a check table; a pointer never replaces a checklist.
+- Compaction check of `/plan`, `/review`, `/implement`, `/requirements`, and `copilot-instructions.md` against their previous text: the review hunts Security, Races, Correctness, Repo, Debug, Consistency, and Docs project name their check points again; `/implement` again forbids ticking `Met` because `How` alluded to the outcome and stopping “Review until clean” at zero Errors; Section 4.6 lists which documents are English, workflow folders included.
+- **Rule change** Section 4.16: a question to a person states what it is about in plain words, what happens today with a concrete example, why it matters, and what each option gives the reader; four checks run before sending, with a Wrong/Right pair. `tech-reporting.md`: **Needs you**, the Spec delta, and Gate E show each decision in full; a link or ID alone is incomplete.
+- **Rule change** `/illustrate`: a teaching design and storyboard come first; every motion shows a state change of the subject; forms per subject; interaction changes the outcome; the illustration simulates real logic; visual rules; teaching checks (Mute, Freeze, Replace, Insight, Real data) and an assert that stepping changes displayed values.
+- `tech-csharp.md`, `tech-rust.md`, `tech-python.md` compacted: examples that repeated their rule removed or shortened. No rule removed. The limit comment example moves to `tech-limits.md`.
+- Fix: `tech-rust.md` and `tech-python.md` no longer recommend host-derived limit defaults, which `tech-limits.md` forbids.
+- New rule in `tech-csharp.md`: classes and structs whose construction only stores its parameters use a primary constructor; construction that must run a statement, such as a guard, keeps an explicit constructor.
+- **Removed** `/complex-task` and `/review-loop`. Use `/evolve`, or `/plan` then `/implement`. `/implement` keeps its step reviews and Closing Review; `/docs-repair` and the Rust port workflows use the new `workflow-implement.md` § Review until clean.
+- **Rule change** the maximum line length falls from 160 to 130 for C#, Rust, and Python. CSC001 defaults to 130 ([CSharpStyleChecker changelog](src/CSharpStyleChecker/CHANGELOG.md)).
+- New `tech-solution.md` § Vulnerable packages: how to fix NU1901–NU1904 restore failures for direct and transitive packages, and which audit switches never to touch.
+- **Rule change** `tech-csharp.md`: SIMD code branches widest first, `Vector512` → `Vector256` → `Vector128` → scalar, each width on its `IsHardwareAccelerated`.
+
 ## 1.2.0
 
 Package release notes (full detail):
@@ -15,6 +80,16 @@ Package release notes (full detail):
 ### Workflow kit
 
 - `tech-solution.md` § Raising a diagnostic to error: raise single diagnostics by ID in the root `.editorconfig`, never by category or analysis level. `IDE0005` (unnecessary using) becomes an error; it can miss unused `global using` entries, so `/review` still checks `GlobalUsings.cs` for unused entries and order.
+- New `tech-limits.md` (loads on a trust-boundary limit in scope, Section 3 row): the limits mechanism for every technology, the decisions each project makes (no numbers in the kit), the audit as part of `/review`, and the reference implementations. The Limits bullet of `tech-csharp.md` names the packages `NetworkInspector.Limits` and `NetworkInspector.Settings`; `tech-rust.md` and `tech-python.md` say that none exists yet. New term `Limit definition`.
+- `copilot-instructions.md` Section 4.2: when a project chose no posture for a limit, the default is secure by default (active, finite, never tighter than the host handles); "Neither wins by rule" is removed. The bullet that keeps a ceiling out of end-user reach stays: it is a decision of the application.
+- `tech-test.md`: the limit test cases include `off` when the mechanism offers it.
+- `workflow-review.md`: a Limits hunt. A bare bound at a trust boundary is an Error; a review whose scope names the audit classifies every bound and writes the register in a tracked document. The Security bullet points to `tech-limits.md` and `copilot-instructions.md` Section 4.2.
+- `workflow-plan.md` Stage 1: check every existing member the plan names against the code by name; a snippet that calls a missing member is a gap. Stage 3: the limits topic names the register and the policy slots of `tech-limits.md`.
+- `tech-test.md` § Allocation tests: measure in several rounds and assert on the smallest round.
+- `tech-solution.md` § CSharpStyleChecker: build every touched project with the checker enabled and read all checker output for the touched files.
+- `tech-limits.md`: fix each default as one number for the reference machine of the project; never derive a default from the memory or the processors at run time. The slot "Memory budget of all derived shares" and the exact-integer share rule are removed; the limit tests and the catalog test no longer name a machine or a budget. The C# reference implementation lists the live holder, the unit parts, and the duplicate check.- `tech-csharp.md` Limits bullet: one fixed default per limit for the reference machine instead of defaults derived from `GC.GetGCMemoryInfo()` and `Environment.ProcessorCount`; the example comment no longer calls a fixed constant the rejected option.- `docs/decisions/limits-mechanism.md`: the memory budget leaves the slot list; rejected option added: defaults derived from the machine.
+- `tech-csharp.md` Limits bullet: one fixed default per limit for the reference machine instead of defaults derived from `GC.GetGCMemoryInfo()` and `Environment.ProcessorCount`; the example comment no longer calls a fixed constant the rejected option.
+- `docs/decisions/limits-mechanism.md`: the memory budget leaves the slot list; rejected option added: defaults derived from the machine.
 
 ### InvariantStringHelper (new, 1.0.0)
 

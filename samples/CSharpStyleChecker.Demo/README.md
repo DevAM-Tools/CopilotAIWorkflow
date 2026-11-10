@@ -20,7 +20,7 @@ dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c R
 
 | File | Rule | What it demonstrates |
 |------|------|----------------------|
-| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 160 visible characters (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
+| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 130 visible characters (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
 | `Violations/Csc002_NoVar.cs` | CSC002 | `var` in a local declaration |
 | `Violations/Csc003_PrivateNaming.cs` | CSC003 | Private field without `_PascalCase` |
 | `Violations/Csc004_TaskBlocking.cs` | CSC004 | Blocking `.Result` / `.Wait()` / `GetAwaiter().GetResult()` / `WaitAll` / `WaitAny` on task types |
@@ -41,21 +41,22 @@ To test a single rule, temporarily remove the other `.cs` files from `Violations
 Add the analyzer package explicitly:
 
 ```xml
-<PackageReference Include="CSharpStyleChecker" Version="1.*" />
+<PackageReference Include="CSharpStyleChecker" Version="2.*" />
 ```
 
 Requires SDK-style `netstandard2.0` (or .NET Core App) and **.NET SDK 9.0.300+** (Roslyn 4.14). See the root [README.md](../../README.md#csharpstylechecker).
 
 ## Packed NuGet verification (CI)
 
-After `dotnet build CopilotAIWorkflow.slnx -c Release` (creates `artifacts/*.nupkg`):
+Pack the analyzer, then build the sample against that package:
 
 ```bash
+dotnet pack src/CSharpStyleChecker/CSharpStyleChecker.csproj -c Release
 dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c Release -p:UseNuGetPackage=true
 dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c Release -p:UseNuGetPackage=true -p:IncludeViolations=true
 ```
 
-Restore uses `nuget.config` to prefer `artifacts/` as a local feed. Expect build failure with `IncludeViolations=true`.
+With `UseNuGetPackage=true`, restore adds `artifacts/release/` as a package source and uses the private packages folder `obj/packages/`, so an older build of the same version in `~/.nuget/packages` cannot stand in. `obj/packages/csharpstylechecker/{version}/.nupkg.metadata` names the source that was used. The first build succeeds; the second fails with CSC001–CSC009.
 
 ## Custom line length (CSC001)
 

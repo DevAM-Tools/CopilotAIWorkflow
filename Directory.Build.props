@@ -16,7 +16,7 @@
     <Company>DevAM</Company>
     <Authors>DevAM</Authors>
     <Copyright>Copyright © 2026 DevAM. Licensed under the MIT License. See LICENSE in the repository root.</Copyright>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <!-- No central VersionPrefix: each package releases on its own version line and sets VersionPrefix in its project. -->
   </PropertyGroup>
   <!-- Id: CA1707. Why: TUnit test method names and some CLI identifiers use underscores that CA1707 rejects. Why global: applies to every test method and the ExitPointGaps tool project; a pragma per member is not viable. User approved. -->
   <!-- Id: CA1515. Why: ExitPointGaps is a PackAsTool executable; Program and related entry types must stay public for the host. Why global: project-wide tool entry surface, not a single method. User approved. -->

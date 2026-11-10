@@ -16,8 +16,17 @@
     <UseNuGetPackage Condition="'$(UseNuGetPackage)' == ''">false</UseNuGetPackage>
     <ApplyCSharpStyleChecker Condition="'$(UseNuGetPackage)' == 'true'">false</ApplyCSharpStyleChecker>
   </PropertyGroup>
+  <!--
+    The packed-package check restores the package that `dotnet pack` just wrote to artifacts/release/.
+    A private packages folder keeps a copy of the same version from ~/.nuget/packages, built earlier,
+    from standing in for it. Sync: README.md § Packed NuGet verification beside this file.
+  -->
+  <PropertyGroup Condition="'$(UseNuGetPackage)' == 'true'">
+    <RestoreAdditionalProjectSources>$(MSBuildThisFileDirectory)..\..\artifacts\release</RestoreAdditionalProjectSources>
+    <RestorePackagesPath>$(MSBuildThisFileDirectory)obj\packages</RestorePackagesPath>
+  </PropertyGroup>
   <ItemGroup Condition="'$(UseNuGetPackage)' == 'true'">
-    <PackageReference Include="CSharpStyleChecker" Version="1.*" />
+    <PackageReference Include="CSharpStyleChecker" Version="2.*" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />

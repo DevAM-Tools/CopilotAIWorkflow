@@ -13,7 +13,8 @@ namespace ExitPoints;
 /// Does not model <c>goto</c> (not an exit point), filter/catch-only control flow, or async state-machine exits inside
 /// expression-bodied members; those patterns may be under-reported. <c>yield return</c> is not an exit point; only
 /// <c>yield break</c> terminates the iterator. Models <c>??</c> and <c>??=</c> as dual completion arms.
-/// Multi-arm <c>?:</c>, <c>??</c>, <c>??=</c>, and <c>switch</c> exits share an <see cref="ExitPointEntry.OperatorGroupId"/> across line breaks.
+/// Multi-arm <c>?:</c>, <c>??</c>, <c>??=</c>, and <c>switch</c> exits share an <see cref="ExitPointEntry.OperatorGroupId"/>
+/// across line breaks.
 /// </remarks>
 internal static class CompletionWalker
 {

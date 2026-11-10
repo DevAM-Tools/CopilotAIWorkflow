@@ -15,14 +15,19 @@ namespace CSharpStyleChecker.Analyzers;
 /// interpolation form wherever the compilation offers it.
 /// </summary>
 /// <remarks>
-/// Allowed interpolation: <c>Invariant($"…")</c> from the InvariantStringHelper package (<c>InvariantStringHelper.InvariantText.Invariant</c>),
+/// Allowed interpolation: <c>Invariant($"…")</c> from the InvariantStringHelper package
+/// (<c>InvariantStringHelper.InvariantText.Invariant</c>),
 /// <c>string.Create(CultureInfo.InvariantCulture, $"…")</c>, and
-/// <c>StringBuilder.Append</c> / <c>AppendLine(CultureInfo.InvariantCulture, $"…")</c>. All three bind to an interpolated string handler,
+/// <c>StringBuilder.Append</c> / <c>AppendLine(CultureInfo.InvariantCulture, $"…")</c>. All three bind to an interpolated
+/// string handler,
 /// so no <see cref="System.FormattableString"/> and no <c>object[]</c> are allocated and value-type arguments are not boxed.
-/// <c>FormattableString.Invariant</c> / <c>Invariant($"…")</c> of <c>System.FormattableString</c> allocates all three. It is therefore an
-/// error when the compilation can bind <c>string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)</c> (.NET 6 and later),
+/// <c>FormattableString.Invariant</c> / <c>Invariant($"…")</c> of <c>System.FormattableString</c> allocates all three.
+/// It is therefore an
+/// error when the compilation can bind <c>string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)</c>
+/// (.NET 6 and later),
 /// and it stays allowed on targets without that overload (<c>netstandard2.0</c>), where it is the only invariant interpolation.
-/// The helper is recognized by symbol identity (metadata names below), so a method that only shares the name <c>Invariant</c> is not
+/// The helper is recognized by symbol identity (metadata names below), so a method that only shares the name
+/// <c>Invariant</c> is not
 /// accepted. A project that declares these types itself is trusted: its owner controls them.
 /// Thread safety: stateless; the per-compilation <c>SymbolCache</c> is immutable.
 /// Architecture: docs/architecture.md § CSharpStyleChecker.
@@ -40,7 +45,8 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
         "Add the InvariantStringHelper package and use Invariant($\"…\") (StringBuilder.Append with CultureInfo.InvariantCulture "
         + "for builders) instead of a bare interpolated string";
 
-    // Target or language version without interpolated string handlers: FormattableString.Invariant is the only invariant interpolation.
+    // Target or language version without interpolated string handlers: FormattableString.Invariant is the only invariant
+    // interpolation.
     private const string LegacyInterpolationMessage =
         "Use FormattableString.Invariant($\"…\") (for example Invariant($\"…\") with 'using static System.FormattableString;') "
         + "instead of a bare interpolated string; this target has no allocation-free alternative";
@@ -61,10 +67,15 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
     private const string ToStringMessage =
         "Pass CultureInfo.InvariantCulture to ToString";
 
-    /// <summary>Metadata name of the InvariantStringHelper helper class. Sync: src/InvariantStringHelper/InvariantText.cs.</summary>
+    /// <summary>
+    /// Metadata name of the InvariantStringHelper helper class. Sync: src/InvariantStringHelper/InvariantText.cs.
+    /// </summary>
     internal const string InvariantTextMetadataName = "InvariantStringHelper.InvariantText";
 
-    /// <summary>Metadata name of the InvariantStringHelper handler type. Sync: src/InvariantStringHelper/InvariantInterpolatedStringHandler.cs.</summary>
+    /// <summary>
+    /// Metadata name of the InvariantStringHelper handler type.
+    /// Sync: src/InvariantStringHelper/InvariantInterpolatedStringHandler.cs.
+    /// </summary>
     internal const string InvariantHandlerMetadataName = "InvariantStringHelper.InvariantInterpolatedStringHandler";
 
     /// <summary>Name of the helper method. Sync: src/InvariantStringHelper/InvariantText.cs.</summary>
@@ -109,7 +120,8 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        // FormattableString.Invariant is the only invariant interpolation on targets without the handler overload; with it, the wrapper is the defect.
+        // FormattableString.Invariant is the only invariant interpolation on targets without the handler overload;
+        // with it, the wrapper is the defect.
         if (wrapper == InterpolationWrapper.FormattableStringInvariant
             && !cache.HasInterpolatedStringCreate)
         {
@@ -124,7 +136,8 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Picks the diagnostic text; names the InvariantStringHelper helper when the compilation references it.</summary>
-    /// <param name="wrapper">The wrapper the interpolated string was passed to; never <see cref="InterpolationWrapper.AllocationFree"/>.</param>
+    /// <param name="wrapper">The wrapper the interpolated string was passed to;
+    /// never <see cref="InterpolationWrapper.AllocationFree"/>.</param>
     /// <param name="cache">The compilation's symbols.</param>
     /// <returns>The message that fills the diagnostic's <c>{0}</c> argument.</returns>
     private static string SelectMessage(InterpolationWrapper wrapper, SymbolCache cache)
@@ -184,7 +197,8 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
     /// Reason: binder edge paths for reduced/extension symbols are covered by verifier diagnostics.
     /// </summary>
     /// <returns>
-    /// <see cref="InterpolationWrapper.AllocationFree"/> for the InvariantStringHelper <c>Invariant</c> method, <c>string.Create</c>, and
+    /// <see cref="InterpolationWrapper.AllocationFree"/> for the InvariantStringHelper <c>Invariant</c> method,
+    /// <c>string.Create</c>, and
     /// <c>StringBuilder.Append</c> with the invariant culture, <see cref="InterpolationWrapper.FormattableStringInvariant"/> for
     /// <c>FormattableString.Invariant</c>, otherwise <see cref="InterpolationWrapper.None"/>.
     /// </returns>
@@ -450,14 +464,22 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
         /// <summary>Not an argument of a recognized invariant API.</summary>
         None,
 
-        /// <summary>Argument of <c>string.Create</c> or <c>StringBuilder.Append</c> with the invariant culture; handler-based, no extra allocation.</summary>
+        /// <summary>
+        /// Argument of <c>string.Create</c> or <c>StringBuilder.Append</c> with the invariant culture;
+        /// handler-based, no extra allocation.
+        /// </summary>
         AllocationFree,
 
-        /// <summary>Argument of <c>FormattableString.Invariant</c>; allocates a <see cref="System.FormattableString"/> and an <c>object[]</c>.</summary>
+        /// <summary>
+        /// Argument of <c>FormattableString.Invariant</c>;
+        /// allocates a <see cref="System.FormattableString"/> and an <c>object[]</c>.
+        /// </summary>
         FormattableStringInvariant,
     }
 
-    /// <summary>Symbols of one compilation, resolved once per compilation start; null members mean the type is not referenced.</summary>
+    /// <summary>
+    /// Symbols of one compilation, resolved once per compilation start; null members mean the type is not referenced.
+    /// </summary>
     private sealed class SymbolCache
     {
         private SymbolCache(
@@ -481,14 +503,16 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
         }
 
         /// <summary>
-        /// True when the compilation binds <c>string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)</c>, which is the
-        /// case for .NET 6 and later and not for <c>netstandard2.0</c>. It decides whether <c>Invariant($"…")</c> is still acceptable.
+        /// True when the compilation binds <c>string.Create(IFormatProvider, ref DefaultInterpolatedStringHandler)</c>, which is
+        /// the case for .NET 6 and later and not for <c>netstandard2.0</c>. It decides whether <c>Invariant($"…")</c> is still
+        /// acceptable.
         /// </summary>
         public bool HasInterpolatedStringCreate { get; }
 
         /// <summary>
-        /// The static <c>InvariantStringHelper.InvariantText.Invariant(ref InvariantInterpolatedStringHandler)</c> method, or null when the
-        /// compilation does not reference InvariantStringHelper (or two assemblies define the names, which makes the lookup ambiguous).
+        /// The static <c>InvariantStringHelper.InvariantText.Invariant(ref InvariantInterpolatedStringHandler)</c> method,
+        /// or null when the compilation does not reference InvariantStringHelper (or two assemblies define the names,
+        /// which makes the lookup ambiguous).
         /// </summary>
         public IMethodSymbol InvariantStringHelperInvariant { get; }
 
@@ -549,9 +573,12 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
                 FindInvariantStringHelperMethod(compilation));
         }
 
-        /// <summary>Finds the InvariantStringHelper helper by metadata name and checks its single by-reference handler parameter.</summary>
+        /// <summary>
+        /// Finds the InvariantStringHelper helper by metadata name and checks its single by-reference handler parameter.
+        /// </summary>
         /// <param name="compilation">The compilation to search.</param>
-        /// <returns>The method symbol, or null when the types or the method are missing; an ambiguous type name also yields null (fail closed).</returns>
+        /// <returns>The method symbol, or null when the types or the method are missing;
+        /// an ambiguous type name also yields null (fail closed).</returns>
         private static IMethodSymbol FindInvariantStringHelperMethod(Compilation compilation)
         {
             INamedTypeSymbol textType = compilation.GetTypeByMetadataName(InvariantTextMetadataName);
@@ -577,8 +604,8 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
         }
 
         /// <summary>
-        /// True when the compiler can build interpolated string handlers: C# 10 or later. A project that targets .NET 6 but pins an older
-        /// <c>LangVersion</c> has the framework overload and cannot use it, so it must not be pointed at it.
+        /// True when the compiler can build interpolated string handlers: C# 10 or later. A project that targets .NET 6 but pins
+        /// an older <c>LangVersion</c> has the framework overload and cannot use it, so it must not be pointed at it.
         /// </summary>
         /// <param name="compilation">The compilation whose language version is read.</param>
         /// <returns>True for a C# compilation at language version 10 or later.</returns>
@@ -588,7 +615,9 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
                 && csharp.LanguageVersion.MapSpecifiedToEffectiveVersion() >= LanguageVersion.CSharp10;
         }
 
-        /// <summary>Looks for the static <c>string.Create</c> overload whose second parameter is the interpolated string handler.</summary>
+        /// <summary>
+        /// Looks for the static <c>string.Create</c> overload whose second parameter is the interpolated string handler.
+        /// </summary>
         /// <param name="compilation">The compilation whose referenced <c>System.String</c> is searched.</param>
         /// <param name="iFormatProviderType">The <c>IFormatProvider</c> symbol; null when it is not referenced.</param>
         /// <returns>True when the overload exists in the referenced framework.</returns>

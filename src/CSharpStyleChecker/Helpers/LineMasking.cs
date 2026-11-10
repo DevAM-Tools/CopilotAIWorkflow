@@ -362,7 +362,8 @@ internal static class LineMasking
     }
 
     /// <summary>
-    /// Opens verbatim, raw, regular, interpolated, or character literals. Leaves <paramref name="index"/> on the last consumed char.
+    /// Opens verbatim, raw, regular, interpolated, or character literals. Leaves <paramref name="index"/> on the last
+    /// consumed char.
     /// </summary>
     private static bool TryOpenString(
         SourceReader reader,

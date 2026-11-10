@@ -69,7 +69,12 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol taskOfT,
         INamedTypeSymbol valueTaskOfT)
     {
-        if (!TryGetTaskResultLocation(context, (MemberAccessExpressionSyntax)context.Node, taskOfT, valueTaskOfT, out Location location))
+        if (!TryGetTaskResultLocation(
+                context,
+                (MemberAccessExpressionSyntax)context.Node,
+                taskOfT,
+                valueTaskOfT,
+                out Location location))
         {
             return;
         }
@@ -79,7 +84,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Resolves instance <c>Task.Wait</c> locations.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetTaskWaitLocation(
@@ -112,7 +118,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Resolves static <c>Task.WaitAll</c> / <c>Task.WaitAny</c> locations.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetStaticWaitLocation(
@@ -151,7 +158,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Resolves <c>GetAwaiter().GetResult()</c> on task-family receivers.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetGetResultLocation(
@@ -189,7 +197,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Resolves <c>.Result</c> on <c>Task&lt;T&gt;</c> / <c>ValueTask&lt;T&gt;</c>.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool TryGetTaskResultLocation(
@@ -224,7 +233,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Matches <c>Task</c> / <c>Task&lt;T&gt;</c>.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool IsTaskOrTaskOfT(ITypeSymbol type, INamedTypeSymbol task, INamedTypeSymbol taskOfT)
@@ -241,7 +251,8 @@ public sealed class TaskBlockingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Matches <c>Task</c> / <c>Task&lt;T&gt;</c> / <c>ValueTask</c> / <c>ValueTask&lt;T&gt;</c>.
-    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on this helper.
+    /// Reason: defensive binder edge paths are exercised via analyzer verifier diagnostics, not line-level coverage on
+    /// this helper.
     /// </summary>
     [ExcludeFromCodeCoverage]
     private static bool IsTaskFamily(

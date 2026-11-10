@@ -67,7 +67,7 @@ public sealed class ProgramTests
         await Assert.That(exitCode).IsEqualTo(0);
     }
 
-    [Test]
+    [Test, Property("Card", "TEST-GAPS-EXIT-USAGE")]
     public async Task Main_Run_InvalidFormat_ReturnsUsageError()
     {
         string csproj = Path.Combine(_RepositoryRoot, "src", "ExitPoints", "ExitPoints.csproj");

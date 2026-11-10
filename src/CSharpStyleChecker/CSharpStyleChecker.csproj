@@ -12,8 +12,8 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-    <!-- Overrides the central VersionPrefix in Directory.Build.props: the packages release on their own version lines. -->
-    <VersionPrefix>1.2.0</VersionPrefix>
+    <!-- Each package releases on its own version line (Directory.Build.props sets none). -->
+    <VersionPrefix>2.0.0</VersionPrefix>
     <PackageId>CSharpStyleChecker</PackageId>
     <Description>Roslyn analyzers enforcing CopilotAIWorkflow C# style conventions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
