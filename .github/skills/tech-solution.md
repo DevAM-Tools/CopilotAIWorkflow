@@ -73,10 +73,21 @@ CA1848 and CA2254 (logging through `[LoggerMessage]` with constant templates) ar
 - ❗ Never raise by group: no `dotnet_analyzer_diagnostic.severity`, no `dotnet_analyzer_diagnostic.category-*.severity`, no higher `AnalysisLevel` or `AnalysisMode`. They switch on rules nobody chose.
 - ❗ Raise `IDE0005` (unnecessary using) to error. It needs `EnforceCodeStyleInBuild` and `GenerateDocumentationFile` from the table above.
 - `IDE0005` misses some unused entries in `GlobalUsings.cs`, and the build does not check their order. `/review` checks both by hand.
+- ❗ Raise the unused-code diagnostics to error in every project: `IDE0051` (private member never used), `IDE0052` (private member assigned, value never read), `IDE0059` (unnecessary assignment of a value), `IDE0060` (parameter never used). Set `dotnet_code_quality_unused_parameters = all` so public and protected methods count too.
+- An unused local (CS0168, CS0219) and a field never used or never assigned (CS0169, CS0414, CS0649) are compiler warnings: `TreatWarningsAsErrors` already fails them.
+- ❗ Fix the cause, never silence it: delete the member, parameter, or variable together with its call-site arguments, doc tags, and tests. Never add a `NoWarn`, a pragma, or `severity = none` for these IDs without user approval (template below).
+- Use a discard for an ignored value: `out _`, `_ = Call();`. Name a parameter `_` only when a delegate or interface shape forces it, and document it as ignored.
+- A field that only generated code or reflection writes is unused: remove it and register the value explicitly.
 
 ```ini
 # IDE0005: an unused using fails the build
 dotnet_diagnostic.IDE0005.severity = error
+# Unused code fails the build
+dotnet_diagnostic.IDE0051.severity = error
+dotnet_diagnostic.IDE0052.severity = error
+dotnet_diagnostic.IDE0059.severity = error
+dotnet_diagnostic.IDE0060.severity = error
+dotnet_code_quality_unused_parameters = all
 ```
 
 When a warning is hidden in MSBuild, use the **global** suppression template in `tech-csharp.md` (Lints and suppressions). One XML comment **per id**: id, why the warning is inapplicable, **why global** (not method/file/pragma), user approved.
