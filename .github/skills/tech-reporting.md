@@ -91,6 +91,7 @@ The Gate A packet. File: `reviews/delta_<slug>.md`. Chat shows the same text. ‚ù
 **Assumptions:** {default taken; what changes if wrong; or `none`}
 **Tests:** {count per class; only cards a person should look at}
 **Public API / agent surface / limits / dependencies:** {snippet or row; or `none`}
+**Builder:** {the model that builds plan steps, as the tool accepts it, or `none ‚Äî {reason}`; only while `spec/state.md` has no `Builder` line}
 **Domain facts added:** {links; or `none`}
 **Needs an answer:** {each card in full; or `none`}
 

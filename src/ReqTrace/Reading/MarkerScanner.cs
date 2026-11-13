@@ -13,6 +13,7 @@ internal static class MarkerScanner
     #region Configuration
 
     /// <summary>How many lines after a marker may hold its method; other attributes can sit between them.</summary>
+    /// <remarks>Sync: SyntaxWriter._WriteMarker (the window size in its text).</remarks>
     private const int _MethodWindow = 8;
 
     /// <summary>Size of the pooled read buffer.</summary>

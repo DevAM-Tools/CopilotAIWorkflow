@@ -18,6 +18,7 @@ Below, `reqtrace <command>` means the call of the first matching row. Run it fro
 
 - Never add `--no-build` to the first row: after a pack or a clean it fails, and after a source change it runs an old build.
 - `dotnet tool run` says `Run "dotnet tool restore"` → run `dotnet tool restore` once (fresh clone, new machine), then call again.
+- `syntax` needs ReqTrace 0.2.0 or later and runs anywhere, also without `spec/`. `Unknown command: syntax` → use `tech-spec.md` § Requirement entry and § Test card instead, and name the upgrade in the run report.
 
 ## Setup
 
@@ -40,6 +41,7 @@ The search prints `No results found`, or a version not on nuget.org yet is wante
 |--------|-----|------|
 | Before changing, retiring, or merging an existing `REQ-` or `TEST-` entry (`/requirements` Delta, `/plan`, `/dream`) | `show <ID>` | Each card and test it lists lands in the change, or the change stops |
 | After each edit to `spec/` or to a test, in every workflow | `check` | Fix every Error (§ Findings) |
+| A form finding (F1–F5), or before the first entry of a fresh spec | `syntax <kind>` (`requirement`, `card`, `marker`, `ignore`) | Copy the printed form; rewrite the line in it |
 | `/implement` step 9 and Stage 3; `/review` Tests hunt, .NET tests | Tests with TRX (§ Test evidence), then `check --results artifacts/trace-results` | E1–E4 are Errors |
 | Spec delta (Gate A, Delta mode), briefing (Gate B, `/implement` Stage 4) | `report` | Paste unedited under `## Generated report` (`tech-reporting.md`) |
 | `/review` Trace hunt | `report` | Each line under `Not confirmed yet` → § Confirm |
@@ -76,7 +78,7 @@ The `Fix:` line says what to do; this table says what the fix may not be.
 
 | Rule | Means | Do | Never |
 |------|-------|----|-------|
-| F1–F5 | A spec line, ID, field, or value breaks `tech-spec.md`, or a file holds no entry | Rewrite the line in the form of `tech-spec.md` | Delete the text to silence it |
+| F1–F5 | A spec line, ID, field, or value breaks `tech-spec.md`, or a file holds no entry | Copy the line or value the `Fix:` quotes; for the whole entry run `syntax <kind>` and rewrite the line in that form | Delete the text to silence it |
 | L1 | One ID heads two entries | Keep the older; the newer gets a new ID | Rename an ID that tests or code already cite |
 | L2 | A card proves a missing or retired requirement | Point `Proves` at the active successor (`Replaced by`), or retire the card | Revive a retired ID |
 | L3 | A marker names a missing or retired card | Fix the typo (`Did you mean …`), or write the card | Delete the marker |
@@ -139,11 +141,12 @@ Wrong: reqtrace confirm TEST-EXPORT-NO-DUPLICATE --note "ok"
 `--results` reads `.trx` files: .NET tests only. A folder means every `.trx` below it; the path is relative to the repository root. E1 and E2 concern only requirements ticked `Met ✅`.
 
 ```bash
-dotnet test --solution <Solution>.slnx -c Release -- --report-trx --results-directory artifacts/trace-results
+dotnet test --solution <Solution>.slnx -c Release --report-trx --results-directory artifacts/trace-results
 reqtrace check --results artifacts/trace-results
 ```
 
 - Run the tests right before the check; an older result file is E3.
+- Pass `--report-trx --results-directory` without a `--` before them. With `--`, the .NET 10 SDK reads the folder as a project path (`Die Angabe eines Verzeichnisses … sollte über „--project“ oder „--solution“ erfolgen` / `Specifying a directory … should be done via --project or --solution`), writes no result file, and the check then reads an old one.
 - Python and Rust: no TRX. Run `check` without `--results`. Check I7 by search: each `Met ✅` requirement has a card whose marked test passed in this run's test output. Say so in the run report.
 
 ## Ignoring a path

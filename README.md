@@ -8,7 +8,7 @@ Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Co
 [![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
 [![ReqTrace](https://img.shields.io/nuget/v/ReqTrace)](https://www.nuget.org/packages/ReqTrace/)
 
-**Current packages** — **CSharpStyleChecker** 2.0.0 (**breaking:** CSC001 defaults to 130 characters; reference `2.*`) · **ReqTrace** 0.1.0 (new: checks that each requirement reaches a passing test) · **ExitPointGaps** 1.1.2 (package cleanup) · **InvariantStringHelper** 1.0.0. Each package releases on its own; histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), [InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
+**Current packages** — **CSharpStyleChecker** 2.0.0 (**breaking:** CSC001 defaults to 130 characters; reference `2.*`) · **ReqTrace** 0.2.0 (new: `reqtrace syntax` prints the spec form; fixes quote it) · **ExitPointGaps** 1.1.2 (package cleanup) · **InvariantStringHelper** 1.0.0. Each package releases on its own; histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), [InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
 
 ---
 
@@ -216,7 +216,7 @@ counts here.
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Evolve:** `workflow-evolve.md` — dictated input → Spec delta → **Gate A** → one slice at a time: plan, tests first, implement, prove as a user → Heal → **Gate B**. Decisions wait as cards (**Gate E**) while other work continues. Work is sized S, M, or L. State resumes from `spec/state.md`
+- **Evolve:** `workflow-evolve.md` — dictated input → Spec delta → **Gate A** → one slice at a time: plan, tests first, implement, prove as a user → Heal → **Gate B**. Decisions wait as cards (**Gate E**) while other work continues. Work is sized S, M, or L. State resumes from `spec/state.md`. Where the tool can start a subagent on another model, a cheaper Builder writes each plan step's tests and code, and the session model checks it ([decision record](docs/decisions/evolve-builder.md))
 - **Dream:** `workflow-dream.md` — folds accumulated knowledge back into one consistent state: integrity checks, domain inbox and pages, requirements, test content, trace, docs. `touched` after each slice, `full` on request. Never changes production code
 - **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`) kept in `spec/`, checked against the existing spec; Full or Delta mode; context prose has no IDs; skip reinventing when the user already supplied them
 - **Plan:** `workflow-plan.md` — Interactive, or Autonomous inside `/evolve`; attached docs, sweep, Grill Me on Decision-class points only, locked `How` + Before/After, schematic API and interface snippets immediately before the steps, links to requirements and `TEST-<AREA>-<TOPIC>` cards, step Experience/Acceptance, an **Expected Experience** section right after Step Overview, an Impact search and a required `Docs` field per step, then a requirements walk **and** a conversation walk, Requirements-fit

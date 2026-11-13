@@ -17,6 +17,7 @@ Exit codes: `0` no error · `1` at least one error, each with file, line, and fi
 | `reqtrace report` | At a gate: paste its output |
 | `reqtrace accept [--allow-gap "<reason>"]` | Only after a person approved the state |
 | `reqtrace confirm <TEST-ID> --note "<what was checked>"` | After checking that a card still proves a changed requirement |
+| `reqtrace syntax [requirement\|card\|marker\|ignore]` | After a form finding, or before the first entry: prints the form the tool reads, also outside a repository |
 
 Test markers, one per test:
 
@@ -32,7 +33,7 @@ Test markers, one per test:
 // card: TEST-EXPORT-CREATE
 ```
 
-Spec format: [tech-spec.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-spec.md). Setup and use in agent workflows: [tech-reqtrace.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-reqtrace.md). Reference: [docs/agents.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/docs/agents.md). Changes: [CHANGELOG](https://github.com/DevAM/CopilotAIWorkflow/blob/main/src/ReqTrace/CHANGELOG.md).
+Spec format: `reqtrace syntax`, and in full [tech-spec.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-spec.md). Setup and use in agent workflows: [tech-reqtrace.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/.github/skills/tech-reqtrace.md). Reference: [docs/agents.md](https://github.com/DevAM/CopilotAIWorkflow/blob/main/docs/agents.md). Changes: [CHANGELOG](https://github.com/DevAM/CopilotAIWorkflow/blob/main/src/ReqTrace/CHANGELOG.md).
 
 ## Requirements
 

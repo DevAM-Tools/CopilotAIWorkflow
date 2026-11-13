@@ -49,6 +49,8 @@ flowchart TD
 
 Process every step, test step, and finding in scope, in topological order. Skip none. Per item:
 
+Under `/evolve` with a Builder, items 2, 3, 4, and 6 of a plan step run in the Builder; the Lead checks the handoff, then continues from item 7 (`workflow-evolve.md` § Builder).
+
 1. **Start:** set `🚧` on every status surface before the first edit. Plan step: Step Overview, Shared Block, Task Checklist. Finding: its `Status` line and the Summary **Findings** cell.
 2. **Edit:** implement only the current scope. Match `What`, `How`, and Before/After or Problem/Fix exactly: the same types, names, signatures, visibility, control flow, and error paths. Do not substitute, simplify, or extend without approval. Details the plan left open (a private name, a local, the test layout): decide (Section 4.16). Run the Impact search (`tech-docs.md` § Impact search) before the first edit in each file. An `After` that cannot work as written: a correction that keeps every signature and behavior is a Deviation, record it; any other change needs approval first. A needed break of a documented boundary the plan did not agree: Decision class; stop this item, ask, continue items that do not depend on it.
 3. **Tests:** implement each card’s **Content**. Add the card’s marker to the test (`tech-spec.md` § Trace). Mark `Status ✅` when the Content exists as a test that can fail. Extra tests that prove agreed behavior are allowed.

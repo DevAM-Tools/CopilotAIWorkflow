@@ -28,6 +28,13 @@ internal static class TraceApp
             return CliOptions.ExitUsage;
         }
 
+        // syntax reads no file, so it runs outside a repository too: an agent may need the form before spec/ exists.
+        if (options!.Command == TraceCommand.Syntax) // TryParse returned true, so options is set.
+        {
+            SyntaxWriter.Write(output, options.Syntax);
+            return CliOptions.ExitOk;
+        }
+
         if (!RepositoryLocator.TryFind(workingDirectory, out string root))
         {
             error.WriteLine("No spec/index.md found here or in any parent folder.");

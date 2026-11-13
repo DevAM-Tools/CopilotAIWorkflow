@@ -105,15 +105,15 @@ internal static class Rules
         new(
             MissingField,
             static (subject, detail) => Invariant($"{subject} has no {detail}."),
-            static (_, detail) => Invariant($"Add the {detail} field.")),
+            static (subject, detail) => SpecForm.FixForMissing(subject, detail)),
         new(
             BadValue,
             static (subject, detail) => Invariant($"{subject}: invalid value in {detail}."),
-            static (_, detail) => Invariant($"Use a value allowed for {detail}; see tech-spec.md.")),
+            static (subject, detail) => SpecForm.FixForValue(subject, detail)),
         new(
             NoEntries,
             static (_, _) => "This file holds text but no readable entry.",
-            static (_, detail) => Invariant($"Restore the entry format: {detail}")),
+            static (_, detail) => Invariant($"Restore the entry format: {detail} · Full form: reqtrace syntax")),
         new(
             Duplicate,
             static (subject, detail) => Invariant($"{subject} heads two entries, also at {detail}."),

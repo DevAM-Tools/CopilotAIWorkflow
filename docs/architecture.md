@@ -22,7 +22,7 @@ A dependency not listed in **May depend on** is a defect or needs a decision rec
 
 [`copilot-instructions.md`](../.github/copilot-instructions.md) is always loaded: quality contract, the Tech Load Protocol (§3), and the workflow router (§6). `workflow-*.md` skills hold stages; `*-templates.md` companions load at the writing stage; `tech-*.md` skills hold technology rules and load on a scope trigger. Authoring rules: [`tech-instructions.md`](../.github/skills/tech-instructions.md).
 
-[`workflow-evolve.md`](../.github/skills/workflow-evolve.md) composes the other workflows into a requirements-driven loop with three human gates. [`tech-spec.md`](../.github/skills/tech-spec.md) defines the `spec/` format that a product using the kit keeps; this repository's [`spec/`](../spec/index.md) covers ReqTrace and a pilot on ExitPointGaps. Why this shape: [decision record](decisions/requirements-driven-loop.md).
+[`workflow-evolve.md`](../.github/skills/workflow-evolve.md) composes the other workflows into a requirements-driven loop with three human gates. Its session is the Lead; where the tool allows, a Builder subagent on a cheaper model builds plan steps ([decision record](decisions/evolve-builder.md)). [`tech-spec.md`](../.github/skills/tech-spec.md) defines the `spec/` format that a product using the kit keeps; this repository's [`spec/`](../spec/index.md) covers ReqTrace and a pilot on ExitPointGaps. Why this shape: [decision record](decisions/requirements-driven-loop.md).
 
 **Invariants:**
 - One home per rule. A rule stated in two files is a defect; the other file points to the home.
@@ -75,7 +75,7 @@ A dotnet tool. `run` builds and tests with coverage and lists exit points no tes
 
 ## ReqTrace
 
-A command-line tool that reads `spec/`, test markers, and test result files, and compares them with the state a person accepted. `Program.Main` → `TraceApp` → `TraceChecker`, which runs the layers in order: `SnapshotReader` (`SpecReader`, `MarkerScanner`) → `LinkChecker` → `ChangeChecker` → `EvidenceChecker`. `FindingWriter` and `ReportWriter` print. How agents call it: [`docs/agents.md`](agents.md). Why it exists: [decision record](decisions/spec-trace.md). Tests: [`src/ReqTrace.Tests/`](../src/ReqTrace.Tests/).
+A command-line tool that reads `spec/`, test markers, and test result files, and compares them with the state a person accepted. `Program.Main` → `TraceApp` → `TraceChecker`, which runs the layers in order: `SnapshotReader` (`SpecReader`, `MarkerScanner`) → `LinkChecker` → `ChangeChecker` → `EvidenceChecker`. `FindingWriter` and `ReportWriter` print. `SyntaxWriter` prints the forms of `SpecForm`; `syntax` runs before the repository search, so it needs no `spec/`. How agents call it: [`docs/agents.md`](agents.md). Why it exists: [decision record](decisions/spec-trace.md). Tests: [`src/ReqTrace.Tests/`](../src/ReqTrace.Tests/).
 
 **Invariants:**
 - An unreadable line is never skipped silently.
@@ -85,5 +85,5 @@ A command-line tool that reads `spec/`, test markers, and test result files, and
 - No regular expressions: start-up time counts on every agent call. One framework-dependent build runs on every platform.
 
 **Easy to miss:**
-- The spec format lives in [`tech-spec.md`](../.github/skills/tech-spec.md) and is parsed by `SpecReader`; the compiler connects neither. Marker forms: `MarkerScanner` ↔ `tech-spec.md` § Trace.
-- A rule → `Rules` · [`docs/agents.md`](agents.md) § Rules · [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md) § Findings. A command, option, or output line → `CliOptions`, `FindingWriter`, `ReportWriter` · `docs/agents.md` § Commands · `tech-reqtrace.md`.
+- The spec format lives in [`tech-spec.md`](../.github/skills/tech-spec.md); in code its separators, value sets, and examples live in `SpecForm`, which `SpecReader` accepts, `syntax` prints, and form fixes quote. The compiler connects neither to `tech-spec.md`. Marker forms: `MarkerScanner` ↔ `SpecForm` ↔ `tech-spec.md` § Trace.
+- A rule → `Rules` · [`docs/agents.md`](agents.md) § Rules · [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md) § Findings. A command, option, or output line → `CliOptions`, `FindingWriter`, `ReportWriter`, `SyntaxWriter` · `docs/agents.md` § Commands · `tech-reqtrace.md`.

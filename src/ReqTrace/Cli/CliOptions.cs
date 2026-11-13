@@ -19,6 +19,28 @@ internal enum TraceCommand
 
     /// <summary>Confirms one test card after a requirement change.</summary>
     Confirm,
+
+    /// <summary>Prints the expected spec forms; reads and writes no file.</summary>
+    Syntax,
+}
+
+/// <summary>The sections the syntax command prints.</summary>
+internal enum SyntaxKind
+{
+    /// <summary>All four sections, in the order below.</summary>
+    All,
+
+    /// <summary>A requirement entry and its field values.</summary>
+    Requirement,
+
+    /// <summary>A test card and its field values.</summary>
+    Card,
+
+    /// <summary>The test marker per language.</summary>
+    Marker,
+
+    /// <summary>A line of <c>spec/trace.ignore</c>.</summary>
+    Ignore,
 }
 
 /// <summary>Parsed command line.</summary>
@@ -28,6 +50,7 @@ internal enum TraceCommand
 /// <param name="Json">Whether check writes JSON.</param>
 /// <param name="AllowGapReason">Reason that lets accept record new gaps.</param>
 /// <param name="Note">What was checked, for confirm.</param>
+/// <param name="Syntax">The sections for syntax; <see cref="SyntaxKind.All"/> for every other command.</param>
 /// <remarks>Sync: docs/agents.md § Commands.</remarks>
 internal sealed record CliOptions(
     TraceCommand Command,
@@ -35,7 +58,8 @@ internal sealed record CliOptions(
     string? ResultsPath,
     bool Json,
     string? AllowGapReason,
-    string? Note)
+    string? Note,
+    SyntaxKind Syntax)
 {
     #region Exit codes and usage
 
@@ -55,6 +79,7 @@ internal sealed record CliOptions(
         reqtrace report
         reqtrace accept [--allow-gap "<reason>"]
         reqtrace confirm <TEST-ID> --note "<what was checked>"
+        reqtrace syntax [requirement|card|marker|ignore]
 
         Examples:
           reqtrace check --results artifacts/trace-results
@@ -62,8 +87,10 @@ internal sealed record CliOptions(
           reqtrace report
           reqtrace accept --allow-gap "test follows in the next slice"
           reqtrace confirm TEST-EXPORT-CREATE --note "still proves the new wording"
+          reqtrace syntax card
 
-        Run from anywhere inside a repository that has spec/index.md.
+        syntax prints the expected forms; it reads and writes no file and runs anywhere.
+        Every other command runs from anywhere inside a repository that has spec/index.md.
         --results is relative to the repository root; a folder means every .trx below it.
         Exit codes: 0 no error, 1 at least one error, 2 usage or unreadable input.
         """;
@@ -94,6 +121,12 @@ internal sealed record CliOptions(
             }
 
             index = 1;
+        }
+
+        // syntax takes at most one kind and no option; anything else is a usage error, never a silent "print all".
+        if (command == TraceCommand.Syntax)
+        {
+            return _TryParseSyntax(args, index, out options, out error);
         }
 
         string? id = null;
@@ -153,8 +186,54 @@ internal sealed record CliOptions(
             return false;
         }
 
-        options = new(command, id, results, json, allowGap, note);
+        options = new(command, id, results, json, allowGap, note, SyntaxKind.All);
         return true;
+    }
+
+    /// <summary>Parses the arguments after the syntax command word.</summary>
+    /// <param name="args">All arguments.</param>
+    /// <param name="index">Index of the first argument after the command word.</param>
+    /// <param name="options">Receives the options on success.</param>
+    /// <param name="error">Receives the reason on failure; it names the four kinds.</param>
+    /// <returns>Whether parsing succeeded.</returns>
+    private static bool _TryParseSyntax(string[] args, int index, out CliOptions? options, out string error)
+    {
+        options = null;
+        error = string.Empty;
+        SyntaxKind kind = SyntaxKind.All;
+        if (index < args.Length && !_TryParseSyntaxKind(args[index], out kind))
+        {
+            error = Invariant($"Unknown kind: {args[index]}. Use requirement, card, marker, or ignore.");
+            return false;
+        }
+
+        if (index + 1 < args.Length)
+        {
+            error = Invariant($"Unknown option: {args[index + 1]}. ")
+                + "syntax takes one kind: requirement, card, marker, or ignore.";
+            return false;
+        }
+
+        options = new(TraceCommand.Syntax, null, null, false, null, null, kind);
+        return true;
+    }
+
+    /// <summary>Maps a kind word of the syntax command.</summary>
+    /// <param name="word">The word; compared ordinal, so only lowercase matches.</param>
+    /// <param name="kind">Receives the kind.</param>
+    /// <returns>Whether the word is a kind.</returns>
+    private static bool _TryParseSyntaxKind(string word, out SyntaxKind kind)
+    {
+        (bool known, SyntaxKind parsed) = word switch
+        {
+            "requirement" => (true, SyntaxKind.Requirement),
+            "card" => (true, SyntaxKind.Card),
+            "marker" => (true, SyntaxKind.Marker),
+            "ignore" => (true, SyntaxKind.Ignore),
+            _ => (false, SyntaxKind.All),
+        };
+        kind = parsed;
+        return known;
     }
 
     /// <summary>Maps a command word.</summary>
@@ -170,6 +249,7 @@ internal sealed record CliOptions(
             "report" => (true, TraceCommand.Report),
             "accept" => (true, TraceCommand.Accept),
             "confirm" => (true, TraceCommand.Confirm),
+            "syntax" => (true, TraceCommand.Syntax),
             _ => (false, TraceCommand.Check),
         };
         command = parsed;

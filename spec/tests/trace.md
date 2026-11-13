@@ -24,6 +24,13 @@
 - **Content:** One requirement lacks Done when, one has State `maybe`, one lacks Proof. A card lacks Proves. Each is named with its ID and field.
 - **State:** active · **Status:** ✅
 
+### TEST-TRACE-FIX-SHOWS-FORM
+
+- **Proves:** REQ-TRACE-FIX-SHOWS-FORM
+- **Class:** error
+- **Layer:** unit
+- **Content:** One requirement lacks Proof; its fix holds the line `  - **Proof:** test`. One has Proof `maybe`; its fix lists `test`, `demo — {reason}`, `review — {reason}`, `waived — {reason}`. One has Met `🟢`; its fix lists `⬜`, `✅`, `❌`. A card has Class `smoke`; its fix lists all seven classes. A card lacks Content; its fix holds a line that starts with `- **Content:** ` at column 0. Each fix names `reqtrace syntax requirement` or `reqtrace syntax card`, matching the entry kind. Catches a fix that names the field but not its form, and a requirement fix that shows card indentation.
+- **State:** active · **Status:** ✅
 ### TEST-TRACE-COUNTS
 
 - **Proves:** REQ-TRACE-COUNTS
@@ -184,6 +191,41 @@
 - **Content:** Every rule produces a finding whose location, message, and fix are non-empty, and whose text names the concrete ID or line. Walks the whole rule table, so a new rule cannot ship without a fix text.
 - **State:** active · **Status:** ✅
 
+### TEST-TRACE-SYNTAX
+
+- **Proves:** REQ-TRACE-SYNTAX
+- **Class:** happy
+- **Layer:** unit
+- **Content:** The entry block printed by `syntax requirement` is written unchanged under an area heading of a requirement file, and the block printed by `syntax card` unchanged into a test-card file. `check` exits 0 with `Read: 1 requirements · 1 test cards`. The line printed by `syntax ignore`, written to `spec/trace.ignore`, raises no L7. Catches a printed form that the reader would reject.
+- **State:** active · **Status:** ✅
+### TEST-TRACE-SYNTAX-MARKER
+
+- **Proves:** REQ-TRACE-SYNTAX
+- **Class:** happy
+- **Layer:** unit
+- **Content:** Each marker line printed by `syntax marker` (C#, Python, Rust), placed directly above a test method in a test file of its language, counts as one marker of `TEST-AREA-TOPIC`. Catches a printed marker the scanner does not find.
+- **State:** active · **Status:** ✅
+### TEST-TRACE-SYNTAX-CLOSED-SETS
+
+- **Proves:** REQ-TRACE-SYNTAX
+- **Class:** collection
+- **Layer:** unit
+- **Content:** The output of `syntax` holds every value of every closed set the reader accepts (requirement State, Met, Proof; card State, Status, Class, Layer). The expected values come from the reader's own value lists, not from the test, so a value added to the reader and missing from the output fails. Catches drift between reader and printed help.
+- **State:** active · **Status:** ✅
+### TEST-TRACE-SYNTAX-KINDS
+
+- **Proves:** REQ-TRACE-SYNTAX
+- **Class:** boundary
+- **Layer:** unit
+- **Content:** `syntax` with no kind prints the four sections requirement, card, marker, ignore in that order. Each single kind prints only its section. It runs in a temporary folder without `spec/index.md` and exits 0. `--help` lists `syntax`. Catches a command that still demands a repository.
+- **State:** active · **Status:** ✅
+### TEST-TRACE-SYNTAX-UNKNOWN-KIND
+
+- **Proves:** REQ-TRACE-SYNTAX
+- **Class:** error
+- **Layer:** unit
+- **Content:** `syntax frobnicate` and `syntax card extra` exit 2; standard error names the four kinds `requirement`, `card`, `marker`, `ignore`; standard output stays empty. Catches a silent fallback to all sections on a typo.
+- **State:** active · **Status:** ✅
 ### TEST-TRACE-ONE-COMMAND
 
 - **Proves:** REQ-TRACE-ONE-COMMAND

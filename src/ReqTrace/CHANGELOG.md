@@ -3,6 +3,16 @@
 All notable changes to the **ReqTrace** dotnet tool are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 0.2.0
+
+### New
+
+- `reqtrace syntax [requirement|card|marker|ignore]` prints the form the tool reads: an example requirement, test card, marker per language, and ignore line that pass the check unchanged, with every allowed field value. It reads and writes no file and runs outside a repository.
+
+### Changed
+
+- Form fixes quote the form. A missing field (F3) names the line to add with its indent, such as `Add the line "  - **Proof:** test"`; a bad value (F4) lists every allowed value. F1–F5 name the `syntax` call. No fix points to `tech-spec.md` any more. `check --json` keeps its fields and `schemaVersion` 1; only the `fix` text changed.
+
 ## 0.1.0
 
 ### New

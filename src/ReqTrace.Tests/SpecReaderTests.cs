@@ -65,6 +65,61 @@ public sealed class SpecReaderTests
         await Assert.That(output).Contains("TEST-AREA-NOPROVES has no Proves");
     }
 
+    [Test, Property("Card", "TEST-TRACE-FIX-SHOWS-FORM")]
+    public async Task FixesQuoteTheExpectedFormAndValues()
+    {
+        using TraceWorkspace workspace = new();
+        workspace.WriteRequirements(
+            "- **REQ-AREA-NOPROOF** — Text.\n  - **Done when:** It works.\n  - **State:** active · **Met:** ⬜\n"
+            + "- **REQ-AREA-BADPROOF** — Text.\n  - **Done when:** It works.\n  - **State:** active · **Met:** ⬜\n"
+            + "  - **Proof:** maybe\n"
+            + "- **REQ-AREA-BADMET** — Text.\n  - **Done when:** It works.\n  - **State:** active · **Met:** 🟢\n"
+            + "  - **Proof:** test\n");
+        workspace.WriteCards(
+            "### TEST-AREA-BADCLASS\n\n- **Proves:** REQ-AREA-NOPROOF\n- **Class:** smoke\n- **Content:** A scenario.\n"
+            + "- **State:** active · **Status:** ⬜\n\n"
+            + "### TEST-AREA-NOCONTENT\n\n- **Proves:** REQ-AREA-NOPROOF\n- **State:** active · **Status:** ⬜\n");
+
+        (int exitCode, string output, _) = workspace.Run("check", "--json");
+
+        using JsonDocument document = JsonDocument.Parse(output);
+        List<(string Rule, string Message, string Fix)> findings = [];
+        foreach (JsonElement finding in document.RootElement.GetProperty("findings").EnumerateArray())
+        {
+            findings.Add((
+                finding.GetProperty("rule").GetString()!, // the JSON contract always writes rule, message, and fix
+                finding.GetProperty("message").GetString()!,
+                finding.GetProperty("fix").GetString()!));
+        }
+
+        string FixOf(string rule, string messageStart)
+        {
+            return findings
+                .Single(f => f.Rule == rule && f.Message.StartsWith(messageStart, StringComparison.Ordinal))
+                .Fix;
+        }
+
+        string missingProof = FixOf("F3", "REQ-AREA-NOPROOF has no Proof");
+        string badProof = FixOf("F4", "REQ-AREA-BADPROOF: invalid value in Proof");
+        string badMet = FixOf("F4", "REQ-AREA-BADMET: invalid value in Met");
+        string badClass = FixOf("F4", "TEST-AREA-BADCLASS: invalid value in Class");
+        string missingContent = FixOf("F3", "TEST-AREA-NOCONTENT has no Content");
+        await Assert.That(exitCode).IsEqualTo(1);
+        await Assert.That(missingProof).Contains("\"  - **Proof:** test\"");
+        await Assert.That(missingProof).Contains("reqtrace syntax requirement");
+        await Assert.That(badProof).Contains("test | demo — {reason} | review — {reason} | waived — {reason}");
+        await Assert.That(badProof).Contains("reqtrace syntax requirement");
+        await Assert.That(badMet).Contains("⬜ | ✅ | ❌");
+        await Assert.That(badClass).Contains("happy | error | boundary | collection | absence | concurrency | trust-boundary");
+        await Assert.That(badClass).Contains("reqtrace syntax card");
+        await Assert.That(missingContent).Contains("Add the line \"- **Content:** ");
+        await Assert.That(missingContent).Contains("reqtrace syntax card");
+        foreach ((_, _, string fix) in findings)
+        {
+            await Assert.That(fix).DoesNotContain("tech-spec.md");
+        }
+    }
+
     [Test, Property("Card", "TEST-TRACE-COUNTS")]
     public async Task EmptySpecPassesWithZeroCounts()
     {

@@ -5,6 +5,7 @@ global using System;
 global using System.Buffers;
 global using System.Collections.Frozen;
 global using System.Collections.Generic;
+global using System.Collections.Immutable;
 global using System.Globalization;
 global using System.IO;
 global using System.IO.Enumeration;

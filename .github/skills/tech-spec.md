@@ -20,6 +20,7 @@ docs/domain/inbox.md           Captured facts not yet sorted
 - `<area>` is the lowercase area token: `REQ-EXPORT-…` lives in `spec/requirements/export.md`.
 - Split a file over ~300 lines into `<area>-<topic>.md`. IDs do not change. Add the file to the index.
 - Create a file with its first entry. Never create an empty shell.
+- A requirement file may hold prose above its first `###` heading and stories under `## User stories` (`workflow-requirements.md` Stage 3); retired entries go under `## Retired`.
 - A person may name another requirements file. Keep its IDs. Import it into `spec/` unless told not to.
 
 `spec/index.md` rows:
@@ -126,7 +127,7 @@ Rust:   // card: TEST-EXPORT-NO-DUPLICATE
 
 ## Integrity checks
 
-❗ Run `reqtrace check` after each change to `spec/` or to tests. Fix every Error before ✅. Read `tech-reqtrace.md` now: call form, setup, when to run which command, and what to do per finding.
+❗ Run `reqtrace check` after each change to `spec/` or to tests. Fix every Error before ✅. Read `tech-reqtrace.md` now: call form, setup, when to run which command, and what to do per finding. `reqtrace syntax <kind>` prints the form the tool reads.
 
 - The tool covers I1, I2, I4, I5, I11, the marker half of I6, and I7 with `--results` (.NET tests). Run the rest by search in `/dream` and the review **Trace** hunt; do not write a script.
 - `reqtrace` not available: run all checks by search and say so in the run report (`tech-reqtrace.md` § Without the tool).

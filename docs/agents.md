@@ -1,6 +1,6 @@
 # Using reqtrace as an agent
 
-`reqtrace` checks the links between requirements (`spec/requirements/`), test cards (`spec/tests/`), and tests. It reads files only; it builds nothing and runs nothing. Run it from anywhere inside the repository. Format of the spec: [`tech-spec.md`](../.github/skills/tech-spec.md). Setup, which command runs at which workflow moment, and what to do per finding: [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md).
+`reqtrace` checks the links between requirements (`spec/requirements/`), test cards (`spec/tests/`), and tests. It reads files only; it builds nothing and runs nothing. Run it from anywhere inside the repository (`syntax` runs anywhere). Format of the spec: [`tech-spec.md`](../.github/skills/tech-spec.md). Setup, which command runs at which workflow moment, and what to do per finding: [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md).
 
 Sync: [`tech-reqtrace.md`](../.github/skills/tech-reqtrace.md) restates the commands, exit codes, rules, and output for repositories that copy the kit without this file.
 
@@ -24,6 +24,7 @@ reqtrace show <ID>
 reqtrace report
 reqtrace accept [--allow-gap "<reason>"]
 reqtrace confirm <TEST-ID> --note "<what was checked>"
+reqtrace syntax [requirement|card|marker|ignore]
 ```
 
 Exit codes: `0` no error · `1` at least one error · `2` usage or unreadable input. `--results` is relative to the repository root.
@@ -35,6 +36,7 @@ Exit codes: `0` no error · `1` at least one error · `2` usage or unreadable in
 | `report` | At a gate: paste its output, never a summary of it |
 | `accept` | Only after a person approved the state |
 | `confirm` | After checking that a card still proves a changed requirement |
+| `syntax` | After a form finding (F1–F5), or before writing the first entry: the expected form, also outside a repository |
 
 ## Three worked calls
 
@@ -46,10 +48,10 @@ REQ-GAPS-EXIT-GAP — The tool shall exit with code 1 when an exit-point gap rem
 
 > reqtrace check
 spec/requirements/export.md:14  F1  This line matches no known form.
-  Fix: Write a field such as "  - **Done when:** …", or move this text above the first ### heading.
+  Fix: Write a field such as "  - **Done when:** …", or move this text above the first ### heading. Full form: reqtrace syntax requirement
 Result: 1 error · 0 open gaps
 
-> dotnet test src/App.Tests -c Release -- --report-trx --results-directory artifacts/trace-results
+> dotnet test --project src/App.Tests -c Release --report-trx --results-directory artifacts/trace-results
 > reqtrace check --results artifacts/trace-results
 Result: 0 errors · 3 open gaps
 ```

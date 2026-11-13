@@ -9,44 +9,35 @@ namespace ReqTrace;
 /// <remarks>
 /// Perf: hand-written span parsing instead of regular expressions. Building a regular expression
 /// costs start-up time on every run, and this tool runs after every agent edit.
-/// Sync: .github/skills/tech-spec.md § Requirement entry and § Test card.
+/// Values and separators: <see cref="SpecForm"/>.
 /// </remarks>
 internal static class SpecReader
 {
-    #region Field names
+    #region Field indexes
 
-    /// <summary>Index of Done when in <see cref="_RequirementFields"/>.</summary>
+    /// <summary>Index of Done when in <see cref="SpecForm.RequirementFields"/>.</summary>
     private const int _DoneWhen = 0;
 
-    /// <summary>Index of State in <see cref="_RequirementFields"/>.</summary>
+    /// <summary>Index of State in <see cref="SpecForm.RequirementFields"/>.</summary>
     private const int _RequirementState = 1;
 
-    /// <summary>Index of Proof in <see cref="_RequirementFields"/>.</summary>
+    /// <summary>Index of Proof in <see cref="SpecForm.RequirementFields"/>.</summary>
     private const int _Proof = 2;
 
-    /// <summary>Index of Proves in <see cref="_CardFields"/>.</summary>
+    /// <summary>Index of Proves in <see cref="SpecForm.CardFields"/>.</summary>
     private const int _Proves = 0;
 
-    /// <summary>Index of Class in <see cref="_CardFields"/>.</summary>
+    /// <summary>Index of Class in <see cref="SpecForm.CardFields"/>.</summary>
     private const int _Class = 1;
 
-    /// <summary>Index of Layer in <see cref="_CardFields"/>.</summary>
+    /// <summary>Index of Layer in <see cref="SpecForm.CardFields"/>.</summary>
     private const int _Layer = 2;
 
-    /// <summary>Index of Content in <see cref="_CardFields"/>.</summary>
+    /// <summary>Index of Content in <see cref="SpecForm.CardFields"/>.</summary>
     private const int _Content = 3;
 
-    /// <summary>Index of State in <see cref="_CardFields"/>.</summary>
+    /// <summary>Index of State in <see cref="SpecForm.CardFields"/>.</summary>
     private const int _CardState = 6;
-
-    /// <summary>Fields a requirement may hold.</summary>
-    private static readonly string[] _RequirementFields = ["Done when", "State", "Proof", "Built in", "Replaced by"];
-
-    /// <summary>Fields a test card may hold. Code remains readable so that older cards do not fail.</summary>
-    private static readonly string[] _CardFields = ["Proves", "Class", "Layer", "Content", "Out", "Code", "State"];
-
-    /// <summary>Separator between the fields that share a state line.</summary>
-    private const string _StateSeparator = " · ";
 
     #endregion
 
@@ -109,11 +100,11 @@ internal static class SpecReader
             if (!inStories && _TryReadRequirementStart(span, out string id, out string text))
             {
                 _FinishRequirement(draft, relativePath, requirements, findings);
-                draft = new(id, lineNumber, _RequirementFields.Length) { Text = text };
+                draft = new(id, lineNumber, SpecForm.RequirementFields.Length) { Text = text };
                 continue;
             }
 
-            if (draft is not null && _TryReadField(span, 2, _RequirementFields, out int field, out string value))
+            if (draft is not null && _TryReadField(span, 2, SpecForm.RequirementFields, out int field, out string value))
             {
                 draft.Set(field, value);
                 continue;
@@ -136,8 +127,9 @@ internal static class SpecReader
                 span,
                 relativePath,
                 lineNumber,
-                "Write: - **REQ-AREA-TOPIC** — The system shall …",
-                "Write a field such as \"  - **Done when:** …\", or move this text above the first ### heading."));
+                "Write: - **REQ-AREA-TOPIC** — The system shall … · Full form: reqtrace syntax requirement",
+                "Write a field such as \"  - **Done when:** …\", or move this text above the first ### heading. "
+                + "Full form: reqtrace syntax requirement"));
         }
 
         _FinishRequirement(draft, relativePath, requirements, findings);
@@ -201,13 +193,13 @@ internal static class SpecReader
         }
 
         ReadOnlySpan<char> mark = remainder[Prefix.Length..].Trim();
-        if (!mark.SequenceEqual("⬜") && !mark.SequenceEqual("✅") && !mark.SequenceEqual("❌"))
+        if (!SpecForm.IsIn(SpecForm.MetMarks, mark))
         {
             findings.Add(Rules.Create(Rules.BadValue, Severity.Error, file, draft.Line, draft.Id, "Met"));
             return false;
         }
 
-        return mark.SequenceEqual("✅");
+        return mark.SequenceEqual(SpecForm.MarkDone);
     }
 
     /// <summary>Reads the Proof field.</summary>
@@ -225,27 +217,27 @@ internal static class SpecReader
         }
 
         ReadOnlySpan<char> value = raw;
-        if (value.SequenceEqual("test"))
+        if (value.SequenceEqual(SpecForm.ProofTest))
         {
             return ProofKind.Test;
         }
 
-        int separator = value.IndexOf(" — ", StringComparison.Ordinal);
+        int separator = value.IndexOf(SpecForm.ReasonSeparator, StringComparison.Ordinal);
         ReadOnlySpan<char> kind = separator < 0
             ? value
             : value[..separator];
-        bool hasReason = separator >= 0 && !value[(separator + 3)..].IsWhiteSpace();
-        if (hasReason && kind.SequenceEqual("demo"))
+        bool hasReason = separator >= 0 && !value[(separator + SpecForm.ReasonSeparator.Length)..].IsWhiteSpace();
+        if (hasReason && kind.SequenceEqual(SpecForm.ProofDemo))
         {
             return ProofKind.Demo;
         }
 
-        if (hasReason && kind.SequenceEqual("review"))
+        if (hasReason && kind.SequenceEqual(SpecForm.ProofReview))
         {
             return ProofKind.Review;
         }
 
-        if (hasReason && kind.SequenceEqual("waived"))
+        if (hasReason && kind.SequenceEqual(SpecForm.ProofWaived))
         {
             return ProofKind.Waived;
         }
@@ -268,15 +260,16 @@ internal static class SpecReader
             return false;
         }
 
+        const string Close = "**" + SpecForm.ReasonSeparator;
         ReadOnlySpan<char> rest = line[4..];
-        int close = rest.IndexOf("** — ", StringComparison.Ordinal);
+        int close = rest.IndexOf(Close, StringComparison.Ordinal);
         if (close <= 0 || !SpecId.IsValid(rest[..close], "REQ"))
         {
             return false;
         }
 
         id = rest[..close].ToString();
-        text = rest[(close + 5)..].Trim().ToString();
+        text = rest[(close + Close.Length)..].Trim().ToString();
         return text.Length > 0;
     }
 
@@ -318,11 +311,11 @@ internal static class SpecReader
             if (span.StartsWith("### ", StringComparison.Ordinal) && SpecId.IsValid(span[4..].TrimEnd(), "TEST"))
             {
                 _FinishCard(draft, relativePath, cards, findings);
-                draft = new(span[4..].TrimEnd().ToString(), lineNumber, _CardFields.Length);
+                draft = new(span[4..].TrimEnd().ToString(), lineNumber, SpecForm.CardFields.Length);
                 continue;
             }
 
-            if (draft is not null && _TryReadField(span, 0, _CardFields, out int field, out string value))
+            if (draft is not null && _TryReadField(span, 0, SpecForm.CardFields, out int field, out string value))
             {
                 draft.Set(field, value);
                 continue;
@@ -344,8 +337,9 @@ internal static class SpecReader
                 span,
                 relativePath,
                 lineNumber,
-                "Write: ### TEST-AREA-TOPIC",
-                "Write a field such as \"- **Content:** …\", or move this text above the first card."));
+                "Write: ### TEST-AREA-TOPIC · Full form: reqtrace syntax card",
+                "Write a field such as \"- **Content:** …\", or move this text above the first card. "
+                + "Full form: reqtrace syntax card"));
         }
 
         _FinishCard(draft, relativePath, cards, findings);
@@ -382,8 +376,8 @@ internal static class SpecReader
             }
 
             _CheckStatus(draft, remainder, file, findings);
-            _CheckClosedValue(draft, _Class, "Class", "happy|error|boundary|collection|absence|concurrency|trust-boundary", file, findings);
-            _CheckClosedValue(draft, _Layer, "Layer", "unit|integration|UI", file, findings);
+            _CheckClosedValue(draft, _Class, "Class", SpecForm.Classes, file, findings);
+            _CheckClosedValue(draft, _Layer, "Layer", SpecForm.Layers, file, findings);
         }
 
         string content = SpecText.Collapse(draft.Get(_Content));
@@ -410,7 +404,7 @@ internal static class SpecReader
         }
 
         ReadOnlySpan<char> mark = remainder[Prefix.Length..].Trim();
-        if (!mark.SequenceEqual("⬜") && !mark.SequenceEqual("✅"))
+        if (!SpecForm.IsIn(SpecForm.StatusMarks, mark))
         {
             findings.Add(Rules.Create(Rules.BadValue, Severity.Error, file, draft.Line, draft.Id, "Status"));
         }
@@ -420,19 +414,19 @@ internal static class SpecReader
     /// <param name="draft">The card.</param>
     /// <param name="field">Field index.</param>
     /// <param name="name">Field name for the finding.</param>
-    /// <param name="allowed">Allowed values separated by <c>|</c>.</param>
+    /// <param name="allowed">The closed set from <see cref="SpecForm"/>.</param>
     /// <param name="file">Repository-relative path.</param>
     /// <param name="findings">Receives findings.</param>
     private static void _CheckClosedValue(
         _Draft draft,
         int field,
         string name,
-        string allowed,
+        ImmutableArray<string> allowed,
         string file,
         List<Finding> findings)
     {
         string value = draft.Get(field);
-        if (value.Length > 0 && Array.IndexOf(allowed.Split('|'), value) < 0)
+        if (value.Length > 0 && !SpecForm.IsIn(allowed, value))
         {
             findings.Add(Rules.Create(Rules.BadValue, Severity.Error, file, draft.Line, draft.Id, name));
         }
@@ -443,12 +437,12 @@ internal static class SpecReader
     /// <returns>The requirement IDs; empty for <c>none — reason</c>.</returns>
     private static string[] _ReadProves(string raw)
     {
-        if (raw.StartsWith("none — ", StringComparison.Ordinal))
+        if (raw.StartsWith(SpecForm.ProvesNone, StringComparison.Ordinal))
         {
             return [];
         }
 
-        return raw.Split([",", _StateSeparator], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return raw.Split([",", SpecForm.StateSeparator], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     #endregion
@@ -504,26 +498,26 @@ internal static class SpecReader
             return EntryState.Active;
         }
 
-        int separator = value.IndexOf(_StateSeparator, StringComparison.Ordinal);
+        int separator = value.IndexOf(SpecForm.StateSeparator, StringComparison.Ordinal);
         ReadOnlySpan<char> word = separator < 0
             ? value
             : value[..separator];
         if (separator >= 0)
         {
-            remainder = value[(separator + _StateSeparator.Length)..];
+            remainder = value[(separator + SpecForm.StateSeparator.Length)..];
         }
 
-        if (word.SequenceEqual("active"))
+        if (word.SequenceEqual(SpecForm.StateActive))
         {
             return EntryState.Active;
         }
 
-        if (word.SequenceEqual("proposed"))
+        if (word.SequenceEqual(SpecForm.StateProposed))
         {
             return EntryState.Proposed;
         }
 
-        if (word.SequenceEqual("retired"))
+        if (word.SequenceEqual(SpecForm.StateRetired))
         {
             return EntryState.Retired;
         }
@@ -539,7 +533,12 @@ internal static class SpecReader
     /// <param name="field">Receives the index into <paramref name="names"/>.</param>
     /// <param name="value">Receives the value.</param>
     /// <returns>Whether the line is a known field.</returns>
-    private static bool _TryReadField(ReadOnlySpan<char> line, int indent, string[] names, out int field, out string value)
+    private static bool _TryReadField(
+        ReadOnlySpan<char> line,
+        int indent,
+        ImmutableArray<string> names,
+        out int field,
+        out string value)
     {
         field = -1;
         value = string.Empty;

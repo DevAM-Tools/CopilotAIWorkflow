@@ -10,7 +10,7 @@ Package release notes (full detail):
 |---------|---------|-----------|
 | CSharpStyleChecker | 2.0.0 (breaking) | [src/CSharpStyleChecker/CHANGELOG.md](src/CSharpStyleChecker/CHANGELOG.md) |
 | ExitPointGaps | 1.1.2 | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
-| ReqTrace | 0.1.0 (new) | [src/ReqTrace/CHANGELOG.md](src/ReqTrace/CHANGELOG.md) |
+| ReqTrace | 0.2.0 | [src/ReqTrace/CHANGELOG.md](src/ReqTrace/CHANGELOG.md) |
 | InvariantStringHelper | 1.0.0 (unchanged) | [src/InvariantStringHelper/CHANGELOG.md](src/InvariantStringHelper/CHANGELOG.md) |
 
 ### Packages
@@ -19,6 +19,12 @@ Package release notes (full detail):
 - A dotnet tool package holds exactly what its publish produced: the publish folder is emptied before each publish of a tool. ExitPointGaps 1.1.1 on nuget.org carried seven files of the pre-rename `CoverageGap.Tool`; 1.1.2 ships without them.
 - **Rule change** one release path for every package: `dotnet pack src/{Project}/{Project}.csproj -c Release` writes `artifacts/release/{PackageId}.{version}.nupkg`. A build no longer packs, so a Release build leaves released packages alone (before: libraries and the analyzer were packed into `artifacts/` on every Release build). Before the pack builds, each project, project references included, empties its `bin/` output. A Debug pack, `--no-build`, and a pack from an IDE or `dotnet msbuild -t:Pack` stop with an error that names the command. The sample's packed-package check restores from `artifacts/release/` into a private packages folder. `tech-solution.md` § Release packages; [decision record](docs/decisions/release-pack-path.md).
 - **Rule change** `tech-csharp.md` and `tech-solution.md`: reference CSharpStyleChecker `2.*` (was `1.*`). A `1.*` reference stays on 1.2.0 and its 160-character default.
+
+### ReqTrace 0.2.0
+
+- `reqtrace syntax [requirement|card|marker|ignore]` prints the spec form the tool reads, with every allowed value; it runs outside a repository too.
+- Form fixes quote the line to add or every allowed value and name the `syntax` call; none points to `tech-spec.md`. `check --json` fields are unchanged.
+- `tech-reqtrace.md` and `tech-spec.md` name `syntax`; `tech-reqtrace.md` says what to do on 0.1.0. `tech-spec.md` § Layout now names `## User stories` and `## Retired`.
 
 ### ReqTrace 0.1.0 (new)
 
@@ -32,6 +38,7 @@ Package release notes (full detail):
 
 ### Workflow kit
 
+- `/evolve` hands M and L plan steps to a Builder subagent on a cheaper model where the tool allows it; the session (Lead) plans, writes the test cards, checks every handoff (diff against the brief, each test against its card, `Verify` again, the model the Builder ran on), and reviews. The model is named in the request or asked once in the first Spec delta, and kept as `Builder:` in `spec/state.md`. New terms Lead and Builder in §5.1; [decision record](docs/decisions/evolve-builder.md).
 - **Rule change** Section 4.1 and `tech-spec.md`: a test may carry the one marker of its test card. Production code still may not hold IDs. The card field `Code` is replaced by the marker. Requirements gain a required `Proof` field (`test`, `demo`, `review`, `waived`).
 
 - New `/evolve` (`workflow-evolve.md`): continuous requirements-driven development with three human gates (Spec, Escalation, Release), work sized S, M, or L, tests first, proof as a user, and state in `spec/state.md`.

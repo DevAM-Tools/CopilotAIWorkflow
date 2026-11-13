@@ -45,7 +45,7 @@ public sealed class CliTests
         (int exitCode, string output, _) = TraceWorkspace.RunFrom(Path.GetTempPath(), flag);
 
         await Assert.That(exitCode).IsEqualTo(0);
-        foreach (string word in new[] { "check", "show", "report", "accept", "confirm", "--results", "--json", "--allow-gap", "--note" })
+        foreach (string word in new[] { "check", "show", "report", "accept", "confirm", "syntax", "--results", "--json", "--allow-gap", "--note" })
         {
             await Assert.That(output).Contains(word);
         }

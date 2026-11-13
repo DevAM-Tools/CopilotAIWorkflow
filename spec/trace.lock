@@ -9,6 +9,7 @@ REQ-TRACE-CHANGED-VISIBLE	1eb1c0807e46	active	-	0	-	-	The tool shall show each r
 REQ-TRACE-CLAIM-NEEDS-PASS	71c9b4324ef0	active	-	0	-	-	The tool shall report a requirement ticked as met whose marked tests are missing from the results or did not pass. | An agent ticks Met on a requirement whose test failed, runs the check with the result file, and sees the requirement and the failing test named.
 REQ-TRACE-COUNTS	1e2d45849041	active	-	0	-	-	The tool shall state on every run how many requirements, test cards, markers, and ignored paths it read. | A person runs the check on a repository with 3 requirements and sees the count 3 in the output.
 REQ-TRACE-DUPLICATE-ID	e7d09e6d6a2b	active	-	0	-	-	The tool shall report an ID that heads more than one entry. | An agent copies a requirement entry into another area file, runs the check, and sees both locations named.
+REQ-TRACE-FIX-SHOWS-FORM	63fc91dfc987	active	-	0	-	-	The tool shall state, for a missing field or a field value outside its closed set, the expected field line and every allowed value. | An agent writes `**Proof:** maybe` on a requirement, runs the check, and sees a fix that lists test, demo, review, and waived in the form the field expects.
 REQ-TRACE-IGNORE-PATH	f67880c22d1f	active	-	0	-	-	The tool shall skip a path listed with a reason in the ignore file, and shall list every ignored path in `report`. | A person adds a folder with a reason to the ignore file and sees markers there not scanned and the folder listed in `report`. An entry without a reason is reported as an error.
 REQ-TRACE-JSON	be5b3c23af36	active	-	0	-	-	The tool shall offer its findings in a documented JSON form with a schema version. | An agent runs `check --json` and reads a finding's rule, file, line, message, and fix from stable fields.
 REQ-TRACE-MARKER-LANGUAGES	d54ed1518066	active	-	0	-	-	The tool shall recognize test markers in C#, Python, and Rust test files. | A person places one marker in a file of each language and sees all three listed for their test cards by `show`.
@@ -25,6 +26,7 @@ REQ-TRACE-SHOW	78396e707656	active	-	0	-	-	The tool shall list, for a given requ
 REQ-TRACE-SPEED	17f0f0d7157e	active	-	0	-	-	The tool shall exhibit a check time of at most 200 milliseconds on this repository, without building or running anything. | A person runs the check on this repository with the tool already built and it finishes within 200 milliseconds.
 REQ-TRACE-STALE-RESULTS	24aeb1ad106e	active	-	0	-	-	The tool shall treat a result file older than a marked test file as no evidence for that test. | A person edits a marked test file after the test run, runs the check with the old result file, and sees that test reported as stale.
 REQ-TRACE-SUSPECT	b7af71b74648	active	-	0	-	-	The tool shall treat each test card proving a changed requirement as unconfirmed until someone confirms it with a note. | An agent changes a requirement's text, the check fails naming its test card, and after `confirm` with a note the note appears in `report` and the check passes.
+REQ-TRACE-SYNTAX	f71b23a0da55	active	-	0	-	-	The tool shall print on request, without reading any file, the expected form of a requirement entry, a test card, a test marker per language, and an ignore line, with every allowed field value. | An agent runs `reqtrace syntax requirement` in a folder without a spec, copies the printed entry into a requirement file of a repository, runs the check, and sees no form finding.
 REQ-TRACE-UNKNOWN-REFERENCE	0034f487b9d3	active	-	0	-	-	The tool shall report a reference to a requirement or test card that does not exist or is retired, and name the closest existing ID. | An agent misspells a test ID in a test marker, runs the check, and sees the marker location and the correct spelling suggested.
 REQ-TRACE-UNPROVEN	19c1ebc45cbe	active	-	0	-	-	The tool shall report an active requirement with proof kind test that no active test card proves, and an active test card that no test marker names. | A person adds a requirement without a test card and adds a test card without a marked test, runs the check, and sees both listed.
 REQ-TRACE-UNREADABLE-LINE	e49469608b14	active	-	0	-	-	The tool shall report every line inside a requirement or test-card area that matches no known form, with file, line number, and the expected form. | An agent adds a free-text line between two requirement entries, runs the check, and sees that file, that line number, and the expected form, with a failing exit code.
@@ -40,6 +42,7 @@ TEST-TRACE-CHANGED-VISIBLE	f0c068a52b93	active	-	1	1eb1c0807e46	-	-
 TEST-TRACE-CLAIM-NEEDS-PASS	ec526c46679f	active	-	1	71c9b4324ef0	-	-
 TEST-TRACE-COUNTS	8a6f606e9b9d	active	-	1	1e2d45849041	-	-
 TEST-TRACE-DUPLICATE-ID	2e29406d6c1e	active	-	1	e7d09e6d6a2b	-	-
+TEST-TRACE-FIX-SHOWS-FORM	3eda5fca2ed5	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	63fc91dfc987	-	-
 TEST-TRACE-IGNORE-PATH	1556930af171	active	-	1	f67880c22d1f	-	-
 TEST-TRACE-JSON	3e46566d0e55	active	-	1	be5b3c23af36	-	-
 TEST-TRACE-MARKER-LANGUAGES	883122abeafe	active	-	1	d54ed1518066	-	-
@@ -56,6 +59,11 @@ TEST-TRACE-SABOTAGE	2adb37fd412d	active	-	1	-	-	-
 TEST-TRACE-SHOW	6879aa75fdad	active	-	1	78396e707656	-	-
 TEST-TRACE-STALE-RESULTS	27da1f711d4e	active	-	1	24aeb1ad106e	-	-
 TEST-TRACE-SUSPECT	f832c1a210a9	active	-	1	b7af71b74648	-	-
+TEST-TRACE-SYNTAX	797b49eb9c54	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	f71b23a0da55	-	-
+TEST-TRACE-SYNTAX-CLOSED-SETS	c64b721bc9ed	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	f71b23a0da55	-	-
+TEST-TRACE-SYNTAX-KINDS	af19d5219251	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	f71b23a0da55	-	-
+TEST-TRACE-SYNTAX-MARKER	add0d9f141e0	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	f71b23a0da55	-	-
+TEST-TRACE-SYNTAX-UNKNOWN-KIND	e787924b3ae8	active	tests follow in /implement of plans/plans_evolve-builder-and-reqtrace-syntax.md	0	f71b23a0da55	-	-
 TEST-TRACE-UNKNOWN-REFERENCE	0e35feb30fff	active	-	1	0034f487b9d3	-	-
 TEST-TRACE-UNPROVEN	ab9d23e010f0	active	-	1	19c1ebc45cbe	-	-
 TEST-TRACE-UNREADABLE-LINE	bc0cfb02d9c2	active	-	1	e49469608b14	-	-

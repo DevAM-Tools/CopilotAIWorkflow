@@ -14,6 +14,11 @@
   - **Done when:** An agent removes the Done-when line of one requirement, runs the check, and sees that requirement and the missing field named.
   - **State:** active · **Met:** ✅
   - **Proof:** test
+- **REQ-TRACE-FIX-SHOWS-FORM** — The tool shall state, for a missing field or a field value outside its closed set, the expected field line and every allowed value.
+  - **Done when:** An agent writes `**Proof:** maybe` on a requirement, runs the check, and sees a fix that lists test, demo, review, and waived in the form the field expects.
+  - **State:** active · **Met:** ✅
+  - **Proof:** test
+  - **Built in:** [`src/ReqTrace/Model/SpecForm.cs`](../../src/ReqTrace/Model/SpecForm.cs) `SpecForm.FixForMissing`, `SpecForm.FixForValue`
 - **REQ-TRACE-COUNTS** — The tool shall state on every run how many requirements, test cards, markers, and ignored paths it read.
   - **Done when:** A person runs the check on a repository with 3 requirements and sees the count 3 in the output.
   - **State:** active · **Met:** ✅
@@ -106,6 +111,11 @@
   - **Done when:** A person reads any finding and can name the file, the problem, and the fix without opening the tool's documentation.
   - **State:** active · **Met:** ✅
   - **Proof:** test
+- **REQ-TRACE-SYNTAX** — The tool shall print on request, without reading any file, the expected form of a requirement entry, a test card, a test marker per language, and an ignore line, with every allowed field value.
+  - **Done when:** An agent runs `reqtrace syntax requirement` in a folder without a spec, copies the printed entry into a requirement file of a repository, runs the check, and sees no form finding.
+  - **State:** active · **Met:** ✅
+  - **Proof:** test
+  - **Built in:** [`src/ReqTrace/Output/SyntaxWriter.cs`](../../src/ReqTrace/Output/SyntaxWriter.cs) `SyntaxWriter.Write`, [`src/ReqTrace/Model/SpecForm.cs`](../../src/ReqTrace/Model/SpecForm.cs) `SpecForm`
 - **REQ-TRACE-ONE-COMMAND** — The tool shall run with no arguments from anywhere inside a repository that has a spec.
   - **Done when:** A person runs the tool without arguments from a subfolder and receives the check result.
   - **State:** active · **Met:** ✅

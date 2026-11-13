@@ -54,10 +54,10 @@ internal sealed class IgnoreList
                 continue;
             }
 
-            int separator = trimmed.IndexOf(" — ", StringComparison.Ordinal);
+            int separator = trimmed.IndexOf(SpecForm.ReasonSeparator, StringComparison.Ordinal);
             string reason = separator < 0
                 ? string.Empty
-                : trimmed[(separator + 3)..].Trim();
+                : trimmed[(separator + SpecForm.ReasonSeparator.Length)..].Trim();
             if (reason.Length == 0)
             {
                 findings.Add(Rules.Create(Rules.BadIgnore, Severity.Error, Source, lineNumber, trimmed, "a reason is required"));

@@ -277,6 +277,8 @@ Tick every status surface of an item together. Plan: Step Overview, Shared Block
 | Decision card | A saved question for a person (`spec/open.md`) |
 | Slice | The smallest set of requirements a person can try |
 | Gate A / E / B | Human stops of `/evolve`: Spec · Escalation · Release |
+| Lead | The `/evolve` session: plans, writes cards, checks, reviews, holds the gates |
+| Builder | A subagent on a cheaper model that builds one plan step under `/evolve` (`workflow-evolve.md` § Builder) |
 | Hot path | A per-item or per-byte loop after setup |
 | Limit definition | The one declaration of a trust-boundary limit (`tech-limits.md`) |
 | Impact search | Before an edit: find every file, doc, and coupling it touches |
