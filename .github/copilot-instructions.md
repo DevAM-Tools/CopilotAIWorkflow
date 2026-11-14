@@ -106,7 +106,7 @@ Performance is a feature. Design for it from the first plan step.
 - Each unit test finishes in ≤ 100 ms. Slower tests carry the slow or integration marker. No sleeps. No network in unit tests.
 - ❗ Minimize test run time. When a full run is not required, run only the tests that cover the change. .NET: `dotnet test`.
 - ❗ Never delete or weaken a test to get green.
-- Lock test content as `TEST-<AREA>-<TOPIC>` cards (`tech-spec.md`). Strategy: `tech-test.md`.
+- ❗ Cards (`tech-spec.md`) hold the minimum from the requirements; each step adds code tests for what it wrote (`tech-test.md` § Two layers).
 
 ### 4.6 Documentation
 
@@ -279,6 +279,7 @@ Tick every status surface of an item together. Plan: Step Overview, Shared Block
 | Gate A / E / B | Human stops of `/evolve`: Spec · Escalation · Release |
 | Lead | The `/evolve` session: plans, writes cards, checks, reviews, holds the gates |
 | Builder | A subagent on a cheaper model that builds one plan step under `/evolve` (`workflow-evolve.md` § Builder) |
+| Card test · Code test | Proves a test card · derived from the written code; no card |
 | Hot path | A per-item or per-byte loop after setup |
 | Limit definition | The one declaration of a trust-boundary limit (`tech-limits.md`) |
 | Impact search | Before an edit: find every file, doc, and coupling it touches |

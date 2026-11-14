@@ -58,7 +58,7 @@ Wrong: Security: OK.
 | Topic | What to settle |
 |-------|----------------|
 | Outcomes | Concrete acceptance, not “it builds” |
-| Test content | Scenarios, edges, constellations, contradictions, gaps, what is out, time budget (`tech-test.md`). Cards live in `spec/tests/` |
+| Test content | The card minimum: scenarios, edges, constellations, contradictions, gaps, what is out, time budget (`tech-test.md` § Card tests). Cards live in `spec/tests/`. Code tests follow from the written code at implement time (`tech-test.md` § Code tests); never settle them here |
 | Public API | Snippet plus usage; interfaces, traits, or contract types the steps implement |
 | Agent surface | Which surface an agent uses (CLI, REST, MCP, library) and its parity with the UI, or the waiver (`tech-agent-access.md`) |
 | Web UI | Dark mode, responsive, tables, journeys, debug story (`tech-web.md`, `tech-playwright.md`, `tech-test.md`) |

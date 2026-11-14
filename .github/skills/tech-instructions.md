@@ -78,6 +78,7 @@ These files change together. Nothing fails when one is forgotten.
 | Change a Shared Block field or Summary row | Every skill that ticks or reads it (`workflow-implement.md`) and the companion templates |
 | Change a run report section (`tech-reporting.md`) | `workflow-implement.md` Stage 6 and § Review until clean · `workflow-docs-repair.md` · `workflow-port-dotnet-rust-loop.md` Final Report · `workflow-evolve.md` · `workflow-dream.md` |
 | Change the doc set or a doc’s sections | `tech-docs.md` § Doc set · `tech-docs-templates.md` · `workflow-docs-repair.md` |
+| Change the test layers or the Code tests ledger line | `tech-test.md` § Two layers, § Code tests · `tech-spec.md` § Test card · `workflow-implement.md` Stage 2 item 3, Stage 3 · `workflow-evolve.md` Stage 4, § Builder · `workflow-review.md` § Tests · `copilot-instructions.md` §4.5 |
 | Change the spec format or an integrity check | `tech-spec.md` · `tech-reqtrace.md` · `workflow-requirements.md` · `workflow-plan-templates.md` · `workflow-dream.md` · `workflow-review.md` § Trace |
 | Change a `reqtrace` command, option, rule, or output line | `src/ReqTrace/` · `docs/agents.md` · `tech-reqtrace.md` (§ When to run what, § Findings, examples) · `src/ReqTrace/PACKAGE_README.md` |
 | Change when `accept` runs | `tech-reqtrace.md` § When to run what, § Accept · `workflow-requirements.md` § Completion · `workflow-plan.md` § Completion · `workflow-implement.md` Stage 6 · `workflow-evolve.md` Gate A and Gate B |

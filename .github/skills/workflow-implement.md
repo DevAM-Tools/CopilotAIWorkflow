@@ -53,7 +53,9 @@ Under `/evolve` with a Builder, items 2, 3, 4, and 6 of a plan step run in the B
 
 1. **Start:** set `🚧` on every status surface before the first edit. Plan step: Step Overview, Shared Block, Task Checklist. Finding: its `Status` line and the Summary **Findings** cell.
 2. **Edit:** implement only the current scope. Match `What`, `How`, and Before/After or Problem/Fix exactly: the same types, names, signatures, visibility, control flow, and error paths. Do not substitute, simplify, or extend without approval. Details the plan left open (a private name, a local, the test layout): decide (Section 4.16). Run the Impact search (`tech-docs.md` § Impact search) before the first edit in each file. An `After` that cannot work as written: a correction that keeps every signature and behavior is a Deviation, record it; any other change needs approval first. A needed break of a documented boundary the plan did not agree: Decision class; stop this item, ask, continue items that do not depend on it.
-3. **Tests:** implement each card’s **Content**. Add the card’s marker to the test (`tech-spec.md` § Trace). Mark `Status ✅` when the Content exists as a test that can fail. Extra tests that prove agreed behavior are allowed.
+3. **Tests:** read `tech-test.md` § Two layers and § Code tests now. Both layers, in this order:
+   - **Card tests:** implement each card’s **Content**. Add the card’s marker to the test (`tech-spec.md` § Trace). Mark `Status ✅` when the Content exists as a test that can fail.
+   - **Code tests:** walk every member this item’s Edit added or changed. Book each branch, error path, parameter guard, loop, overflow guard, state transition, limit, and thread-safety or allocation claim as a new code test, a covering card test, or `n/a — {reason}`. Record the ledger line. All cards `✅` never ends this item.
 4. **Docs:** update every file in `Docs` and every Impact-search hit. Run the Sync check and record its line.
 5. **Knowledge:** write each domain fact learned in this item (a user answer, a rule from a third-party spec, a fact an error message revealed) to its `docs/domain/` page, or to `docs/domain/inbox.md` when no page fits (`tech-spec.md` § Domain knowledge).
 6. **Verify:** run `Verify`; require pass. Run only the tests that cover the item (`tech-test.md`). On failure: Section 4.15 and the `Debug` block.
@@ -61,7 +63,7 @@ Under `/evolve` with a Builder, items 2, 3, 4, and 6 of a plan step run in the B
 8. **Align:** re-read the item’s `How` and `After` (or Fix) next to the code written. Remove each difference, or record it as a Deviation (Stage 6); none stays silent. Tick each `Acceptance` box only after its check ran. A new public API: walk the plan’s misuse and abuse vectors against the code.
 9. **Requirements:** re-read the linked entries. Run Done-when for each still `⬜` that this step could have made true. Tick `Met` and fill `Built in` only when the check **ran**, never because `How` alluded to the outcome or a test with that name exists. Run `reqtrace check`; with .NET tests and a `Met` ticked in this step, run those tests with TRX first and `reqtrace check --results artifacts/trace-results` (`tech-reqtrace.md` § Test evidence). → Zero Errors, except L4 and L6 on cards a later step writes. Every card this step wrote has its marked test.
 10. **Step `{n}R`** (plan steps; skipped only for `/evolve` size M, where the Closing Review covers the one step): `/review` on the step’s change: files touched, direct callers, `Docs` files. It may reuse this step’s `Verify` when no file changed since; say so in **Test Execution**. Zero Errors and zero High Performance findings before the next step: remediate them in this step, then review again until clean.
-11. **Close:** set `✅` on every surface after `Verify`, alignment, ticks, Sync check, and a clean Step `{n}R`. Do not rewrite a review’s **Release** or **Counts**. A deferred finding stays `⬜`. Chat-only review: record the finding in the status table.
+11. **Close:** set `✅` on every surface after `Verify`, alignment, ticks, the Code tests ledger line, the Sync check, and a clean Step `{n}R`. Do not rewrite a review’s **Release** or **Counts**. A deferred finding stays `⬜`. Chat-only review: record the finding in the status table.
 
 ```text
 Wrong: The plan says `bool TryAdd(string name, out ExportId id)`. The agent writes `Result<ExportId> Add(string name)` because it reads better.
@@ -72,6 +74,9 @@ Wrong: `Verify` is red. The agent weakens the assertion, or marks `✅` and move
 Right: Reproduce, debug, fix the code. After two failed remedies: blocker, `⚠️`, continue with independent items.
 Wrong: Step 2R finds an Error. The agent notes it for the Closing Review and starts Step 3.
 Right: Fix it in Step 2, review again, start Step 3 at zero Errors.
+Wrong: The card test for TEST-EXPORT-NO-DUPLICATE is green, so item 3 is done.
+Right: Also walk `Export.Create`: the empty-name guard and the name-length limit need code tests. Add them,
+       write the ledger line, then go on.
 ```
 
 - **Phase close:** after the last step of a phase, run its `How to try`. A mismatch with `They should see` is a Problem.
@@ -80,6 +85,7 @@ Right: Fix it in Step 2, review again, start Step 3 at zero Errors.
 ## Stage 3 — Final Verification
 
 - Confirm every scoped step, test ID, and finding is `✅`. Leftovers are blockers.
+- Confirm every step and finding row carries its Code tests ledger line. A member in the diff (`git diff --stat`, then the file) that no ledger line books is a leftover.
 - Re-run alignment: every requirement Met ✅, every test ID ✅, or every finding resolved.
 - Run the full build and all tests in Release, with the commands of the loaded tech skill. Filter the output to errors (Section 4.17). .NET: write TRX (`tech-reqtrace.md` § Test evidence).
 - `reqtrace check` (.NET: `--results artifacts/trace-results`) → `Result: 0 errors`. A remaining Error is a leftover; an exit `2` is a check that did not run.
@@ -89,11 +95,11 @@ Right: Fix it in Step 2, review again, start Step 3 at zero Errors.
 ```markdown
 | Step / Finding | Status |
 |----------------|--------|
-| Step 1 - {title} | ✅ · Sync check: updated `docs/architecture.md` § Run |
+| Step 1 - {title} | ✅ · Code tests: 4 added · Sync check: updated `docs/architecture.md` § Run |
 | Step 1R | ✅ Clean - 0 Errors |
 | TEST-EXPORT-NO-DUPLICATE | ✅ |
 | REQ-EXPORT-CREATE | ✅ Met |
-| E1 - {title} | ✅ Fixed · Sync check: none needed (private helper) |
+| E1 - {title} | ✅ Fixed · Code tests: 1 added · Sync check: none needed (private helper) |
 | Briefing | ✅ reviews/briefing_<slug>.md |
 | Closing Review | ✅ Ready · reviews/review_<slug>-closing_1.md |
 ```
@@ -117,7 +123,7 @@ Read `tech-reporting.md` now. Write the briefing per its § Briefing before Stag
 Write per `tech-reporting.md` § Run report on every exit. A parent reports once, at its end or first stop.
 
 - **Not done:** steps, test IDs, findings still `⬜`, `🚧`, or `⚠️`; deferred findings; checks that did not run.
-- **Needs you:** unresolved `C{n}`, Open Questions, out-of-scope discoveries, deviations needing approval. Not under `/evolve`, with new marked tests: "Reply `accept` to record the built state; until then, deleting one of the new tests stays an open gap instead of an error." On that reply: `reqtrace accept` (`tech-reqtrace.md` § Accept).
+- **Needs you:** unresolved `C{n}`, Open Questions, out-of-scope discoveries, deviations needing approval, user-visible behavior a code test showed that no requirement names. Not under `/evolve`, with new marked tests: "Reply `accept` to record the built state; until then, deleting one of the new tests stays an open gap instead of an error." On that reply: `reqtrace accept` (`tech-reqtrace.md` § Accept).
 - **Problems:** failed `Verify`, red build or test, unmet Done-when, Closing Review **Blocked**, Exam **Does not hold**, phase mismatch, two-attempt cap, collision.
 - **Deviations:** a step built differently from `How` or Before/After, or a finding fixed differently from its Fix.
 

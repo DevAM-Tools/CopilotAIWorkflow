@@ -14,9 +14,9 @@ What the tools offer (checked against their docs when this was decided):
 **Decision:**
 
 - The `/evolve` session is the **Lead** and runs on the strongest model. It does intake, the Spec delta, the gates, the test cards, the plan, every review, Prove as a user, and Heal.
-- For size M and L, a **Builder** subagent on a cheaper model writes the test code from the cards, the production code from `How`, the docs from `Docs`, and runs `Verify`, one step at a time.
+- For size M and L, a **Builder** subagent on a cheaper model writes the test code from the cards, the production code from `How`, the code tests from the written code, the docs from `Docs`, and runs `Verify`, one step at a time.
 - The person names the Builder model in the `/evolve` request, or the first Spec delta asks once. Gate A writes it to `spec/state.md` as `Builder:`.
-- The Lead never trusts the Builder's report: it checks the diff against the brief, reads each new test against its card, runs `Verify` itself, and notes a model other than the chosen one.
+- The Lead never trusts the Builder's report: it checks the diff against the brief, reads each new test against its card, checks that each changed member has its code tests, runs `Verify` itself, and notes a model other than the chosen one.
 - Without a subagent on another model, the Lead builds alone, as before.
 
 **Rejected:**

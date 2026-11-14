@@ -104,8 +104,8 @@ Test content is durable. It lives here, not in a plan.
 - Require `Proves`, `Content`, `State`. `Proves: none — {reason}` covers a case that guards a rule, not a requirement.
 - Omit `Class`, `Layer`, or `Out` when they add nothing.
 - Never let a class tag, file name, or method name replace `Content`.
-- The cards are the minimum to prove. Extra tests at implement time need no card.
-- ❗ Never delete or weaken a test to get green. A test changes only through its card.
+- The cards are the minimum to prove. Code tests (`tech-test.md` § Code tests) need no card and carry no marker.
+- ❗ Never delete or weaken a test to get green. A card test changes only through its card.
 
 ## Trace
 

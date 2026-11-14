@@ -38,6 +38,7 @@ Package release notes (full detail):
 
 ### Workflow kit
 
+- **Rule change** two test layers (`tech-test.md` § Two layers, Section 4.5): test cards stay the minimum agreed from the requirements; each step and finding fix now must also add code tests derived from the code it wrote: every branch, error path, parameter guard, loop 0/1/2, overflow guard, state transition, limit, and thread-safety or allocation claim of each new or changed member, booked in a `Code tests:` ledger line. Before, such tests were only allowed. `/implement` Stage 2 item 3 and Stage 3, `/evolve` size S and Builder handoff check, and the `/review` **Tests** hunt check them. A code test that shows user-visible behavior no requirement names goes to the person (run report or next Spec delta). New terms Card test and Code test in §5.1.
 - `/evolve` hands M and L plan steps to a Builder subagent on a cheaper model where the tool allows it; the session (Lead) plans, writes the test cards, checks every handoff (diff against the brief, each test against its card, `Verify` again, the model the Builder ran on), and reviews. The model is named in the request or asked once in the first Spec delta, and kept as `Builder:` in `spec/state.md`. New terms Lead and Builder in §5.1; [decision record](docs/decisions/evolve-builder.md).
 - **Rule change** Section 4.1 and `tech-spec.md`: a test may carry the one marker of its test card. Production code still may not hold IDs. The card field `Code` is replaced by the marker. Requirements gain a required `Proof` field (`test`, `demo`, `review`, `waived`).
 

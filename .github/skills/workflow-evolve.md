@@ -120,10 +120,10 @@ Show the Spec delta. Set `Status: gate-spec`. Stop.
 
 Load the tech skills of the slice (Section 3).
 
-1. **Size S:** write the failing test, fix, run the Sync check (`tech-docs.md`), run `/review` on the change (`workflow-review.md`). Fix and review again until zero Errors and zero High Performance findings. Go to step 5.
+1. **Size S:** write the failing test, fix, add the code tests of every member the fix changed with their ledger line (`tech-test.md` § Code tests), run the Sync check (`tech-docs.md`), run `/review` on the change (`workflow-review.md`). Fix and review again until zero Errors and zero High Performance findings. Go to step 5.
 2. **Plan:** `workflow-plan.md` in Autonomous mode.
-3. **Tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards.
-4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a test changes only through its card. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder.
+3. **Card tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards.
+4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a card test changes only through its card. After each Edit it adds the code tests of what it wrote (Stage 2 item 3, `tech-test.md` § Code tests): the cards are the minimum, not the suite. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder.
 5. **Prove as a user:** run each Done-when through the real boundary: the browser for a UI, the process for a CLI, HTTP for an API, a consumer call for a library. A green unit suite is not proof. Tick `Met` only then. A Done-when that fails here is a failed `Verify` (Section 4.15).
 
 ```text
@@ -146,7 +146,7 @@ The session that runs `/evolve` is the **Lead**; start it with the strongest mod
 | Work | Who | Why |
 |------|-----|-----|
 | Intake, Spec delta, gates, test cards with **Content**, plan with locked `How` | Lead | Judgment and the conversation with the person |
-| Test code from the cards, production code from `How`, docs from `Docs`, `Verify` | Builder | Most tokens; the plan leaves no choice |
+| Test code from the cards, production code from `How`, code tests from the written code, docs from `Docs`, `Verify` | Builder | Most tokens; the plan leaves no choice |
 | Handoff check, Step `{n}R`, Closing Review, Prove as a user, Heal | Lead | The author never reviews its own work |
 
 **Handoff:** one step at a time, one Builder at a time (one working tree). The brief holds only this; copy the depth, not the content:
@@ -155,21 +155,24 @@ The session that runs `/evolve` is the **Lead**; start it with the strongest mod
 Build Step 3 of plans/plans_export.md. Read .github/copilot-instructions.md, then the whole plan.
 Load: tech-csharp.md, tech-test.md, tech-tunit.md, tech-docs.md (the plan's Loaded skills line).
 Do: workflow-implement.md Stage 2 items Edit, Tests, Docs, Verify, for this step only.
-Write only: the step's Where files, the test files of its Tests cards, its Docs files.
+Write only: the step's Where files, the test files of its Tests cards and of its code tests, its Docs files.
 Never: spec/**, the plan, another step, a test that differs from its card's Content, a git write.
-Tests first: write the tests, run them, and keep each failure line before writing code.
+Card tests first: write them, run them, and keep each failure line before writing code.
+Code tests after the code: walk each member you added or changed (tech-test.md § Code tests).
 Decide nothing of Decision class (Section 4.16): stop and report it.
 Report: done | blocked — {reason} · the model you ran on · files changed · the Verify command and its
-last lines · the red-run lines of the new tests · each difference from How · domain facts learned · open questions.
+last lines · the red-run lines of the card tests · the Code tests ledger line · each difference from How ·
+user-visible behavior a code test showed that no requirement names · domain facts learned · open questions.
 ```
 
 **Check every handoff.** Never trust the report:
 
 1. `git diff --stat` shows only files the brief allows. Any other file: undo that edit, then treat it as a failed handoff.
 2. Each new marked test, next to its card **Content**: the setup, action, and observable are there, and the red-run line failed for the expected reason (Stage 4 step 3). A test that cannot fail fails the handoff.
-3. Run `Verify` yourself.
-4. The model in the report differs from **Builder**: say so in the run report. Some tools fall back to another model without telling.
-5. Write the reported domain facts (`workflow-implement.md` Stage 2 item 5), then continue that Stage 2 from item 7.
+3. Each member the diff adds or changes is in the Code tests ledger line; each booked test exists and asserts an exact value, error code, or message (`tech-test.md` § Code tests). A member without a booking fails the handoff.
+4. Run `Verify` yourself.
+5. The model in the report differs from **Builder**: say so in the run report. Some tools fall back to another model without telling.
+6. Write the reported domain facts (`workflow-implement.md` Stage 2 item 5). Put each reported user-visible behavior that no requirement names into the next Spec delta as a proposed card. Then continue that Stage 2 from item 7.
 
 **A failed handoff:** sharpen the step's `How` with what was missing and hand it off once more. Fails again: the Lead builds the step. Two failed remedies of one root cause → card (Section 4.15).
 

@@ -91,7 +91,8 @@ Judge **content**, not file names. Is what the suite proves complete for the imp
 - Classes that apply: happy, error, boundary, collection 0/1/2, absence, concurrency, trust-boundary. Happy-only coverage of a behavior with other classes is a gap.
 - Important scenarios, edges, constellations, contradictions, gaps.
 - A test that cannot fail is a gap, also when it passes.
-- A plan in scope: walk every requirement and card **Content** against code and tests. Unmet on the page = Error. Missing Content = gap. An applicable class with no card, no extra test, and no Out = gap. Extra tests are not a gap.
+- A plan in scope: walk every requirement and card **Content** against code and tests. Unmet on the page = Error. Missing Content = gap. An applicable class with no card, no code test, and no Out = gap. A code test without a card is not a gap.
+- **Code tests** (`tech-test.md` § Code tests): walk each new or changed member yourself; never trust the ledger line. Branch, error path, parameter guard, loop 0/1/2, overflow guard, state transition, limit, thread-safety or allocation claim: one with no test, no covering card test, and no `n/a` reason = gap. A ledger line that names a missing test, or a code test without an exact assertion = Error.
 - Full: run executable Done-when checks. Static: judge from source.
 
 ### Design decisions
