@@ -1,6 +1,6 @@
 # Reporting to a Person
 
-Load before writing a blocker, a decision card, a Spec delta, a briefing, or a run report. The decide-or-ask rule and the question form: `copilot-instructions.md` Section 4.16.
+Load before writing a blocker, a decision card, a Spec delta, a briefing, a progress note, or a run report. The decide-or-ask rule and the question form: `copilot-instructions.md` Section 4.16.
 
 Human review capacity limits throughput. Write every human-facing text so a person can judge it in the shortest time without asking back.
 
@@ -26,6 +26,7 @@ Human review capacity limits throughput. Write every human-facing text so a pers
 | Spec delta | One screen per 10 requirements |
 | Decision card | 25 lines |
 | Briefing | Head and Concept one screen each; a card of at most 15 lines per Judge or Sample file |
+| Progress note | 7 lines |
 | Run report | Only what is open; `none` otherwise |
 
 ## Decision card
@@ -179,6 +180,44 @@ public bool TryAdd(string name, out ExportId id)
 - ❗ Where `reqtrace` is available, append the output of `reqtrace report` unedited, under `## Generated report`.
 - Reading order of cards: contracts → implementations → cutover → tests → docs.
 - IDs and links are allowed here. Never in product code.
+
+## Progress note
+
+A chat message after each step of a long run: what is done, what is left, when the person is needed. The workflow names the points.
+
+- ❗ Print one at each point the workflow names, as its own message there. Never collect notes for the run report.
+- Print it and continue. Never ask a question in it; never wait for an answer.
+- ❗ Write each line from the state files after updating them (plan Step Overview, `spec/state.md`, requirement entries). Never from memory.
+- Write exactly the five fields of the template, in its order. **Done now**: at most 3 lines. Every other field: one line.
+- **Done now:** state what a person can now see or run, and the check that ran with its result. A stage name, `done`, or `as planned` alone is no outcome.
+- **{Items}:** list every item in scope in order, with its Section 5 status, `✅` included. The workflow names the items.
+- Name an open decision by its title. Never by its ID alone.
+- Link the plan. Never paste a step, a finding, or a test list.
+- At the run's last point, write the run report instead.
+
+```markdown
+**{Workflow} {status} · {current item} · {position} · {met} of {total} requirements Met**
+**Done now:** {what a person can now see or run} — `{command}` · {result}
+**{Items}:** {status} {item} · … — every item in scope, in order
+**Next:** {the next item or stage, in words}
+**Waiting on you:** {each open decision by title, or `nothing now`} · next stop: {the next human stop, and when}
+```
+
+`{met} of {total}`: linked requirements with `Met ✅`, of all linked. No linked requirement: omit that part.
+
+Copy the depth, not the content:
+
+```text
+Wrong: Step 2 done. Continuing with Step 3.
+Wrong: No message between Gate A and Gate B, two hours later.
+Right:
+**Evolve 🚧 · reject-duplicates · Step 2 of 3 ✅ · 2 of 5 requirements Met**
+**Done now:** A second export named "Report" is refused with `DuplicateName`
+— `dotnet test --treenode-filter "/*/*/ExportStoreTests/*"` · 14 pass
+**Slices:** ✅ create-and-list · 🚧 reject-duplicates (Step 2 of 3) · ⚠️ rename (Does a rename keep the old name?) · ⬜ import
+**Next:** Step 3 — the CLI prints the refusal; then prove it in the built CLI.
+**Waiting on you:** Does a rename keep the old name? · next stop: Gate B after import (batch of 3 slices)
+```
 
 ## Run report
 

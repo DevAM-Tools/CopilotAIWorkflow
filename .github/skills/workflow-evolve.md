@@ -14,7 +14,7 @@ Language and product type do not matter. Composes the existing workflows.
 | E — Escalation | A Decision-class point or blocker | Decision cards | Batched; asked when no selectable work is left, or at the next gate |
 | B — Release | After a batch | Briefing | `tech-reporting.md` |
 
-No other human stop exists. Plans and findings are agent handoffs; a person reads them only on request. A project may add a gate in `spec/state.md` `Gates:` (`plan`).
+No other human stop exists. Between the gates the person sees a progress note after each step (§ Progress note); it asks nothing and waits for nothing. Plans and findings are agent handoffs; a person reads them only on request. A project may add a gate in `spec/state.md` `Gates:` (`plan`).
 
 ```mermaid
 flowchart TD
@@ -39,20 +39,24 @@ flowchart TD
 - Read **Builder**. Unset: take the model the person named in the request; else ask with the **Builder** line of the next Spec delta (§ Builder). Until it is set, the Lead builds.
 - Apply answered cards first: patch the spec, re-queue the blocked slice, fill **Applied**.
 - Existing code without a spec: specify only what this input touches. Full backfill only on request.
-- Resume at **Position**.
+- A **Queue** line without a status mark: read it as `⬜` and write the mark on the next update. No `Run` line: read it as `slice`.
+- Resume at **Position**. Print a progress note (§ Progress note) before the first edit.
 
-`spec/state.md` holds exactly these lines. `Status` is one of `intake` · `gate-spec` · `building` · `gate-release` · `waiting` · `idle`. `Queue` has one line per slice: name — requirement IDs — depends on — blocked by. `Builder` is the model the Builder subagent runs on, written as the tool accepts it, or `none — {reason}` (§ Builder). Update the file at every stage change and before every stop.
+`spec/state.md` holds exactly these lines. `Status` is one of `intake` · `gate-spec` · `building` · `gate-release` · `waiting` · `idle`. `Position` names the slice and the stage; in Stage 4 also the plan step as `Step {n} of {total}`. `Queue` has one line per slice since the last accepted Gate B: status — name — requirement IDs — depends on — blocked by. The status uses the Section 5 legend: `⬜` queued · `🚧` building · `✅` built, proved, and healed · `⚠️` blocked by a card. ❗ A `✅` line stays in **Queue** until Gate B accept removes it: the progress note and the run report read what is done from these lines. `Builder` is the model the Builder subagent runs on, written as the tool accepts it, or `none — {reason}` (§ Builder). `Run` is `slice` (default) or `all` (§ Run all). Update the file at every stage change, after every plan step, and before every stop.
 
 ```markdown
 # State
 
 Status: building
-Position: reject-duplicates · Stage 4
+Position: reject-duplicates · Stage 4 · Step 2 of 3
 Gates: spec, release
 Builder: {the cheaper model, as the person named it}
+Run: slice
 Queue:
-- reject-duplicates — REQ-EXPORT-NO-DUPLICATE — depends on create-and-list
-- rename — REQ-EXPORT-RENAME — depends on create-and-list — blocked by Q-EXPORT-RENAME-HISTORY
+- ✅ create-and-list — REQ-EXPORT-CREATE, REQ-EXPORT-LIST
+- 🚧 reject-duplicates — REQ-EXPORT-NO-DUPLICATE — depends on create-and-list
+- ⚠️ rename — REQ-EXPORT-RENAME — depends on create-and-list — blocked by Q-EXPORT-RENAME-HISTORY
+- ⬜ import — REQ-EXPORT-IMPORT — depends on create-and-list
 Batch: slices 1 · production lines ~180 · since last Gate B
 Last dream: 3f2a91c · full: 9be01d4
 ```
@@ -68,7 +72,7 @@ Sort each statement:
 | Obligation | Requirement |
 | Test idea, edge, “it must not…” | Test card |
 | Domain fact, also in passing | `docs/domain/` now (`tech-spec.md`) |
-| Preference on how to build | Which model builds: the `Builder` line (§ Builder). Other lasting preference: propose a line for `custom_instructions.md` (or a skill change) in the Spec delta; never write either unasked. This work only: a plan constraint |
+| Preference on how to build | Which model builds: the `Builder` line (§ Builder). All slices in one run: `Run: all` (§ Run all). Other lasting preference: propose a line for `custom_instructions.md` (or a skill change) in the Spec delta; never write either unasked. This work only: a plan constraint |
 | Open fork | Section 4.16: decide or card |
 
 Copy the depth, not the content:
@@ -83,6 +87,7 @@ Domain fact: "Credit note" = a corrected invoice. Source: user, in passing → d
 Open fork:   "Fast" has no measure → propose measure and target as an Assumption in the Spec delta.
 Preference:  SQLite → a new dependency: New Dependency Protocol in the Spec delta.
 Preference:  "let {model} build it" → Builder: {model} in spec/state.md, the name exactly as said.
+Preference:  "build all of it in one go" → Run: all in spec/state.md.
 Wrong:       Keeping only the two obligations and dropping the other four lines.
 ```
 
@@ -104,7 +109,7 @@ An S-size fix that changes no obligation skips this stage and Gate A.
 
 Show the Spec delta. Set `Status: gate-spec`. Stop.
 
-- Approve → set the delta's requirements and cards `active`. Approved install request: run `tech-reqtrace.md` § Setup steps 4–8. Run `reqtrace accept --allow-gap "cards and tests follow in the slices"` (`tech-reqtrace.md` § Accept); refused for anything but L4 or L6 → fix, accept again. Cut slices. Fill **Queue**. Write **Builder** from the delta's **Builder** line.
+- Approve → set the delta's requirements and cards `active`. Approved install request: run `tech-reqtrace.md` § Setup steps 4–8. Run `reqtrace accept --allow-gap "cards and tests follow in the slices"` (`tech-reqtrace.md` § Accept); refused for anything but L4 or L6 → fix, accept again. Cut slices. Fill **Queue** with `⬜` lines. Write **Builder** from the delta's **Builder** line. Print a progress note.
 - Change → patch and show only what changed. Stop again.
 - ❗ Only explicit words approve. A question, a comment on one entry, or silence is Change or no answer, never approval.
 - Approval covers planning and implementing these requirements, the listed public API, agent surface, limits, and dependencies.
@@ -112,8 +117,8 @@ Show the Spec delta. Set `Status: gate-spec`. Stop.
 ## Stage 3 — Select slice
 
 - Cut slices by what a person can try, smallest first, in dependency order. A slice ends in something a person runs or sees; “the data layer” is no slice.
-- Pick the first selectable: a re-queued slice, else `Position`, else the next without an open blocker.
-- ❗ One slice per session when the context window is ≤ 200k tokens or unknown. Before ending: update `spec/state.md`.
+- Pick the first selectable: a re-queued slice, else `Position`, else the next `⬜` without an open blocker. Mark it `🚧` and set **Position**.
+- ❗ `Run: slice`: one slice per session when the context window is ≤ 200k tokens or unknown. Before ending: update `spec/state.md`. `Run: all`: § Run all.
 - None selectable: show each open card in full (Gate E), `Status: waiting`, run report.
 
 ## Stage 4 — Build
@@ -121,9 +126,9 @@ Show the Spec delta. Set `Status: gate-spec`. Stop.
 Load the tech skills of the slice (Section 3).
 
 1. **Size S:** write the failing test, fix, add the code tests of every member the fix changed with their ledger line (`tech-test.md` § Code tests), run the Sync check (`tech-docs.md`), run `/review` on the change (`workflow-review.md`). Fix and review again until zero Errors and zero High Performance findings. Go to step 5.
-2. **Plan:** `workflow-plan.md` in Autonomous mode.
-3. **Card tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards.
-4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a card test changes only through its card. After each Edit it adds the code tests of what it wrote (Stage 2 item 3, `tech-test.md` § Code tests): the cards are the minimum, not the suite. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder.
+2. **Plan:** `workflow-plan.md` in Autonomous mode. Set **Position** to `Step 1 of {total}`.
+3. **Card tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards. Print a progress note.
+4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a card test changes only through its card. After each Edit it adds the code tests of what it wrote (Stage 2 item 3, `tech-test.md` § Code tests): the cards are the minimum, not the suite. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder. ❗ After each step closes or stops: update **Position** before its progress note (§ Progress note).
 5. **Prove as a user:** run each Done-when through the real boundary: the browser for a UI, the process for a CLI, HTTP for an API, a consumer call for a library. A green unit suite is not proof. Tick `Met` only then. A Done-when that fails here is a failed `Verify` (Section 4.15).
 
 ```text
@@ -131,7 +136,7 @@ Wrong: The tests pass, so REQ-EXPORT-NO-DUPLICATE is `Met ✅`.
 Right: Run `export create Report` twice in the built CLI, read the output, see the error and one row, then tick.
 ```
 
-Two failed remedies of one root cause: write a card, mark the slice blocked, continue with the next (Section 4.15).
+Two failed remedies of one root cause: write a card, mark the slice `⚠️` with `blocked by`, print a progress note, continue with the next (Section 4.15).
 
 Never edit an `active` requirement to make it pass. A wrong requirement is a card.
 
@@ -184,22 +189,63 @@ Right: The diff lists src/Store.cs and spec/tests/export.md. The brief did not a
 
 ## Stage 5 — Heal
 
-Run `workflow-dream.md` in `touched` mode on the slice’s areas. Update **Batch**.
+Run `workflow-dream.md` in `touched` mode on the slice’s areas. Update **Batch**. Mark the slice `✅` in **Queue**. Print a progress note.
 
-Gate B when any holds:
+`Run: all`: Gate B per § Run all; the list below does not apply. `Run: slice`: Gate B when any holds:
 
-- The queue is empty.
+- Every **Queue** line is `✅`.
 - The batch holds 3 slices or ~1000 production lines.
 - A change marked **Judge** (`tech-reporting.md`) is in the batch.
 
 Otherwise go to Stage 3. Run `/dream full` after 10 slices or 20 inbox lines (ask at the next gate; never block on it).
 
+## Run all
+
+On request, build every slice of the queue in one run, with no stop between slices.
+
+- ❗ Only a request in words sets it: `/evolve all`, "build all slices in one go", "alle Slices am Stück". Write `Run: all` in `spec/state.md` when the request comes. A question about the mode is no request: answer it.
+- Gate A still stops. `Run: all` takes effect after its approval.
+- After Stage 5, go to Stage 3 without stopping. Stage 3's one-slice-per-session rule does not apply.
+- Gate B comes once: when no **Queue** line is `⬜` or `🚧`. Batch size and a **Judge** change do not trigger it. List each **Judge** change first in the briefing's **Attention**.
+- A blocked slice: write its card, continue with the next `⬜`. No `⬜` left: Gate B when **Batch** holds a slice, else Stage 3 (Gate E). Show every open card in full at that Gate B (Gate E with Gate B).
+- Hand each M and L step to the Builder (§ Builder): its work stays out of the Lead's context.
+- Context: `spec/state.md` is current after every step. The tool summarizes the context → read this skill and `spec/state.md` again, continue at **Position** (Stage 0). The tool cannot summarize and reports under 20 % context left → finish the current step, save, stop `budget`. The run report says: continue with `/evolve resume`. `Run: all` stays.
+- Gate B accept sets `Run: slice`.
+
+```text
+Wrong: "Build all slices in one go." After 3 slices the Lead stops at Gate B, per Stage 5.
+Wrong: "Can evolve build all slices at once?" The Lead writes `Run: all`.
+Right: "Build all slices in one go." The Lead writes `Run: all`, builds create-and-list, reject-duplicates,
+       and import; rename waits on a card. Then one Gate B: one briefing for three slices, the rename card in full.
+```
+
 ## Gate B — Release
 
 Write one briefing for the batch (`tech-reporting.md` § Briefing). Show its head (**Verdict** to **Attention**) and **Concept** in chat, with the link to the file. Set `Status: gate-release`. Stop.
 
-- Accept → run `reqtrace accept`; it records the batch's new markers, so C2 guards them from now on. Refused → L4 or L6 on an entry of a slice still in **Queue**: accept again with `--allow-gap "<slice> is queued"` or `"<slice> is blocked by Q-…"`. Any other finding is an Error of the batch: fix it, `check`, accept again. Reset **Batch**. `Status: idle`.
+- Accept → run `reqtrace accept`; it records the batch's new markers, so C2 guards them from now on. Refused → L4 or L6 on an entry of a slice not `✅` in **Queue**: accept again with `--allow-gap "<slice> is queued"` or `"<slice> is blocked by Q-…"`. Any other finding is an Error of the batch: fix it, `check`, accept again. Remove the `✅` lines from **Queue**. Reset **Batch**. Set `Run: slice`. `Status: idle`.
 - Change → the change is new input: go to Stage 1.
+
+## Progress note
+
+Form, fields, and example: `tech-reporting.md` § Progress note. The Lead prints every note; a Builder never does.
+
+❗ Print one at each point:
+
+| Point | **Done now** names |
+|-------|--------------------|
+| Stage 0, after reading the state | `Resumed` and the last `✅` step or slice from the files |
+| Gate A approved | The requirements set `active` and the slices cut |
+| Stage 4 step 3, card tests red | The number of card tests, the command, and that each failed for the expected reason |
+| Stage 4 step 4, each plan step closed or stopped | `workflow-implement.md` Stage 2 prints it with these fields |
+| A slice blocked | The card title and which slice continues |
+| Stage 5, slice `✅` | Each Done-when run as a user and what was observed |
+
+Fill the fields from **Queue** and **Position**:
+
+- Headline: `Evolve`, the slice, **Position**; `{met} of {total}` over the requirements of all **Queue** lines.
+- `{Items}` is **Slices**: every **Queue** line in order; the `🚧` slice also shows `Step {n} of {total}`.
+- **Waiting on you:** each card of `spec/open.md` by title. Next stop: Gate A, Gate B with its trigger (Stage 5 or § Run all), or `none`.
 
 ## Completion
 
@@ -212,4 +258,4 @@ Stop conditions, closed set:
 | `budget` | Session limit reached; state saved |
 | `idle` | Queue empty, batch accepted |
 
-Chat: the run report (`tech-reporting.md`) on every exit.
+Chat: the run report (`tech-reporting.md`) on every exit. ❗ Its **Outcome** carries the **Slices** line and the `{met} of {total} requirements Met` count of § Progress note, `✅` slices included; **Not done** lists each slice not `✅`.

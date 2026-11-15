@@ -47,7 +47,7 @@ flowchart TD
 
 ## Stage 2 — Execute Steps
 
-Process every step, test step, and finding in scope, in topological order. Skip none. Per item:
+Process every step, test step, and finding in scope, in topological order. Skip none. Read `tech-reporting.md` § Progress note now. Per item:
 
 Under `/evolve` with a Builder, items 2, 3, 4, and 6 of a plan step run in the Builder; the Lead checks the handoff, then continues from item 7 (`workflow-evolve.md` § Builder).
 
@@ -64,6 +64,7 @@ Under `/evolve` with a Builder, items 2, 3, 4, and 6 of a plan step run in the B
 9. **Requirements:** re-read the linked entries. Run Done-when for each still `⬜` that this step could have made true. Tick `Met` and fill `Built in` only when the check **ran**, never because `How` alluded to the outcome or a test with that name exists. Run `reqtrace check`; with .NET tests and a `Met` ticked in this step, run those tests with TRX first and `reqtrace check --results artifacts/trace-results` (`tech-reqtrace.md` § Test evidence). → Zero Errors, except L4 and L6 on cards a later step writes. Every card this step wrote has its marked test.
 10. **Step `{n}R`** (plan steps; skipped only for `/evolve` size M, where the Closing Review covers the one step): `/review` on the step’s change: files touched, direct callers, `Docs` files. It may reuse this step’s `Verify` when no file changed since; say so in **Test Execution**. Zero Errors and zero High Performance findings before the next step: remediate them in this step, then review again until clean.
 11. **Close:** set `✅` on every surface after `Verify`, alignment, ticks, the Code tests ledger line, the Sync check, and a clean Step `{n}R`. Do not rewrite a review’s **Release** or **Counts**. A deferred finding stays `⬜`. Chat-only review: record the finding in the status table.
+12. **Report:** ❗ print a progress note (`tech-reporting.md` § Progress note). `{Items}`: **Steps**, or **Findings** for a finding run, from the Step Overview or the Summary. Under `/evolve`, fill it per `workflow-evolve.md` § Progress note. Under `/docs-repair` and the port workflows, skip it: their own chat line applies.
 
 ```text
 Wrong: The plan says `bool TryAdd(string name, out ExportId id)`. The agent writes `Result<ExportId> Add(string name)` because it reads better.
@@ -80,7 +81,7 @@ Right: Also walk `Export.Create`: the empty-name guard and the name-length limit
 ```
 
 - **Phase close:** after the last step of a phase, run its `How to try`. A mismatch with `They should see` is a Problem.
-- **Stop:** two failed remedies of one root cause (`tech-reporting.md` § Blocker) → `⚠️` on every surface; continue with items that do not depend on it. A pause or abort leaves `🚧`. An unexpected diff (Section 4.14) stops the run.
+- **Stop:** two failed remedies of one root cause (`tech-reporting.md` § Blocker) → `⚠️` on every surface, item 12; continue with items that do not depend on it. A pause or abort leaves `🚧`. An unexpected diff (Section 4.14) stops the run.
 
 ## Stage 3 — Final Verification
 

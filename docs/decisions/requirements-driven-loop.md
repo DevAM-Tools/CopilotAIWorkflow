@@ -21,6 +21,7 @@ Findings that shaped the design:
 - Section 4.16 sorts every open point into Covered, Detail, Assumption, or Decision. Only Decision reaches a person, and other work continues meanwhile.
 - Human-facing artifacts have length budgets. Plans and findings stay detailed and are agent handoffs.
 - Work is sized S, M, or L, so a small fix skips the plan.
+- One slice per session and a Gate B after at most 3 slices are the default. On an explicit request, `Run: all` builds every queued slice in one run and stops only at Gate A and one Gate B. The person trades the small-batch safety net for fewer stops; state stays in `spec/state.md`, so a summarized or ended context resumes at **Position**.
 - `/dream` consolidates domain knowledge, requirements, test content, and the trace. It never changes production code.
 - Always-on text shrinks; mechanisms move to skills that a stage names explicitly. Templates load at the writing stage. The Sweep leaves the council skill.
 
@@ -33,6 +34,6 @@ Findings that shaped the design:
 - A separate `.agents/skills/` tree: `.claude/skills/` is already read by Claude Code, Cursor, and VS Code.
 - An MCP server for every product: a CLI or REST surface is enough for most; MCP stays a thin adapter.
 
-**Consequences:** Integrity checks run by search, so a weak agent can miss a hit; a dedicated checker tool would make them deterministic. Language skills lost only examples that repeated their rule; `tech-csharp.md` stays the largest load of a C# run. Existing `requirements/req_*.md` files keep working as user-supplied sources.
+**Consequences:** Integrity checks run by search, so a weak agent can miss a hit; a dedicated checker tool would make them deterministic. Language skills lost only examples that repeated their rule; `tech-csharp.md` stays the largest load of a C# run. Existing `requirements/req_*.md` files keep working as user-supplied sources. Under `Run: all`, the one Gate B briefing covers every slice, and a **Judge** change waits there instead of stopping the run.
 
 **Enforced in:** [`workflow-evolve.md`](../../.github/skills/workflow-evolve.md), [`tech-spec.md`](../../.github/skills/tech-spec.md) § Integrity checks, [`copilot-instructions.md`](../../.github/copilot-instructions.md) Section 4.16.

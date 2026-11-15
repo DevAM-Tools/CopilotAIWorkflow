@@ -52,7 +52,7 @@
 | UI features, CLI, REST, MCP, or library API of an application | `tech-agent-access.md` |
 | `.github/**` instructions, `.cursor/**`, `.claude/skills/**`, `AGENTS.md`, `CLAUDE.md`, `custom_instructions.md` | `tech-instructions.md` |
 | A trust-boundary limit | `tech-limits.md` |
-| Blocker, decision card, Spec delta, briefing, run report | `tech-reporting.md` |
+| Blocker, decision card, Spec delta, briefing, progress note, run report | `tech-reporting.md` |
 | Measurement in C# / Rust / Python | `tech-csharp-profiling.md` / `tech-rust-profiling.md` / `tech-python-profiling.md` |
 
 ## 4) Always-On Quality Contract
@@ -289,6 +289,7 @@ Tick every status surface of an item together. Plan: Step Overview, Shared Block
 | Decision record | `docs/decisions/<slug>.md`: one decision, its reasons, rejected options |
 | Related | Doc-comment field linking items bound in meaning or dependency |
 | Run report | The last chat message of an editing workflow run |
+| Progress note | Chat status after each step of `/implement` and `/evolve`: done now, items, next, waiting on you |
 | Blocker | A stop written per `tech-reporting.md` |
 
 ## 6) Workflow Entry

@@ -46,10 +46,11 @@ Right: | Repo | Section 4.7: OS and CPU matrix; UTF-8 console; Debug = Release; 
 
 | File | Budget |
 |------|--------|
-| `copilot-instructions.md` | 22 KB |
+| `copilot-instructions.md` | 24 KB |
 | Workflow skill (without templates) | 20 KB |
 | Templates companion | 16 KB |
 | Language skill (`tech-csharp.md`, `tech-rust.md`, `tech-python.md`) | 20 KB |
+| `tech-reporting.md`: every form a person reads | 15 KB |
 | Other tech skill loaded on most runs | 12 KB |
 
 A larger file needs a reason in its decision record, or a split by trigger.
@@ -82,7 +83,8 @@ These files change together. Nothing fails when one is forgotten.
 | Change the spec format or an integrity check | `tech-spec.md` · `tech-reqtrace.md` · `workflow-requirements.md` · `workflow-plan-templates.md` · `workflow-dream.md` · `workflow-review.md` § Trace |
 | Change a `reqtrace` command, option, rule, or output line | `src/ReqTrace/` · `docs/agents.md` · `tech-reqtrace.md` (§ When to run what, § Findings, examples) · `src/ReqTrace/PACKAGE_README.md` |
 | Change when `accept` runs | `tech-reqtrace.md` § When to run what, § Accept · `workflow-requirements.md` § Completion · `workflow-plan.md` § Completion · `workflow-implement.md` Stage 6 · `workflow-evolve.md` Gate A and Gate B |
-| Change a gate or `spec/state.md` | `workflow-evolve.md` · `tech-reporting.md` · §5.1 |
+| Change a gate or `spec/state.md` | `workflow-evolve.md` (§ Progress note reads **Queue** and **Position**) · `tech-reporting.md` · §5.1 |
+| Change a progress note field or point | `tech-reporting.md` § Progress note · `workflow-implement.md` Stage 2 item 12 · `workflow-evolve.md` § Progress note, Stage 0, Gate A, Stage 4, Stage 5, Completion · §5.1 |
 | Change a breakpoint | `tech-web.md` · `tech-playwright.md` |
 
 ## Review

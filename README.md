@@ -184,7 +184,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide |
 | `tech-spec.md` | Requirements, plan, implement, review, evolve, dream; `spec/**`, `docs/domain/**` — living spec format, stable IDs, trace, integrity checks, domain knowledge |
 | `tech-reqtrace.md` | Requirements, plan, implement, review, evolve, dream; `spec/trace.lock`, `.config/dotnet-tools.json` — setting up and calling `reqtrace`: which command at which moment, what to do per finding |
-| `tech-reporting.md` | Before a blocker, decision card, Spec delta, briefing, or run report — reader-first forms and length budgets |
+| `tech-reporting.md` | Before a blocker, decision card, Spec delta, briefing, progress note, or run report — reader-first forms and length budgets |
 | `tech-agent-access.md` | An application's UI features, CLI, REST, MCP, or library API — how agents use the product |
 | `tech-sweep.md` | `/plan`, `/review`, `/council` — the five named views |
 | `tech-limits.md` | A trust-boundary limit in scope (plan, review) — principles, mechanism, project decisions, audit and register, reference implementations |
@@ -216,7 +216,7 @@ counts here.
 
 Stages live in workflow skills only. Prompts do not repeat them.
 
-- **Evolve:** `workflow-evolve.md` — dictated input → Spec delta → **Gate A** → one slice at a time: plan, tests first, implement, prove as a user → Heal → **Gate B**. Decisions wait as cards (**Gate E**) while other work continues. Work is sized S, M, or L. State resumes from `spec/state.md`. Where the tool can start a subagent on another model, a cheaper Builder writes each plan step's tests and code, and the session model checks it ([decision record](docs/decisions/evolve-builder.md))
+- **Evolve:** `workflow-evolve.md` — dictated input → Spec delta → **Gate A** → one slice at a time: plan, tests first, implement, prove as a user → Heal → **Gate B**. Decisions wait as cards (**Gate E**) while other work continues. Work is sized S, M, or L. After each step a short progress note in chat says what was just finished and proved, the status of every slice, what comes next, and when you are needed. State, finished slices included, resumes from `spec/state.md`. On request (`/evolve all`), it builds every slice in one run and stops only at Gate A and one final Gate B. Where the tool can start a subagent on another model, a cheaper Builder writes each plan step's tests and code, and the session model checks it ([decision record](docs/decisions/evolve-builder.md))
 - **Dream:** `workflow-dream.md` — folds accumulated knowledge back into one consistent state: integrity checks, domain inbox and pages, requirements, test content, trace, docs. `touched` after each slice, `full` on request. Never changes production code
 - **Requirements:** `workflow-requirements.md` — atomic, contradiction-free requirements (`REQ-<AREA>-<TOPIC>`) kept in `spec/`, checked against the existing spec; Full or Delta mode; context prose has no IDs; skip reinventing when the user already supplied them
 - **Plan:** `workflow-plan.md` — Interactive, or Autonomous inside `/evolve`; attached docs, sweep, Grill Me on Decision-class points only, locked `How` + Before/After, schematic API and interface snippets immediately before the steps, links to requirements and `TEST-<AREA>-<TOPIC>` cards, step Experience/Acceptance, an **Expected Experience** section right after Step Overview, an Impact search and a required `Docs` field per step, then a requirements walk **and** a conversation walk, Requirements-fit
@@ -225,7 +225,8 @@ Stages live in workflow skills only. Prompts do not repeat them.
   check, verify requirements at step close (tick `Met` in the linked
   requirements file), Step `{n}R` on the step’s change, tick accepted finding
   Status in the review Summary together with the finding Status line,
-  a **briefing** ranked by where attention pays off (concept, type roles, data
+  a **progress note** in chat after each step (done now, every step's
+  status, next, waiting on you), a **briefing** ranked by where attention pays off (concept, type roles, data
   flow, a card per Judge and Sample file), one full-scope
   **Closing Review** (Exam only on request), and a **run report** in chat on
   every exit (not done, needs you, problems, deviations)
