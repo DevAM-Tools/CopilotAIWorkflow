@@ -29,8 +29,69 @@ Do not iterate every integer, every string, or every permutation “to be sure�
 ## Speed
 
 - Each unit test finishes in ≤ 100 ms (Section 4.5). Slower tests carry the stack’s slow or integration marker. Do not `Sleep` / `time.sleep` / `thread::sleep`.
-- Do not use network, real clock waits, or an extra process when a deterministic fake will do.
+- Do not use network, real clock waits, or an extra process when a deterministic fake will do. Host effects: § Host safety.
 - Assert one behavior per test. Parametrize related inputs; do not copy-paste.
+
+## Host safety
+
+Tests run on the machine a person works on, often while an agent runs them. ❗ A test run leaves the machine usable and unchanged: no window appears, no global state changes, the machine keeps responding.
+
+Classify each test by its effect on the host:
+
+| Effect | Examples | Default run |
+|--------|----------|-------------|
+| Contained | In-process code, fakes, the test’s own temp directory, a loopback port the OS picks, a headless browser, a child process the test owns | Allowed |
+| Visible | A window, dialog, tray icon, notification, or sound; focus or cursor taken; a headed browser; desktop UI automation | Never |
+| Global | Clipboard, registry, user or machine settings, user or machine environment variables, writes outside the test’s temp directory, system time, certificates, services, printers, network configuration, other processes | Never |
+| Heavy | Over § Resource budget; load or stress runs; a run longer than the agreed time budget | Never |
+
+Count the agent tool’s integrated browser as Contained: it runs inside the editor (Section 4.8).
+
+- ❗ Design for Contained. Put each OS service (clipboard, window, dialog, file picker, registry, clock, process start) behind a narrow interface. Test the logic through a fake; keep the real adapter a pass-through with no branch.
+- ❗ A card or test that needs Visible, Global, or Heavy is Decision class (Section 4.16). Ask before writing it: in `/plan` Stage 3, under `/evolve` in the Spec delta. Never write one on your own judgment “to be safe”.
+- Offer these options. A requirement that is expensive to show needs no automated test when the person agrees:
+
+| Option | The person gets |
+|--------|-----------------|
+| A) Fake only | Logic tested against a fake; the adapter shown by review (`Proof: review — {reason}` when nothing else proves the requirement) |
+| B) Opt-in host test | A test that runs only when a person starts it by name (§ Opt-in); never in the default run or an agent `Verify` |
+| C) Demo | The person tries it once (`Proof: demo — {reason}`) |
+| D) No proof | `Proof: waived — {reason}` |
+
+- Record the answer: plan Context Anchor **Topics** line `Host`, the card **Content** or **Out**, the requirement **Proof**. The test’s doc comment names the effect, never the question ID (Section 4.1).
+- An unapproved Visible, Global, or Heavy test is an Error in review. Rewrite it to Contained, or ask.
+
+```text
+Wrong: ClipboardTests writes the real clipboard. The text the person copied is gone after each run.
+Right: CopyRowCommand takes IClipboard. The test asserts the fake received "Report;3".
+       Card Out: real clipboard write — adapter is one call, shown by review (Host answer, Topics).
+```
+
+### Environment variables
+
+- ❗ Never switch product behavior for a test through an environment variable, a registry key, or a global flag. Inject it: constructor, options object, command-line argument, the test host’s configuration.
+- ❗ Never set an environment variable of the test process: parallel tests share it and child processes inherit it. Pass a child process its variables in its start info.
+- Allowed: runner configuration of the machine (browser channel, cache folder: `tech-playwright.md` § Browser selection), read once, never product behavior.
+
+```text
+Wrong: if (Environment.GetEnvironmentVariable("APP_TEST_MODE") == "1") { skipDialog = true; }
+Right: new ExportCommand(fileDialog); the test passes a fake dialog that returns a temp path.
+```
+
+### Resource budget
+
+Apply these defaults to the default run. Change them only with the person’s answer (Heavy).
+
+- ❗ Run at most `max(1, logical cores / 2)` test-started processes at once: app instances, browsers, CLIs. Run at most 4 browser instances; open a new context per test, never a new browser.
+- ❗ Start the app under test once per run or per class, never per test.
+- ❗ Give every started process a timeout. Kill its whole process tree in teardown, also when the test fails. Leave no test-started process after the run.
+- Keep generated test data ≤ 100 MB per test, on disk and in memory. Never busy-wait.
+- Cap with the runner: `tech-tunit.md` § Fixtures and parallelism · `tech-pytest.md` § Markers · `tech-rust-test.md` § Host tests · `tech-playwright.md` § Host safety.
+
+### Opt-in
+
+- Mark an approved Visible, Global, or Heavy test so it runs only when a person starts it by name: `[Explicit]` (`tech-tunit.md`), the `host` marker (`tech-pytest.md`), `#[ignore]` (`tech-rust-test.md`).
+- Restore in teardown what it changed (clipboard content, setting). Name the effect and the run command in its doc comment.
 
 ## Allocation tests
 
@@ -50,7 +111,7 @@ When a product web UI is in scope, **use Playwright intensively** to prove what 
 
 When requirements or the plan name **concrete UI behavior** (requirement ID / `TEST-<AREA>-<TOPIC>`: visible text, validation, navigation, viewport, keyboard, enabled/disabled), each named behavior needs an observable Playwright assert. A generic “page loads” journey is not enough.
 
-Cover the same **behavior classes** as above, in the browser: happy path, expected errors, empty/min/max, viewports in `tech-web.md`, and trust-boundary messages the user can read. Plan those cases as `TEST-<AREA>-<TOPIC>` **Content**.
+Run journeys headless and within § Resource budget (§ Host safety). Cover the same **behavior classes** as above, in the browser: happy path, expected errors, empty/min/max, viewports in `tech-web.md`, and trust-boundary messages the user can read. Plan those cases as `TEST-<AREA>-<TOPIC>` **Content**.
 
 Do **not** skip journeys to keep the suite small. Do **not** assert every pixel, screenshot, or CSS rule. Assert observable UI: heading, row, error text, URL, focus, enabled/disabled, layout that would break the task (clipped primary action, required horizontal scroll).
 

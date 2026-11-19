@@ -16,7 +16,7 @@ Load on `/illustrate`, or when a plan, requirement, or concept needs an interact
 ## Stage 1 — Confirm scope
 
 - Item: plan, requirement set, architecture, API, flow, or named concept. Read that source in full.
-- Output: user path, else `illustrations/<slug>.html`, or `illustrations/<slug>/` when more than one file is needed.
+- Output: user path, else `illustrations/<slug>.html`, or `illustrations/<slug>/` when more than one file is needed, or `illustrations/<slug>.svg` for an SVG-only illustration (Stage 3).
 
 ## Stage 2 — Teaching design
 
@@ -75,6 +75,8 @@ Pick the form from the subject:
 | Before and after | The same input through both, side by side; the outcome differs visibly |
 
 A still diagram or stepped sequence is the right form when nothing changes over time. Motion that adds nothing is worse than none.
+
+**SVG-only form:** when the Insight needs neither input nor controls (one still, or one looping motion), the illustration is a single `.svg` file. Read `tech-docs-templates.md` § Diagrams now and follow its SVG form, animation included. Every Stage 2 and Stage 6 rule still applies. Controls, input, or stepping make it HTML with JavaScript.
 
 **Interaction changes the outcome.** Offer at least one where the subject allows it:
 
@@ -168,7 +170,7 @@ Load `tech-playwright.md`. Do not eyeball. The shipped files never mention Playw
 
 **Technical checks:**
 
-- Assert: the page loads; stepping changes **displayed values**, not only classes; step back restores them; changing the input changes the result. Slides: overview count, next and previous, position text. 3D: canvas visible and not empty.
+- Assert: the page loads; stepping changes **displayed values**, not only classes; step back restores them; changing the input changes the result. Slides: overview count, next and previous, position text. 3D: canvas visible and not empty. SVG-only: the file loads, and the start and middle screenshots differ.
 - Quick look needs no spec: `playwright screenshot … file:///…` or the integrated browser.
 - Asserted check: spec at `tests/illustrations/<slug>.spec.ts`, outside the illustration folder. Delete it after the run unless the user keeps it. Commands per OS: `tech-playwright.md`.
 - No approved Playwright runner in the repo: New Dependency Protocol (Section 4.7). Never `npm init` or `package.json` in the illustration folder. No `npx`. No `.ps1` wrapper.

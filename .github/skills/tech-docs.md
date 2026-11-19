@@ -43,6 +43,11 @@ Pay for context only where the task is. Read a whole doc only when the task cove
 - The entry type of each component (or its module or namespace doc) links its architecture section, so an agent that starts in the code finds the rule.
 - Architecture names types and paths. It holds no signatures and no per-file lists; those drift.
 
+## Diagrams
+
+- ❗ Never ASCII art. Before drawing a diagram, read `tech-docs-templates.md` § Diagrams.
+- Cover each diagram with the Impact search and the Sync check.
+
 ## Doc comments
 
 ❗ Every type and member, private included. When the name says everything, state what the name cannot: unit, range, empty meaning, ownership, cost.
@@ -145,7 +150,7 @@ Run in `/plan` Stage 1 and before the first edit in each file. It produces the a
 Run at plan-step close, per finding fix, and as the review **Docs** hunt. Scope: the touched files plus every Impact-search hit.
 
 1. Re-read the doc comment and block comments of each changed member against the new body: parameters, returns, errors, branches, units, cost, tags, Related.
-2. Each touched architecture section, concept, domain entry, guide, README section, decision record, and `Sync:` partner states the new truth.
+2. Each touched architecture section, diagram, concept, domain entry, guide, README section, decision record, and `Sync:` partner states the new truth.
 3. The change keeps every documented boundary, dependency, flow, and invariant, or the architecture and a decision record changed with it.
 4. Knowledge learned in this run is in its home.
 5. Each link, path, and backticked symbol resolves (grep). Each documented command in a touched doc runs (full review) or matches the build files (static review).
@@ -159,6 +164,6 @@ Sync check: updated docs/architecture.md § Run (Easy to miss), docs/domain/bill
 
 ## Review severity
 
-- **Error:** missing or contract-less doc comment; Related that lists usages; body that fails the comment-only read; stale doc or comment; history comment; architecture broken without an architecture update and decision record; learned knowledge not captured in its home; file header that repeats the type doc; non-compiler coupling without `Sync:` at both ends; broken link, path, or symbol; documented command that fails; fact copied outside its home.
+- **Error:** missing or contract-less doc comment; Related that lists usages; body that fails the comment-only read; stale doc, comment, or diagram; ASCII art; SVG that breaks the form in `tech-docs-templates.md` § Diagrams; history comment; architecture broken without an architecture update and decision record; learned knowledge not captured in its home; file header that repeats the type doc; non-compiler coupling without `Sync:` at both ends; broken link, path, or symbol; documented command that fails; fact copied outside its home.
 - **Cosmetic:** comment that restates the code; a comment that should carry a tag; a section named without content (`Helpers 2`); an Overview longer than one screen.
 - A change-scoped review (Step `{n}R`, a finding fix) files gaps the change did not touch once, as one Refactoring finding that names `/docs-repair`; they do not block the change. A file-scoped `/review` files them as Errors.

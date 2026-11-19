@@ -211,7 +211,7 @@ Prod files: {n} · ~LOC: {n} · over budget because: {or n/a}
 ### Debug
 Reproduce: …
 First probe if red: …
-UI: {Playwright trace / headed / n/a}
+UI: {headless Playwright trace / n/a} (headed only when a person asks to watch)
 Collision: other agents locking build or test?
 ### If it fails
 ```

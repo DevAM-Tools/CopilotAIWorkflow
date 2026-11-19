@@ -46,7 +46,7 @@
 | `test_*.py`, `*_test.py`, `pytest` | `tech-python.md`, `tech-test.md`, `tech-pytest.md` |
 | `*.spec.ts`, Playwright, `illustrations/**` | `tech-playwright.md` (plus `tech-test.md` for specs) |
 | `README.md`, `docs/**`, `CHANGELOG.md`, doc comments | `tech-docs.md` |
-| New or changed project doc | `tech-docs-templates.md` |
+| New or changed project doc, a diagram | `tech-docs-templates.md` |
 | `spec/**`, `docs/domain/**` | `tech-spec.md` |
 | `spec/trace.lock`, `spec/trace.ignore`, `.config/dotnet-tools.json`, a `reqtrace` call | `tech-reqtrace.md` |
 | UI features, CLI, REST, MCP, or library API of an application | `tech-agent-access.md` |
@@ -105,6 +105,7 @@ Performance is a feature. Design for it from the first plan step.
 - Cover happy path, errors, boundaries, concurrency, security: behavior classes, not every value.
 - Each unit test finishes in ≤ 100 ms. Slower tests carry the slow or integration marker. No sleeps. No network in unit tests.
 - ❗ Minimize test run time. When a full run is not required, run only the tests that cover the change. .NET: `dotnet test`.
+- ❗ Keep the machine usable and unchanged during a test run: no window; no clipboard, setting, or environment change; no process or memory flood; no product switch for tests through environment variables. Ask before a test that needs one (Decision class); no automated test is a valid answer (`tech-test.md` § Host safety).
 - ❗ Never delete or weaken a test to get green.
 - ❗ Cards (`tech-spec.md`) hold the minimum from the requirements; each step adds code tests for what it wrote (`tech-test.md` § Two layers).
 
@@ -124,7 +125,7 @@ Docs and code say the same thing for the life of the project. Doc set, checks, e
 - ❗ Related references link only items bound in meaning or dependency, never usages. A coupling the compiler cannot check gets `Sync:` at both ends.
 - ❗ Comments state why and the flow: intent, design decisions, optimizations, invariants, security trade-offs. Split non-trivial bodies into blocks led by a comment. Never restate syntax.
 - ❗ Comments and docs describe the present: no history, no commented-out code, no file header that describes the file.
-- Markdown tables: 3–4 narrow columns. Diagrams: Mermaid `TD`, no wide `LR`, no ASCII art.
+- Markdown tables: 3–4 narrow columns. Diagrams: Mermaid `TD` (no wide `LR`) or SVG, chosen by content; SVG may animate where the motion carries meaning (`tech-docs-templates.md` § Diagrams). Never ASCII art.
 - ❗ File references are clickable Markdown links relative to the containing file, with forward slashes. Fenced commands may keep raw paths. In chat, link from the repo root.
 
 ### 4.7 Repository
@@ -144,7 +145,7 @@ Applies to product web UIs, not `/illustrate` HTML. Rules: `tech-web.md`.
 - Every interactive control has an accessible name and state.
 - One visual language. Dark mode ships; other themes are out of scope unless asked.
 - Plan Playwright journeys from the first plan.
-- ❗ Use the integrated browser on the running UI while implementing, verifying, and debugging. Per-tool mapping: `tech-playwright.md`. No browser tool: say so once and use headed Playwright or a trace.
+- ❗ Use the integrated browser on the running UI while implementing, verifying, and debugging. Per-tool mapping: `tech-playwright.md`. No browser tool: say so once and use a headless trace; headed only when the person asks to watch.
 
 ### 4.9 Structure
 
@@ -279,6 +280,7 @@ Tick every status surface of an item together. Plan: Step Overview, Shared Block
 | Gate A / E / B | Human stops of `/evolve`: Spec · Escalation · Release |
 | Lead | The `/evolve` session: plans, writes cards, checks, reviews, holds the gates |
 | Builder | A subagent on a cheaper model that builds one plan step under `/evolve` (`workflow-evolve.md` § Builder) |
+| Host effect | What a test does to the machine it runs on: Contained · Visible · Global · Heavy (`tech-test.md` § Host safety) |
 | Card test · Code test | Proves a test card · derived from the written code; no card |
 | Hot path | A per-item or per-byte loop after setup |
 | Limit definition | The one declaration of a trust-boundary limit (`tech-limits.md`) |

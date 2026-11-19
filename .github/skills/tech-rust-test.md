@@ -35,3 +35,8 @@ assert!(matches!(pair(Path::new("")), Err(PairError::Empty)));
 ```
 
 - Cover Rust exits `Ok`, `Err`, `?`, and documented panic — each still needs a test per `tech-test.md`.
+
+## Host tests
+
+- ❗ Mark an approved Visible, Global, or Heavy test (`tech-test.md` § Host safety) `#[ignore = "host: {effect}"]`. A person runs it with `cargo test --release {name} -- --ignored`.
+- Expect `cargo test` to run one thread per core. Put tests that start processes into one integration-test target and cap it: `cargo test --release --test {target} -- --test-threads={half the logical cores}` (`tech-test.md` § Resource budget). Name that command in the target’s module doc.

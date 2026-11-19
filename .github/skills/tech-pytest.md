@@ -47,3 +47,12 @@ def test_count_collection_size_matches(size: int, expected: int) -> None:
 
 - `@pytest.mark.slow` only when unavoidable (`tech-test.md` speed).
 - Document custom markers in `pytest.ini` / `pyproject.toml`.
+- ❗ Mark an approved Visible, Global, or Heavy test (`tech-test.md` § Host safety) `@pytest.mark.host`. Exclude it from the default run in `addopts`; a person runs it with `-m host` (the command line wins):
+
+```toml
+[tool.pytest.ini_options]
+markers = ["host: changes the host (window, clipboard, settings) or exceeds the resource budget; run with -m host"]
+addopts = "-m 'not host'"
+```
+
+- With `pytest-xdist` (approved dependency), cap workers for suites that start processes or browsers: `-n` at most half the logical cores (`tech-test.md` § Resource budget). Never `-n auto` there.

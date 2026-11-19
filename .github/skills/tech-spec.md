@@ -69,7 +69,7 @@ Closed sets:
 | Met | `⬜` not proven · `✅` Done-when ran and held · `❌` ran and failed |
 | Proof | `test` · `demo — {reason}` · `review — {reason}` · `waived — {reason}` |
 
-- `Proof` is how the requirement is shown to hold. Use `test` unless no test can show it.
+- `Proof` is how the requirement is shown to hold. Use `test` unless no test can show it. Take the `Proof` of a requirement whose test would open a window, change global state, or exceed the resource budget from the person’s answer (`tech-test.md` § Host safety).
 
 - `Built in`: 1 to 3 entry symbols. Fill at step close. Never list call sites.
 - Retired entries move to `## Retired` in the same file and keep their text:

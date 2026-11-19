@@ -51,6 +51,8 @@ Walk every topic of the table. Classify each open point (Section 4.16): Covered,
 Right: Performance: hot path = the row loop in `InvoiceReader.Read`; no allocation per row (Assumption: no budget stated)
 Right: Limits: import size 1 GB, set by the end user, secure by default (Decision: Q2 answered)
 Right: Concurrency: n/a — single-threaded CLI, no shared state
+Right: Host: all cards Contained; clipboard behind IClipboard; real clipboard write shown by review (Decision: Q4 answered, option A)
+Wrong: Host: UI tests open the app window; acceptable.
 Wrong: Performance: considered.
 Wrong: Security: OK.
 ```
@@ -59,6 +61,7 @@ Wrong: Security: OK.
 |-------|----------------|
 | Outcomes | Concrete acceptance, not “it builds” |
 | Test content | The card minimum: scenarios, edges, constellations, contradictions, gaps, what is out, time budget (`tech-test.md` § Card tests). Cards live in `spec/tests/`. Code tests follow from the written code at implement time (`tech-test.md` § Code tests); never settle them here |
+| Host | Per card its host effect (`tech-test.md` § Host safety): Contained, or Visible, Global, Heavy with the effect named. Each OS service the code touches (clipboard, window, dialog, registry, clock, process start) sits behind an interface with a fake. Each non-Contained card is Decision class: ask with the options of that section (fake only, opt-in host test, demo, no proof). A resource budget other than the default is Decision class |
 | Public API | Snippet plus usage; interfaces, traits, or contract types the steps implement |
 | Agent surface | Which surface an agent uses (CLI, REST, MCP, library) and its parity with the UI, or the waiver (`tech-agent-access.md`) |
 | Web UI | Dark mode, responsive, tables, journeys, debug story (`tech-web.md`, `tech-playwright.md`, `tech-test.md`) |
@@ -93,7 +96,7 @@ Grill Me ↔ Council (`workflow-council.md`) until no blocking fork. Lite defaul
 Read `workflow-plan-templates.md`.
 
 - Path: user path, else `plans/plans_<slug>.md`. English. Slug: lowercase, punctuation and whitespace → `-`, collapse, trim, fallback `task`.
-- Write new or changed test cards to `spec/tests/<area>.md` first (`tech-spec.md` § Test card). Per behavior, each applicable class of `tech-test.md` (happy, error, boundary, collection 0/1/2, absence, concurrency, trust-boundary) has a card, or an `Out` with a reason. So does each edge, constellation, and contradiction named in Stage 3. **Content** states setup, action, and observable, so an executing agent proves the card without inventing the scenario.
+- Write new or changed test cards to `spec/tests/<area>.md` first (`tech-spec.md` § Test card). Per behavior, each applicable class of `tech-test.md` (happy, error, boundary, collection 0/1/2, absence, concurrency, trust-boundary) has a card, or an `Out` with a reason. So does each edge, constellation, and contradiction named in Stage 3. **Content** states setup, action, and observable, so an executing agent proves the card without inventing the scenario. A card whose test is Visible, Global, or Heavy exists only with the **Host** answer and names the effect and the opt-in in **Content** (`tech-test.md` § Host safety). In Autonomous mode without that answer: write the Contained card, card the question, and plan around it.
 - New cards are `proposed` in Interactive mode and `active` in Autonomous mode (Gate A covers them). Before changing or retiring an existing card: `reqtrace show <TEST-ID>`; each test it lists gets a step.
 - After writing the cards: `reqtrace check`. L4 and L6 on entries this plan builds are expected (`tech-reqtrace.md` § Findings); fix every other Error now.
 - Write every section of `workflow-plan-templates.md` § Plan Structure, in that order, from its template.
@@ -127,7 +130,7 @@ Required:
 
 Run after the plan is written. ❗ Walk twice. Patch until clean. After every patch, run both walks and the three checks again.
 
-1. **Requirements walk:** re-read the linked entries in full; never treat the plan as a copy of them. Every requirement in scope lands in Target Solution and in a step `Acceptance`; an unmapped one = gap. Every test ID lands in a step `Tests` field and has a card with **Content**. An applicable `tech-test.md` class with no card and no Out = gap. IDs never land in `How`.
+1. **Requirements walk:** re-read the linked entries in full; never treat the plan as a copy of them. Every requirement in scope lands in Target Solution and in a step `Acceptance`; an unmapped one = gap. Every test ID lands in a step `Tests` field and has a card with **Content**. An applicable `tech-test.md` class with no card and no Out = gap. A card whose test would open a window, change global state, or exceed the resource budget without a **Host** answer = gap. IDs never land in `How`.
 2. **Conversation walk:** re-read the conversation, answers, Sweep, council, and attached docs in full, then the plan. Every relevant ask, constraint, non-goal, named type or path or command, accepted proposal, rejected option with leftover constraint, and named edge lands on an ID, a card **Content**, Out, or `C{n}`. “Implied” without a citation = gap.
 
 Then:

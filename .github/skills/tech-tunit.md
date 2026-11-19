@@ -79,6 +79,30 @@ await Assert.That(async () => await sut.PairAsync(path)).Throws<IOException>();
 - `IAsyncDisposable` on test classes holding resources.
 - Parallel-safe by default; no shared mutable statics.
 - `[NotInParallel]` only when required. Document the reason in XML.
+- ❗ Cap tests that start processes or browsers once per test project (`{App}.UiTest`, process-level integration tests), at assembly level (`tech-test.md` § Resource budget):
+
+```csharp
+[assembly: ParallelLimiter<HostProcessLimit>]
+
+/// <summary>
+/// Caps how many tests that start processes or browsers run at once, so a test run leaves the machine
+/// responsive. Thread safety: stateless.
+/// </summary>
+internal sealed class HostProcessLimit : IParallelLimit
+{
+    /// <summary>Half the logical cores, at least one.</summary>
+    public int Limit { get; } = Math.Max(1, Environment.ProcessorCount / 2);
+}
+```
+
+- ❗ Mark an approved Visible, Global, or Heavy test (`tech-test.md` § Host safety) `[Explicit]`: an unfiltered `dotnet test` skips it. Name the effect and the run command in its XML doc:
+
+```csharp
+/// <summary>Writes the real system clipboard and restores it in teardown.
+/// Run: dotnet test path/App.Tests.csproj -c Release -- --treenode-filter "/*/*/ClipboardAdapterTests/*"</summary>
+[Explicit]
+public sealed class ClipboardAdapterTests
+```
 
 ## Coverage
 

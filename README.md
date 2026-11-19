@@ -170,7 +170,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-rust.md` | `*.rs` / `Cargo.toml` / `Cargo.lock` in scope |
 | `tech-python.md` | `*.py` / `pyproject.toml` / `*.pyi` in scope — strict typing |
 | `tech-csharp-profiling.md`, `tech-rust-profiling.md`, `tech-python-profiling.md` | Only when a measurement is needed — profiling without admin rights |
-| `tech-test.md` | Tests or production APIs in scope — case design |
+| `tech-test.md` | Tests or production APIs in scope — case design; host safety (no window, global change, or process flood in a test run) |
 | `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review |
 | `tech-pytest.md` | pytest files in scope |
 | `tech-rust-test.md` | Rust unit/integration tests |
@@ -180,8 +180,8 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-sourcegen.md` | Generator code in scope |
 | `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs`, packing or releasing a package, NuGet restore failures from vulnerable packages |
 | `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
-| `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set, reading tiers, architecture as contract, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, language contract, Impact search, Sync check |
-| `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide |
+| `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set, reading tiers, architecture as contract, no ASCII diagrams, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, language contract, Impact search, Sync check |
+| `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture, concepts, domain, decision record, guide; before drawing a diagram — Mermaid or SVG by content, SVG form, animation |
 | `tech-spec.md` | Requirements, plan, implement, review, evolve, dream; `spec/**`, `docs/domain/**` — living spec format, stable IDs, trace, integrity checks, domain knowledge |
 | `tech-reqtrace.md` | Requirements, plan, implement, review, evolve, dream; `spec/trace.lock`, `.config/dotnet-tools.json` — setting up and calling `reqtrace`: which command at which moment, what to do per finding |
 | `tech-reporting.md` | Before a blocker, decision card, Spec delta, briefing, progress note, or run report — reader-first forms and length budgets |
@@ -200,7 +200,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `workflow-review.md`, `workflow-review-templates.md` | `/review`; file mode default; `chat only` opt-in; public-release verdict; the templates load at the output stage |
 | `workflow-council.md` | `/council`; Sweep on `/plan` (five views); `/review` uses Skeptic + Outsider only; Exam on request |
 | `workflow-commit-message.md` | `/commit-message`; complete message; git after the file is out of scope |
-| `workflow-illustrate.md` | `/illustrate`; didactic HTML zip; ask before vendoring libraries into `vendor/` |
+| `workflow-illustrate.md` | `/illustrate`; didactic HTML zip or SVG-only file; ask before vendoring libraries into `vendor/` |
 
 Agents must read matching skills before edits. Missing skill when trigger matches = Error in review.
 

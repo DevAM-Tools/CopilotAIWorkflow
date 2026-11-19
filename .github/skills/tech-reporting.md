@@ -91,6 +91,7 @@ The Gate A packet. File: `reviews/delta_<slug>.md`. Chat shows the same text. �
 **Conflicts resolved:** {old ID vs new statement; which side won and why; or `none`}
 **Assumptions:** {default taken; what changes if wrong; or `none`}
 **Tests:** {count per class; only cards a person should look at}
+**Host effects:** {per card that would open a window, change global state, or exceed the resource budget: the effect, options, recommendation (`tech-test.md` § Host safety); or `none`}
 **Public API / agent surface / limits / dependencies:** {snippet or row; or `none`}
 **Builder:** {the model that builds plan steps, as the tool accepts it, or `none — {reason}`; only while `spec/state.md` has no `Builder` line}
 **Domain facts added:** {links; or `none`}
@@ -172,7 +173,7 @@ public bool TryAdd(string name, out ExportId id)
 `````
 
 - ❗ **Concept:** required when the change adds or changes more than one type. One table row per new or changed type. `Role` states the job, never the name reworded. `Why it exists` states what fails without the type or why it is not merged into a neighbor. `Not to be confused with` names each type in the repository with a similar name or role and the difference; `—` when none exists.
-- Diagram: Mermaid `TD` of the types and the data passing between them, at most 10 nodes. Omit it for a single type.
+- Diagram: Mermaid `TD` or SVG (`tech-docs-templates.md` § Diagrams) of the types and the data passing between them, at most 10 nodes. Omit it for a single type.
 - List every created, edited, or deleted path, docs included, in **Files**. Deleted: `(deleted)` in Change.
 - ❗ Write a card per Judge and Sample file. Routine files: the **Files** row is enough. Sibling files that serve one idea share one card.
 - Cards are fields, never paragraphs: each field at most 2 sentences. Ban slogans, ID-only reasons, and “as planned”.

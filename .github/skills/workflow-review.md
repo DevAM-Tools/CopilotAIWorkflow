@@ -93,7 +93,8 @@ Judge **content**, not file names. Is what the suite proves complete for the imp
 - A test that cannot fail is a gap, also when it passes.
 - A plan in scope: walk every requirement and card **Content** against code and tests. Unmet on the page = Error. Missing Content = gap. An applicable class with no card, no code test, and no Out = gap. A code test without a card is not a gap.
 - **Code tests** (`tech-test.md` § Code tests): walk each new or changed member yourself; never trust the ledger line. Branch, error path, parameter guard, loop 0/1/2, overflow guard, state transition, limit, thread-safety or allocation claim: one with no test, no covering card test, and no `n/a` reason = gap. A ledger line that names a missing test, or a code test without an exact assertion = Error.
-- Full: run executable Done-when checks. Static: judge from source.
+- **Host safety** (`tech-test.md` § Host safety): a test without an approved card that opens a window or dialog, runs a headed browser, writes the clipboard, registry, settings, or files outside its temp directory, sets an environment variable of its own process, or exceeds the resource budget (more than half the logical cores in started processes, a browser or app start per test, a process without timeout or tree kill) = Error. A product branch on an environment variable or global flag that exists for tests = Error. An approved one without the opt-in marker = Error.
+- Full: run executable Done-when checks. Static: judge from source. A Done-when or test that would open a window or change global state runs only when approved; else say so in **Test Execution**.
 
 ### Design decisions
 

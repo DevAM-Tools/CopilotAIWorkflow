@@ -101,7 +101,7 @@ Then size the work. Pick the smallest fit. A condition of S that is uncertain is
 
 ## Stage 2 — Spec delta
 
-Execute `workflow-requirements.md` in Delta mode. Then write the test cards per `tech-spec.md`: at least one per new requirement and every applicable class in `tech-test.md`. Then write the Spec delta (`tech-reporting.md`).
+Execute `workflow-requirements.md` in Delta mode. Then write the test cards per `tech-spec.md`: at least one per new requirement and every applicable class in `tech-test.md`. Read `tech-test.md` § Host safety now and classify each card. Each card that would be Visible, Global, or Heavy goes into the Spec delta **Host effects** line with its effect, the options of that section, and your recommendation; write the Contained alternative as the card until Gate A answers. Then write the Spec delta (`tech-reporting.md`).
 
 An S-size fix that changes no obligation skips this stage and Gate A.
 
@@ -112,7 +112,7 @@ Show the Spec delta. Set `Status: gate-spec`. Stop.
 - Approve → set the delta's requirements and cards `active`. Approved install request: run `tech-reqtrace.md` § Setup steps 4–8. Run `reqtrace accept --allow-gap "cards and tests follow in the slices"` (`tech-reqtrace.md` § Accept); refused for anything but L4 or L6 → fix, accept again. Cut slices. Fill **Queue** with `⬜` lines. Write **Builder** from the delta's **Builder** line. Print a progress note.
 - Change → patch and show only what changed. Stop again.
 - ❗ Only explicit words approve. A question, a comment on one entry, or silence is Change or no answer, never approval.
-- Approval covers planning and implementing these requirements, the listed public API, agent surface, limits, and dependencies.
+- Approval covers planning and implementing these requirements, the listed public API, agent surface, limits, dependencies, and host effects. A Visible, Global, or Heavy test not on the approved **Host effects** line stays unwritten: card it at the next gate (`tech-test.md` § Host safety).
 
 ## Stage 3 — Select slice
 
@@ -129,7 +129,7 @@ Load the tech skills of the slice (Section 3).
 2. **Plan:** `workflow-plan.md` in Autonomous mode. Set **Position** to `Step 1 of {total}`.
 3. **Card tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards. Print a progress note.
 4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a card test changes only through its card. After each Edit it adds the code tests of what it wrote (Stage 2 item 3, `tech-test.md` § Code tests): the cards are the minimum, not the suite. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder. ❗ After each step closes or stops: update **Position** before its progress note (§ Progress note).
-5. **Prove as a user:** run each Done-when through the real boundary: the browser for a UI, the process for a CLI, HTTP for an API, a consumer call for a library. A green unit suite is not proof. Tick `Met` only then. A Done-when that fails here is a failed `Verify` (Section 4.15).
+5. **Prove as a user:** run each Done-when through the real boundary: the browser for a UI, the process for a CLI, HTTP for an API, a consumer call for a library. A green unit suite is not proof. Tick `Met` only then. A Done-when that fails here is a failed `Verify` (Section 4.15). A Done-when whose run opens a window outside the integrated browser or changes global state runs only as approved on the **Host effects** line; otherwise leave `Met ⬜` and ask the person to run it at Gate B (`Proof: demo`).
 
 ```text
 Wrong: The tests pass, so REQ-EXPORT-NO-DUPLICATE is `Met ✅`.
@@ -161,7 +161,9 @@ Build Step 3 of plans/plans_export.md. Read .github/copilot-instructions.md, the
 Load: tech-csharp.md, tech-test.md, tech-tunit.md, tech-docs.md (the plan's Loaded skills line).
 Do: workflow-implement.md Stage 2 items Edit, Tests, Docs, Verify, for this step only.
 Write only: the step's Where files, the test files of its Tests cards and of its code tests, its Docs files.
-Never: spec/**, the plan, another step, a test that differs from its card's Content, a git write.
+Never: spec/**, the plan, another step, a test that differs from its card's Content, a git write,
+a test that opens a window, touches the clipboard, settings, or environment variables, or floods processes
+(tech-test.md § Host safety) unless its card names the approved effect.
 Card tests first: write them, run them, and keep each failure line before writing code.
 Code tests after the code: walk each member you added or changed (tech-test.md § Code tests).
 Decide nothing of Decision class (Section 4.16): stop and report it.
@@ -174,7 +176,7 @@ user-visible behavior a code test showed that no requirement names · domain fac
 
 1. `git diff --stat` shows only files the brief allows. Any other file: undo that edit, then treat it as a failed handoff.
 2. Each new marked test, next to its card **Content**: the setup, action, and observable are there, and the red-run line failed for the expected reason (Stage 4 step 3). A test that cannot fail fails the handoff.
-3. Each member the diff adds or changes is in the Code tests ledger line; each booked test exists and asserts an exact value, error code, or message (`tech-test.md` § Code tests). A member without a booking fails the handoff.
+3. Each member the diff adds or changes is in the Code tests ledger line; each booked test exists and asserts an exact value, error code, or message (`tech-test.md` § Code tests). A member without a booking fails the handoff. A new test that is Visible, Global, or Heavy without an approved card, or a product branch on an environment variable, fails the handoff (`tech-test.md` § Host safety).
 4. Run `Verify` yourself.
 5. The model in the report differs from **Builder**: say so in the run report. Some tools fall back to another model without telling.
 6. Write the reported domain facts (`workflow-implement.md` Stage 2 item 5). Put each reported user-visible behavior that no requirement names into the next Spec delta as a proposed card. Then continue that Stage 2 from item 7.

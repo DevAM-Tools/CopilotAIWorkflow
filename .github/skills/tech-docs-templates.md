@@ -1,8 +1,8 @@
 # Documentation Templates
 
-Load with `tech-docs.md` when creating or restructuring a project doc, and on `/docs-repair`. Rules (doc set, reading tiers, Sync check) live in `tech-docs.md`; this file only gives the shapes.
+Load with `tech-docs.md` when creating or restructuring a project doc, before drawing a diagram, and on `/docs-repair`. Rules (doc set, reading tiers, Sync check) live in `tech-docs.md`; this file only gives the shapes.
 
-Copy the depth, not the content. Every section is required unless marked optional. A section that does not apply says why in one line; never `n/a` alone. Links follow Section 4.6 (clickable, relative). Diagrams: Mermaid `TD`.
+Copy the depth, not the content. Every section is required unless marked optional. A section that does not apply says why in one line; never `n/a` alone. Links follow Section 4.6 (clickable, relative). Diagrams: § Diagrams at the end of this file.
 
 ## README.md
 
@@ -49,7 +49,7 @@ The Overview is tier 1: every agent reads it before it acts. Keep it on one scre
 | [Validation](#validation) | [`src/Validation/`](../src/Validation/) · `InvoiceValidator` | Checks invoice rules | — (no I/O) |
 
 A dependency not listed in **May depend on** is a defect or needs a decision record.
-{Optional: Mermaid TD context diagram — users, neighbor systems, trust levels.}
+{Optional: context diagram, Mermaid TD or SVG — users, neighbor systems, trust levels.}
 
 ## Cli
 
@@ -161,4 +161,72 @@ No dates in the body; git records them. A superseded record keeps its text and n
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
+```
+
+## Diagrams
+
+Choose the form by content. ASCII art: never (`tech-docs.md` § Diagrams).
+
+| Content | Form |
+|---------|------|
+| Flow, sequence, state machine, dependency graph; ≤ 12 nodes | Mermaid `TD` inline; no wide `LR` |
+| Layers, layout, annotated picture, chart, timeline, comparison; a crowded Mermaid | SVG file |
+
+- In `README.md` and `docs/**`, draw SVG when the picture needs more than boxes and arrows. In plans and reviews, draw Mermaid. Briefings: `tech-reporting.md` § Briefing. Illustrations: `workflow-illustrate.md`.
+
+```text
+Wrong: an 18-node Mermaid of the layer stack with crossing edges.
+Right: docs/images/layers.svg with three bands; Mermaid TD for the five-step import.
+```
+
+**Mermaid:** write a fenced `mermaid` block with `flowchart TD`. Label nodes with names from the code or the domain glossary.
+
+**SVG:**
+
+- Store it as `docs/images/<slug>.svg`. Embed it relative to the doc: `![{what it shows, one sentence}](images/<slug>.svg)`. On the next line, write a caption that names the code it mirrors or its data source: `Mirrors: [`ImportCommand`](../src/Import/ImportCommand.cs).`
+- Write it by hand. Never add a generator, a script, or a package for it (Section 4.7).
+- Set `viewBox` with width ≤ 800; no fixed `width` or `height`. Add `<title>` and `<desc>` (the text equivalent). Write text as `<text>` of ≥ 14 units. Add the copyright comment per `tech-solution.md` (`<!-- {COPYRIGHT} -->` without that skill).
+- ❗ Treat an SVG as active content. Never `<script>`, `<foreignObject>`, an event attribute, an external `href`, `@import`, or an embedded raster.
+- Define colors as CSS variables in an inline `<style>` with a `prefers-color-scheme: dark` override. Never let color carry meaning alone: add a label or a pattern.
+- Take chart values from real data (a measurement, a file, a table) and repeat them in the caption or a table below. Never invent a number or round it to fit.
+- Use a raster image (PNG) only for a screenshot, with alt text and width ≤ 1200 px.
+- Outside `docs/`: store a briefing’s SVG next to it as `reviews/briefing_<slug>_<name>.svg`, an illustration as `illustrations/<slug>.svg` (`workflow-illustrate.md`).
+
+**Animation:**
+
+- Animate only when the motion shows a state change, an order, or a flow. Never as decoration.
+- Use CSS `@keyframes` inside the SVG. Never script or SMIL: `prefers-reduced-motion` cannot stop SMIL.
+- Put the final state in the base style and the start in `from`. Under `prefers-reduced-motion: reduce`, set `animation: none`: the still shows the complete message.
+- Keep one cycle ≤ 10 s. Move one element at a time. Never flash more than 3 times per second.
+- Tell the sequence in `<desc>`, so the animation adds nothing a reader cannot get from the text.
+
+Copy the depth, not the content:
+
+```svg
+<!-- {COPYRIGHT} -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img">
+  <title>Import flow</title>
+  <desc>The CLI hands invoice files to Import, which calls Validation. Validation does no I/O.</desc>
+  <style>
+    :root { --box: #e8eefc; --line: #2b4a9a; --text: #101828; }
+    @media (prefers-color-scheme: dark) { :root { --box: #1d2740; --line: #8fb0ff; --text: #e6ebf5; } }
+    .node { fill: var(--box); stroke: var(--line); stroke-width: 2; }
+    .edge { stroke: var(--line); stroke-width: 2; marker-end: url(#arrow); }
+    text { fill: var(--text); font: 14px sans-serif; text-anchor: middle; }
+  </style>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--line)"/></marker></defs>
+  <rect class="node" x="10" y="35" width="120" height="50" rx="8"/><text x="70" y="65">Cli</text>
+  <rect class="node" x="180" y="35" width="120" height="50" rx="8"/><text x="240" y="65">Import</text>
+  <rect class="node" x="350" y="35" width="120" height="50" rx="8"/><text x="410" y="65">Validation</text>
+  <line class="edge" x1="130" y1="60" x2="178" y2="60"/><line class="edge" x1="300" y1="60" x2="348" y2="60"/>
+</svg>
+```
+
+Animation: add `<circle class="packet" cx="70" cy="60" r="6"/>` after the nodes, and this fragment to the `<style>` block. The packet travels from Cli to Import and rests there.
+
+```css
+.packet { transform: translateX(170px); animation: send 4s ease-in-out infinite; }
+@keyframes send { from { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .packet { animation: none; } }
 ```

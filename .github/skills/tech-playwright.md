@@ -220,8 +220,26 @@ rendered, check the console. It does not replace a Playwright journey.
 | Claude Code desktop app | Browser pane |
 | Claude Code CLI / VS Code extension | Claude in Chrome browser tools when connected |
 
-No browser tool in this session: say so once, then use headed Playwright or a
-trace (Commands).
+No browser tool in this session: say so once, then use a headless run with a
+trace (Commands). Headed Playwright only when the person asks to watch.
+
+## Host safety
+
+Rules and budget: `tech-test.md` § Host safety. Mechanics:
+
+- ❗ Run headless in agent runs, `Verify`, and the default run. Never commit
+  `Headless = false`, `headless: false`, `SlowMo`, or `--headed` in code, config,
+  or a documented default command. Use `PWDEBUG`, `--debug`, and `--headed` only for a
+  person who asks to watch.
+- ❗ Never launch a browser per test in your own code. Use the runner’s browser
+  fixture and a new context per test; close each context in teardown.
+- ❗ Start the app under test once per run (in-process host or one process the run
+  owns). Stop it in teardown, process tree included.
+- Cap parallel journeys: .NET `[assembly: ParallelLimiter<HostProcessLimit>]` in
+  `{App}.UiTest` (`tech-tunit.md`) · Node `workers: "50%"` in
+  `playwright.config.ts`, at most 4 · Python `-n` per `tech-pytest.md`.
+- Send downloads to the test’s temp directory. Choose files with
+  `SetInputFiles` / `set_input_files`, never through the OS file dialog.
 
 ## Commands
 
@@ -237,7 +255,7 @@ dotnet test path/App.UiTest/App.UiTest.csproj -c Release -- --treenode-filter "/
 dotnet test path/App.UiTest/App.UiTest.csproj -c Release
 ```
 
-Headed debug (Unix, then Windows PowerShell):
+Headed debug, only when a person asks to watch (Unix, then Windows PowerShell):
 
 ```bash
 PWDEBUG=1 dotnet test path/App.UiTest/App.UiTest.csproj -c Release -- --treenode-filter "/*/*/HomePageLoads/*"
@@ -307,6 +325,7 @@ The `conftest.py` above reads the variables. `--browser-channel` on the command 
 
 ```bash
 uv run pytest tests/e2e/test_export.py -v
+# Headed: only when a person asks to watch (§ Host safety)
 uv run pytest tests/e2e/test_export.py --headed --slowmo=500
 PLAYWRIGHT_BROWSER_CHANNEL=chrome uv run pytest tests/e2e/test_export.py -v
 PLAYWRIGHT_BROWSER_CHANNEL=bundled uv run playwright install chromium
@@ -344,7 +363,7 @@ pnpm exec playwright screenshot --viewport-size=375,667 file:///ABS/illustration
 `package.json` script when the repo already defines one. Unix env prefix or
 PowerShell `$env:NAME = "value"` — not a `.ps1` wrapper.
 
-Run headed debug with `--debug` or `--headed`. Trace on failure; do not sleep.
+Run headed debug with `--debug` or `--headed` only when a person asks to watch (§ Host safety). Trace on failure; do not sleep.
 
 Fix common misses: wrong cwd; `PLAYWRIGHT_BROWSER_CHANNEL=bundled` without that stack’s install command; branded browser missing on CI (use `bundled` there); a managed browser blocked by policy (Managed browsers above); targeting Debug instead of the running app URL.
 
