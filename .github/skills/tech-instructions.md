@@ -1,6 +1,7 @@
 # Instruction and Skill Authoring
 
-Load when `.github/copilot-instructions.md`, `.github/skills/**`, `.github/prompts/**`, `.cursor/**`, `.claude/skills/**`, `AGENTS.md`, `CLAUDE.md`, or `custom_instructions.md` is in scope.
+Load when `.github/copilot-instructions.md`, `.github/skills/**`, `.github/prompts/**`, `.cursor/**`,
+`.claude/skills/**`, `.agents/skills/**`, `AGENTS.md`, `CLAUDE.md`, or `custom_instructions.md` is in scope.
 
 The reader is an agent, sometimes a weak one with 100k tokens. Every token is paid on every load. Quality wins over length: a shorter text that changes agent behavior for the worse is a regression.
 
@@ -39,7 +40,9 @@ Right: | Repo | Section 4.7: OS and CPU matrix; UTF-8 console; Debug = Release; 
 - ❗ Name the skill to load in the stage that needs it: `Read x.md now.` A load that only a far-away table implies gets forgotten.
 - Move templates into a companion skill loaded at the writing stage (`workflow-plan-templates.md`, `workflow-review-templates.md`).
 - Move implementation into a package or project and name it in one bullet. Move rationale into a decision record.
-- Pointer files (`.claude/skills/*/SKILL.md`, `.github/prompts/*`, `.cursor/commands/*`) hold no rules: name, description, argument hint, read list. A `description` states the load trigger: tools pick skills from it.
+- Limit pointer files to the name, description, argument hint, and read list. A `description` states the load trigger.
+- Keep the [Codex entry skill](../../.agents/skills/repo-workflow/SKILL.md) pointed at the central routers in Sections 3
+  and 6. New workflow and technology skills reach this entry through those sections.
 - ❗ Separate artifacts by reader (`tech-reporting.md`). A workflow never requires a person to read an agent handoff.
 
 ## Size budgets

@@ -17,4 +17,4 @@ If `custom_instructions.md` exists at the repository root, read and apply it (Se
 - “File-read tool” (Section 3) is `Read`. “Subagent or delegation tool” (Section 4.14) is `Agent`: do not use it for council, advisors, peer review, or Exam.
 - Section 4.11 (Git read-only) applies to every Bash and PowerShell call.
 - Integrated browser (Section 4.8): the desktop app browser pane; in the CLI and the VS Code extension, the Claude in Chrome tools when connected. Without either, say so once and use a headless trace; headed Playwright only when the person asks to watch (`tech-playwright.md`).
-- Section 4.7 forbids ad-hoc scripts. Use the native toolchain commands from the loaded tech skill.
+- Follow [Section 4.7](.github/copilot-instructions.md#47-repository) for commands and scripts.

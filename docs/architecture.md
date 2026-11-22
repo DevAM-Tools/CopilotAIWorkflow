@@ -2,12 +2,13 @@
 
 ## Overview
 
-An agent-workflow kit (rules, workflows, tech skills for GitHub Copilot, Cursor, and Claude Code) plus .NET projects that enforce parts of those rules in code. What the repository is: [README](../README.md).
+An agent-workflow kit for GitHub Copilot, Cursor, Claude Code, and Codex in VS Code, plus .NET projects that enforce parts
+of those rules in code. See the [README](../README.md).
 
 | Component | Folder · entry | Responsibility | May depend on |
 |-----------|----------------|----------------|---------------|
 | [Workflow kit](#workflow-kit) | [`.github/`](../.github/) · `copilot-instructions.md` | Always-on rules, workflow skills, tech skills | — |
-| [Tool pointers](#tool-pointers) | [`.claude/`](../.claude/), [`.cursor/`](../.cursor/), [`.github/prompts/`](../.github/prompts/) | Entry points per tool; no rules | Workflow kit |
+| [Tool pointers](#tool-pointers) | [`AGENTS.md`](../AGENTS.md) and tool entry points | Route requests to the workflow kit | Workflow kit |
 | [CSharpStyleChecker](#csharpstylechecker) | [`src/CSharpStyleChecker/`](../src/CSharpStyleChecker/) · one `DiagnosticAnalyzer` per rule | Roslyn analyzers CSC001–CSC009 | ExitPoints (bundled) |
 | [ExitPoints](#exitpoints) | [`src/ExitPoints/`](../src/ExitPoints/) · `ExitPointCollector` | Collects the exit points of every callable | — |
 | [InvariantStringHelper](#invariantstringhelper) | [`src/InvariantStringHelper/`](../src/InvariantStringHelper/) · `InvariantText.Invariant` | Invariant-culture string interpolation for .NET 6+ (NuGet) | — |
@@ -33,7 +34,13 @@ A dependency not listed in **May depend on** is a defect or needs a decision rec
 
 ## Tool pointers
 
-[`.claude/skills/`](../.claude/skills/) is the one skill pointer set, read by Claude Code, Cursor, and VS Code. [`.cursor/commands/`](../.cursor/commands/), [`.cursor/rules/copilot-ai-workflow.mdc`](../.cursor/rules/copilot-ai-workflow.mdc), [`.github/prompts/`](../.github/prompts/), [`CLAUDE.md`](../CLAUDE.md), and [`AGENTS.md`](../AGENTS.md) are entry points.
+Claude Code, Cursor, and GitHub Copilot in VS Code share the per-skill pointers in [`.claude/skills/`](../.claude/skills/).
+Their other entry points are [`CLAUDE.md`](../CLAUDE.md), [`.cursor/`](../.cursor/), and
+[`.github/prompts/`](../.github/prompts/).
+
+Codex starts with [`AGENTS.md`](../AGENTS.md). Its [`$repo-workflow` skill](../.agents/skills/repo-workflow/SKILL.md)
+routes every request through the central tables. A single entry keeps the shared per-skill names from appearing twice in
+clients that scan both skill directories.
 
 **Invariants:**
 - A pointer holds name, description, and a read list; never a rule.

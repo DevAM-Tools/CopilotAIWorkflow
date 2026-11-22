@@ -1,6 +1,8 @@
 # CopilotAIWorkflow
 
-Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Code** (CLI and VS Code extension), plus NuGet packages for C# style enforcement, invariant string interpolation, exit-point coverage, and requirement traceability.
+Structured AI agent workflow for **GitHub Copilot**, **Cursor**, **Claude Code** (CLI and VS Code), and **OpenAI Codex** in VS Code.
+The repository also ships NuGet packages for C# style enforcement, invariant string interpolation, exit-point coverage,
+and requirement traceability.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CSharpStyleChecker](https://img.shields.io/nuget/v/CSharpStyleChecker)](https://www.nuget.org/packages/CSharpStyleChecker/)
@@ -8,7 +10,12 @@ Structured AI agent workflow for **GitHub Copilot**, **Cursor**, and **Claude Co
 [![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
 [![ReqTrace](https://img.shields.io/nuget/v/ReqTrace)](https://www.nuget.org/packages/ReqTrace/)
 
-**Current packages** — **CSharpStyleChecker** 2.0.0 (**breaking:** CSC001 defaults to 130 characters; reference `2.*`) · **ReqTrace** 0.2.0 (new: `reqtrace syntax` prints the spec form; fixes quote it) · **ExitPointGaps** 1.1.2 (package cleanup) · **InvariantStringHelper** 1.0.0. Each package releases on its own; histories: [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md), [ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), [InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md). See also [Migration](#migration-from-deprecated-packages).
+**Current packages** — **CSharpStyleChecker** 2.0.1 (CSC003 fix for top-level statements) · **ReqTrace** 0.2.0
+(`reqtrace syntax` prints the spec form and fixes quote it) · **ExitPointGaps** 1.1.2 (package cleanup) ·
+**InvariantStringHelper** 1.0.0.
+Each package releases on its own. See the [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md),
+[ReqTrace](src/ReqTrace/CHANGELOG.md), [ExitPointGaps](src/ExitPointGaps/CHANGELOG.md), and
+[InvariantStringHelper](src/InvariantStringHelper/CHANGELOG.md) changelogs and [Migration](#migration-from-deprecated-packages).
 
 ---
 
@@ -125,16 +132,18 @@ Default chat behavior is fast but inconsistent across sessions. This setup enfor
 | [`.github/prompts/`](.github/prompts/) | GitHub Copilot entry points (~10 lines); no stage duplication |
 | [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workflow.mdc) | Cursor always-on bootstrap (pointers only) |
 | [`.cursor/commands/`](.cursor/commands/) | Cursor slash commands (`/evolve`, `/dream`, `/requirements`, `/plan`, `/implement`, `/review`, `/council`, `/commit-message`, `/illustrate`, `/docs-repair`, `/port-dotnet-rust`, `/port-dotnet-rust-loop`) |
-| [`.claude/skills/`](.claude/skills/) | The one skill pointer set → `.github/skills/`; read by Claude Code, Cursor, and VS Code (GitHub Copilot) |
+| [`.claude/skills/`](.claude/skills/) | Per-skill pointers for Claude Code, Cursor, and GitHub Copilot in VS Code |
+| [`.agents/skills/`](.agents/skills/) | Shared workflow and technology skill entry for Codex |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code bootstrap (imports the SSOT instructions; tool mapping) |
-| [`AGENTS.md`](AGENTS.md) | Cross-tool SSOT map and integration overview |
+| [`AGENTS.md`](AGENTS.md) | Codex bootstrap and cross-tool SSOT map |
 | [`docs/architecture.md`](docs/architecture.md) | Components of this repository, where they are, and what is easy to miss when changing them |
 
 ---
 
 ## SSOT layering
 
-Each concern has exactly one authoritative file under `.github/`. Copilot prompts, Cursor rules and commands, `CLAUDE.md`, and `.claude/skills/` reference by path; they do not copy rules.
+Each concern has exactly one authoritative file under `.github/`. The [tool entry points](docs/architecture.md#tool-pointers)
+reference those files by path.
 
 | Concern | SSOT |
 |---------|------|
@@ -146,7 +155,7 @@ Each concern has exactly one authoritative file under `.github/`. Copilot prompt
 | Copilot user entry | `.github/prompts/` |
 | Cursor user entry | `.cursor/commands/` |
 | Claude Code user entry | `CLAUDE.md`, `/workflow-*` skills |
-| Skill pointers (all tools) | `.claude/skills/` |
+| Codex user entry | [`AGENTS.md`](AGENTS.md), [`$repo-workflow`](.agents/skills/repo-workflow/SKILL.md) |
 
 Entry points read `copilot-instructions.md`, `custom_instructions.md` when present, plus one workflow skill. No partial checklists.
 
@@ -282,13 +291,38 @@ Custom prompts in [`.github/prompts/`](.github/prompts/) mirror [`.cursor/comman
 
 ---
 
+## Codex usage (VS Code extension)
+
+Open the repository root in VS Code and start a new chat in the OpenAI Codex extension. Codex reads
+[`AGENTS.md`](AGENTS.md) and follows its link to the central instructions.
+
+Type `$`, select `repo-workflow`, and add the request after the skill mention. For example,
+`$repo-workflow /review chat only for the current diff` selects the repository's review workflow.
+`$repo-workflow Load tech-csharp and explain the naming rule` selects the C# technology skill.
+You can also request a workflow in ordinary language, such as “Use the repository review workflow to review the current diff.”
+The [central workflow table](.github/copilot-instructions.md#6-workflow-entry) lists the available triggers.
+See [OpenAI's skill discovery and invocation guide](https://learn.chatgpt.com/docs/build-skills#how-chatgpt-and-codex-use-skills).
+
+---
+
 ## Adopting the agent workflow in another repository
 
-1. Copy [`.github/`](.github/) (instructions, skills, prompts).
-2. Copy [`.cursor/`](.cursor/), [`.claude/`](.claude/), [`AGENTS.md`](AGENTS.md), and [`CLAUDE.md`](CLAUDE.md) for Cursor and Claude Code support.
-3. Copy [`COPYRIGHT`](COPYRIGHT) and [`LICENSE`](LICENSE).
-4. Validate paths after copy (`.github/`, `.cursor/`, and `.claude/` references are relative to repo root).
-5. Optionally add `custom_instructions.md` at the repo root for extra instructions. Do not create it unless you have overlay rules.
+Copy [`.github/copilot-instructions.md`](.github/copilot-instructions.md) and [`.github/skills/`](.github/skills/) into the
+same paths in the destination repository. Then add the entry points for the tools you use.
+
+| Tool | Entry points |
+|------|--------------|
+| Codex | Copy the [`repo-workflow` skill folder](.agents/skills/repo-workflow/) into `.agents/skills/`. Add the opening instructions from [`AGENTS.md`](AGENTS.md) to the destination's root `AGENTS.md`. |
+| GitHub Copilot | Copy [`.github/prompts/`](.github/prompts/) for workflow prompts and [`.claude/skills/`](.claude/skills/) for skill discovery as described above. |
+| Cursor | Copy [`.cursor/`](.cursor/) and [`.claude/skills/`](.claude/skills/). |
+| Claude Code | Copy [`.claude/skills/`](.claude/skills/) and merge the [`CLAUDE.md`](CLAUDE.md) bootstrap into the destination's root `CLAUDE.md`. |
+
+Keep the same relative entry-point paths when copying the kit. The skill's links resolve to the destination's own
+`.github/` files.
+
+Keep the destination's project instructions, documentation, copyright, and license files. Put additional project rules
+in the optional root `custom_instructions.md`.
+Open the destination repository root in the intended tool and verify that its entry point reaches the copied instructions.
 
 ---
 
@@ -313,7 +347,7 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 |----|------|
 | CSC001 | Line length ≤ 130 (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
 | CSC002 | No `var` |
-| CSC003 | Private `_PascalCase` (exempt: private nested types, explicit interface impl, local functions) |
+| CSC003 | Private members use `_PascalCase` with [documented exemptions](.github/skills/tech-csharp.md#naming) |
 | CSC004 | No `.Result` / `.Wait()` / `GetAwaiter().GetResult()` on `Task` / `Task<T>` / `ValueTask` / `ValueTask<T>`; no `Task.WaitAll` / `Task.WaitAny` |
 | CSC005 | `using` only in `GlobalUsings.cs` |
 | CSC006 | At most one exit point per source line per callable; `?:`, switch, `??`, `??=` allowed when arms are on separate lines. Covers methods, constructors, destructors, operators, conversions, accessors, expression-bodied properties and indexers, and local functions. Does not cover lambdas or anonymous methods. |

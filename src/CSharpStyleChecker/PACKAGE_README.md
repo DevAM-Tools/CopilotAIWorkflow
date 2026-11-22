@@ -8,7 +8,9 @@ Roslyn analyzer that enforces the C# style of [CopilotAIWorkflow](https://github
 
 Rebuild. Violations surface as compiler errors. The analyzers load from `analyzers/dotnet/cs` and bundle `ExitPoints.dll`; no second package and no `PrivateAssets` are needed. The checker applies to the referencing project only; it does not flow to downstream projects.
 
-**2.0.0 is breaking:** CSC001 defaults to 130 characters (was 160). Keep the old limit in `.editorconfig`:
+**2.0.1** supports top-level statements under CSC003, including .NET 10 file-based apps.
+
+Since 2.0.0, CSC001 defaults to 130 characters (previously 160). Set an explicit limit in `.editorconfig`.
 
 ```ini
 [*.cs]

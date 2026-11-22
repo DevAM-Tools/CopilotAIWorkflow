@@ -118,6 +118,36 @@ public sealed class PrivateNamingAnalyzerTests
         await AnalyzerVerifier.VerifyAsync<PrivateNamingAnalyzer>(source);
     }
 
+    /// <summary>Reports a declared private method alongside top-level statements.</summary>
+    [Test]
+    public async Task PrivateNamingTopLevelStatementsReportsOnlyDeclaredMethod()
+    {
+        const string source = """
+            System.Console.WriteLine("Hello");
+
+            internal partial class Program
+            {
+                private static void {|#0:badName|}() { }
+            }
+            """;
+
+        Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerTest<PrivateNamingAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = source,
+        };
+
+        // Top-level statements are valid in an executable compilation.
+        test.SolutionTransforms.Add(static (solution, projectId) =>
+            solution.WithProjectCompilationOptions(
+                projectId,
+                new Microsoft.CodeAnalysis.CSharp.CSharpCompilationOptions(
+                    Microsoft.CodeAnalysis.OutputKind.ConsoleApplication)));
+        test.ExpectedDiagnostics.Add(
+            new DiagnosticResult(DiagnosticDescriptors.PrivateNaming).WithLocation(0).WithArguments("method", "badName"));
+
+        await test.RunAsync();
+    }
+
     [Test]
     public async Task PrivateNaming_AutoPropertyBackingField_NoDiagnostic()
     {

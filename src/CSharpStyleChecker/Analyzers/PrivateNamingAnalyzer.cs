@@ -32,14 +32,26 @@ public sealed class PrivateNamingAnalyzer : DiagnosticAnalyzer
 
     #region Private helpers
 
+    /// <summary>Reports an invalid name on a private member declared in source.</summary>
     private static void AnalyzeSymbol(SymbolAnalysisContext context)
     {
+        // Apply the naming rule only to private source members with invalid names.
         ImmutableArray<Location> locations = context.Symbol.Locations;
         if (locations.Length == 0 || ShouldSkipPrivateSymbol(context.Symbol, locations[0]))
         {
             return;
         }
 
+        // Roslyn associates the synthesized top-level entry point with the entire compilation unit
+        // and reports it as explicitly declared.
+        if (context.Symbol is IMethodSymbol { DeclaringSyntaxReferences: { Length: 1 } declarations }
+            && declarations[0].GetSyntax(context.CancellationToken)
+                is Microsoft.CodeAnalysis.CSharp.Syntax.CompilationUnitSyntax)
+        {
+            return;
+        }
+
+        // Identify the declaration kind so the diagnostic names the member to fix.
         string memberKind = context.Symbol.Kind == SymbolKind.Field
             ? "field"
             : context.Symbol.Kind == SymbolKind.Method

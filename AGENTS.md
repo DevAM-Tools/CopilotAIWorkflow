@@ -1,6 +1,9 @@
 # Agent Instructions
 
-Structured agent workflow with **single source of truth** in `.github/`. Tool-specific files under `.cursor/`, `.claude/`, and `CLAUDE.md` are thin pointers only — no rule duplication.
+Read and apply [`.github/copilot-instructions.md`](.github/copilot-instructions.md) in full before working in this repository.
+It defines the optional project overlay, the Tech Load Protocol, and the workflow router.
+
+The workflow kit keeps its **single source of truth** in `.github/`.
 
 ## SSOT map
 
@@ -23,7 +26,12 @@ Architecture of this repository: [`docs/architecture.md`](docs/architecture.md) 
 |-----------|------|---------|
 | Agent skills | [`.claude/skills/`](.claude/skills/) | Claude Code, Cursor, VS Code (GitHub Copilot) |
 
-One pointer set for all tools. Each `SKILL.md` points to its `.github/skills/` file. Do not add a second set under `.cursor/skills/`: Cursor loads both folders and lists every skill twice.
+Each `SKILL.md` points to its `.github/skills/` file. Keep this per-skill pointer set shared by the three tools above.
+
+## Codex integration (VS Code extension)
+
+Codex loads this file as repository guidance. Its [`$repo-workflow` skill](.agents/skills/repo-workflow/SKILL.md)
+routes requests to the central workflow and technology skill tables. See [Codex usage](README.md#codex-usage-vs-code-extension).
 
 ## Claude Code integration (CLI and VS Code extension)
 

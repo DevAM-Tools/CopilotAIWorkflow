@@ -3,6 +3,11 @@
 All notable changes to the **CSharpStyleChecker** NuGet analyzer are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 2.0.1
+
+- **CSC003** accepts the compiler-generated entry point for top-level statements, including .NET 10 file-based apps.
+  Private members declared in source still follow the naming rule.
+
 ## 2.0.0
 
 ### Breaking: CSC001 defaults to 130 characters

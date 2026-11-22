@@ -13,7 +13,9 @@ Load when `*.cs` is in scope. C# mechanisms for Section 4. Section order matches
 ## Naming
 
 - ❗ No `var`. Use target-typed `new()` / `[]`.
-- ❗ `_PascalCase` for private fields, properties, methods, and statics of the outer type. Exempt: private nested types, explicit interface implementations, local functions, test methods (PascalCase, `tech-tunit.md`).
+- ❗ `_PascalCase` for private fields, properties, methods, and statics of the outer type.
+  Exempt private nested types, explicit interface implementations, local functions, test methods (PascalCase,
+  `tech-tunit.md`), and the compiler-generated entry point for top-level statements.
 - Name `CancellationToken` parameters `cancellationToken`. Suffix awaitable methods with `Async`.
 
 ## Files and usings

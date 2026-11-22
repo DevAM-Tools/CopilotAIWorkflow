@@ -50,7 +50,8 @@
 | `spec/**`, `docs/domain/**` | `tech-spec.md` |
 | `spec/trace.lock`, `spec/trace.ignore`, `.config/dotnet-tools.json`, a `reqtrace` call | `tech-reqtrace.md` |
 | UI features, CLI, REST, MCP, or library API of an application | `tech-agent-access.md` |
-| `.github/**` instructions, `.cursor/**`, `.claude/skills/**`, `AGENTS.md`, `CLAUDE.md`, `custom_instructions.md` | `tech-instructions.md` |
+| `.github/**` instructions, `.cursor/**`, `.claude/skills/**`, `.agents/skills/**` | `tech-instructions.md` |
+| `AGENTS.md`, `CLAUDE.md`, `custom_instructions.md` | `tech-instructions.md` |
 | A trust-boundary limit | `tech-limits.md` |
 | Blocker, decision card, Spec delta, briefing, progress note, run report | `tech-reporting.md` |
 | Measurement in C# / Rust / Python | `tech-csharp-profiling.md` / `tech-rust-profiling.md` / `tech-python-profiling.md` |
@@ -135,7 +136,28 @@ Docs and code say the same thing for the life of the project. Doc set, checks, e
 - Line length ≤ 130. No dates in code; copyright year is allowed. Add per-file copyright from `COPYRIGHT` to new source files.
 - ❗ Run the language’s mandatory style or lint tool.
 - ❗ **New Dependency Protocol.** Never add a package, crate, npm module, vendored file, browser, or tool without user approval. Ask in Grill Me, or before the edit when no plan exists; under `/evolve`, in the Spec delta. Present: id and exact version, what it does, why, license (MIT, Apache-2.0, or BSD-like only), alternatives including none.
-- ❗ Use native toolchain commands. Do not write script files or multi-statement shell programs. Allowed: single commands, environment prefixes, plain pipes into a filter. A vendor-shipped install tool named in a tech skill counts as toolchain. Anything else: ask first.
+- ❗ Use native toolchain commands. Use single commands, environment prefixes, or plain pipes into a filter.
+  A vendor-shipped install tool named in a tech skill counts as toolchain. Ask before writing other script files,
+  using multi-statement shell programs, or using commands outside these allowances.
+- For a one-off task, use a file-based C# app when it makes the logic clearer. With the .NET 10 SDK or later,
+  put the code in one `.cs` file outside existing `.csproj` directory trees. Run it with `dotnet run --file <path>`.
+
+Save these top-level statements as `list-markdown.cs` to list Markdown files in the working directory.
+
+```csharp
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+foreach (string path in Directory.EnumerateFiles(".", "*.md"))
+{
+    Console.WriteLine(Path.GetFileName(path));
+}
+```
+
+```sh
+dotnet run --file list-markdown.cs
+```
+
+See [File-based apps](https://learn.microsoft.com/dotnet/core/sdk/file-based-apps).
 
 ### 4.8 UI
 
