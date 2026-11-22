@@ -143,7 +143,8 @@ Applies to product web UIs, not `/illustrate` HTML. Rules: `tech-web.md`.
 
 - ❗ Phone-first and responsive from a 320 px floor, no page-level horizontal scroll, unless the user waives it.
 - Every interactive control has an accessible name and state.
-- One visual language. Dark mode ships; other themes are out of scope unless asked.
+- One visual language. Dark mode ships. A light theme only on request, then with a way to switch; ask how the theme is chosen when the user did not say.
+- Data UIs are compact. The dark theme lies on a very dark gray with desaturated, low-glare colors from tokens: scale, target sizes, and color bounds in `tech-web.md` § Density and § Visual language.
 - Plan Playwright journeys from the first plan.
 - ❗ Use the integrated browser on the running UI while implementing, verifying, and debugging. Per-tool mapping: `tech-playwright.md`. No browser tool: say so once and use a headless trace; headed only when the person asks to watch.
 

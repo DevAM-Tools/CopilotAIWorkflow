@@ -53,7 +53,7 @@ Run `reqtrace check` (call form: `tech-reqtrace.md` § Call form), then by searc
 ### 3 Requirements
 
 1. Read the area as one contract. Grep its key terms across other areas; read those entries.
-2. Conflicts and overlaps → retire a duplicate, or card. Before retiring or merging an entry: `reqtrace show <ID>`; move each card it lists to the entry that stays.
+2. Conflicts and overlaps → retire a duplicate, or card. Before retiring or merging an entry: `reqtrace show <ID>`; move each card it lists to the entry that stays. Before merging UI entries: `workflow-requirements.md` § What gets an ID (look details vs presentation rules that change use).
 3. Done-when that is an adjective or needs source knowledge: tighten it when the claim stays; else card.
 4. Move leftover proposed entries to a card.
 

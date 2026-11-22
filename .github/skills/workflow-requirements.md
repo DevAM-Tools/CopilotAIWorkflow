@@ -19,6 +19,13 @@ The user already supplied requirements → use them. Read the file in full. Keep
 - No ID on: intro, headings, context, boundary, stories, examples, notes, cross-references, open questions.
 - The list is the only place an obligation is stated. A prose sentence that is an obligation moves into the list. A cut that forbids a behavior is a requirement.
 - Never keep a second list of behaviors, limits, or KPIs.
+- A UI requirement states function, behavior, layout that changes use, or information. Never write one requirement per look detail: a corner radius, a shadow, or a spacing value is a style token; a recurring pattern is an entry of the design language (`tech-web.md` § Visual language).
+- ❗ Never drop a presentation rule that changes use (icon actions, tooltips on shortened text, entries with a state mark) when merging or consolidating requirements.
+
+```text
+Wrong: REQ-JOBS-CARD-RADIUS "Job cards shall have a 6 px corner radius." → a style token.
+Keep:  REQ-JOBS-STATE-MARK "Each job entry shall show its state as a colored stripe and the state word." → changes use.
+```
 
 ## Atomic
 

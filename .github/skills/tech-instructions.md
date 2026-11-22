@@ -86,6 +86,7 @@ These files change together. Nothing fails when one is forgotten.
 | Change a gate or `spec/state.md` | `workflow-evolve.md` (§ Progress note reads **Queue** and **Position**) · `tech-reporting.md` · §5.1 |
 | Change a progress note field or point | `tech-reporting.md` § Progress note · `workflow-implement.md` Stage 2 item 12 · `workflow-evolve.md` § Progress note, Stage 0, Gate A, Stage 4, Stage 5, Completion · §5.1 |
 | Change a breakpoint | `tech-web.md` · `tech-playwright.md` |
+| Change the density scale, a target size, or the color bounds | `tech-web.md` § Density, § Visual language · `tech-playwright.md` § Specs (finger and color-token asserts) |
 | Change a host effect class, the resource budget, or the opt-in mechanism | `tech-test.md` § Host safety · `tech-tunit.md` § Fixtures and parallelism · `tech-pytest.md` § Markers · `tech-rust-test.md` § Host tests · `tech-playwright.md` § Host safety · `workflow-plan.md` Stage 3 **Host**, Stage 6, Stage 7 · `workflow-evolve.md` Stage 2, Gate A, Stage 4, § Builder · `workflow-implement.md` Stage 2 items 3 and 9 · `workflow-review.md` § Tests · `tech-reporting.md` § Spec delta · `copilot-instructions.md` §4.5, §5.1 |
 
 ## Review

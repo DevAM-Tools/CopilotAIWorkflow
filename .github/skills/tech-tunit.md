@@ -33,12 +33,12 @@ Common agent mistakes — **do not** port xUnit/NUnit habits:
 
 **`global.json` (repo root):**
 
-- SDK `10.0.100` with `"rollForward": "latestFeature"` (an exact pin fails on machines that only have a later feature band)
+- SDK `10.0.100` with `"rollForward": "latestMajor"`: `10.0.100` is the minimum, and every later SDK is accepted, including `11.0.100` and newer majors. Never use `latestFeature` or `latestPatch`: they stay inside `10.0.x` and reject `11.x`. An exact pin fails on machines that only have a later SDK.
 - `"test": { "runner": "Microsoft.Testing.Platform" }`
 
 ```json
 {
-  "sdk": { "version": "10.0.100", "rollForward": "latestFeature" },
+  "sdk": { "version": "10.0.100", "rollForward": "latestMajor" },
   "test": { "runner": "Microsoft.Testing.Platform" }
 }
 ```

@@ -376,6 +376,8 @@ Mechanics only. Case design and suite size: `tech-test.md`.
 - **Named UI requirements:** each concrete UI requirement ID / `TEST-<AREA>-<TOPIC>` gets an observable assert. Do not stop at smoke (“heading visible”) when the requirement names validation, navigation, or layout.
 - **Product UI:** run the journey at the viewports of `tech-web.md` § Breakpoints unless the user waived responsiveness.
 - **Product UI, at each viewport:** assert `document.documentElement.scrollWidth <= window.innerWidth`, and that no visible element has `scrollWidth > clientWidth` unless it is a scroll region or an ellipsis with a tooltip. Assert that a table below its container width renders as cards.
+- **Product UI, finger:** run the phone viewport with `hasTouch: true` and, on Chromium, `isMobile: true`. Assert `matchMedia("(pointer: coarse)").matches` first; otherwise the size asserts test the mouse scale. Then assert the finger sizes of `tech-web.md` § Density on every visible button, link, and input (hit box ≥ 40 × 40 CSS px; a full-width list row ≥ 36 px high).
+- **Color tokens:** the color test of `tech-web.md` § Visual language reads each token with `getComputedStyle(document.documentElement).getPropertyValue(...)` and its paired surface, then checks every bound of that section (base surface channels, channel spread, contrast range, line contrast). It walks the token list, never a sample.
 - **Illustrations:** asserts in `workflow-illustrate.md` only. Do not apply
   product viewports from `tech-web.md`. Spec files are optional keep-tests in
   the repo, never part of the zip. Illustrations are not required to be

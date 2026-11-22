@@ -34,6 +34,7 @@ A plan is the handoff to a **weaker executing agent**. Locked `How`, Before/Afte
 - Read relevant code, tests, docs, interfaces, build config. Read user-attached docs in full.
 - Run the Impact search (`tech-docs.md` § Impact search). Enumerate all affected files, docs included. Each later lands in a step `Where` or `Docs` field, or in Out with a reason.
 - ❗ A design that breaks a documented boundary, dependency, flow, or invariant is Decision class, never a silent choice.
+- ❗ A mockup or reference design exists: replacing one of its patterns with another (for example its entries with a table) is Decision class and gets a decision record, never a silent choice of a plan step.
 - ❗ Check every existing member the plan names against the code by name. A snippet that calls a missing member is a gap.
 - Identify interface candidates, hot paths, public API surface, and web UI journeys.
 
@@ -64,7 +65,7 @@ Wrong: Security: OK.
 | Host | Per card its host effect (`tech-test.md` § Host safety): Contained, or Visible, Global, Heavy with the effect named. Each OS service the code touches (clipboard, window, dialog, registry, clock, process start) sits behind an interface with a fake. Each non-Contained card is Decision class: ask with the options of that section (fake only, opt-in host test, demo, no proof). A resource budget other than the default is Decision class |
 | Public API | Snippet plus usage; interfaces, traits, or contract types the steps implement |
 | Agent surface | Which surface an agent uses (CLI, REST, MCP, library) and its parity with the UI, or the waiver (`tech-agent-access.md`) |
-| Web UI | Dark mode, responsive, tables, journeys, debug story (`tech-web.md`, `tech-playwright.md`, `tech-test.md`) |
+| Web UI | Themes: dark only, or dark and light with the agreed way to switch (unsaid = Decision class); color tokens and data palette, responsive, density scale per pointer class, entries vs table vs card per list, icon actions and tooltips, journeys, debug story (`tech-web.md`, `tech-playwright.md`, `tech-test.md`). A mockup or reference design: which mockup page each step builds |
 | Performance | Named hot paths, time and memory budgets, allocations per item |
 | Errors | Each expected failure and its result type or error code; empty, missing, malformed, and oversized input |
 | Security | Each trust boundary; per external input the STRIDE threats and their mitigations |
@@ -122,6 +123,7 @@ Required:
 - Order topologically. State depends-on.
 - ❗ Reject a `How` that allows more than one implementation, or whose `After` is not Target Solution for primary files.
 - ❗ Reject a step `After` whose public signature or interface member differs from **API and interfaces**.
+- ❗ A step that builds a page names its mockup page in `Context` when a mockup or reference design exists. Its Step `{n}R` checks parity (`workflow-review.md` § Property hunts, UI).
 - Close with Requirements fit.
 
 **Slices:** group steps by what becomes tryable. Cut a real thin slice; do not fake end-to-end. Ban scaffolding later steps delete. Build each cross-cutting concern in target shape. Extract a repeated pattern before a second slice copies it. Preserve layer boundaries.

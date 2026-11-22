@@ -22,7 +22,7 @@ Three packages on [nuget.org](https://www.nuget.org/packages?q=Owner%3ADevAM). N
 |-----------|---------|
 | **CSharpStyleChecker** (analyzer) | [.NET SDK 9.0.300+](https://dotnet.microsoft.com/download) or Visual Studio 2022 17.14+ (Roslyn 4.14; see `Directory.Packages.props`) |
 | **ExitPointGaps** (CLI) | .NET SDK 10.0 (local tool manifest) |
-| **This repository** | .NET SDK 10.0 (`global.json`) |
+| **This repository** | .NET SDK 10.0.100 or later, including 11.x (`global.json`, `rollForward: latestMajor`) |
 
 **NuGet vs. repo clone:** Adding `CSharpStyleChecker` via NuGet loads analyzers from `analyzers/dotnet/cs` (including bundled `ExitPoints.dll`) — no MSBuild targets in the package; analyzers apply only on the project that references the package. Cloning this repo applies the analyzer automatically via root [`Directory.Build.targets`](Directory.Build.targets) (opt out with `ApplyCSharpStyleChecker=false`).
 
@@ -174,7 +174,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-tunit.md` | `*Tests.cs` / `{Project}.Tests` / `{App}.UiTest`; `global.json`; also C# production review |
 | `tech-pytest.md` | pytest files in scope |
 | `tech-rust-test.md` | Rust unit/integration tests |
-| `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints per device class, width policy, tables that become cards, overflow, icons and tooltips, CSS/JS placement, a11y |
+| `tech-web.md` | Product web UI (plan time, even before HTML files) — responsive layout, locked breakpoints per device class, width policy, compact density scale and target sizes per pointer class, state lists as entries, tables that become designed cards, overflow, icon actions and tooltips, muted dark-theme color tokens, CSS/JS placement, a11y |
 | `tech-playwright.md` | Web UI (plan time, even before spec files) — test and debug; create-time illustration verify |
 | `tech-blazor.md` | `.razor` / `.razor.cs` / `.razor.css` — Blazor mechanism on top of `tech-web.md` |
 | `tech-sourcegen.md` | Generator code in scope |
