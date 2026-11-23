@@ -207,7 +207,7 @@ Text rows give the font size; every other row gives the height.
 - ❗ Every shortened text shows its full value in a tooltip, up to 600 characters or 12 lines, whichever comes first. Past the bound the tooltip says that more exists, and a details view holds the rest.
 - A tooltip may inform, not only name: an entry’s full text, a status with its reason, a badge’s meaning.
 - A tooltip has a maximum width and height and stays inside the viewport.
-- ❗ A tooltip opens on hover and on keyboard focus, closes with `Escape`, and stays open while pointed at. A native `title` alone fails keyboard and touch.
+- ❗ A tooltip opens on hover and on keyboard focus. It stays open while the pointer rests on the element or on the tooltip itself, so the reader can move onto it to read or select. It closes when the pointer leaves both, when focus leaves the element, and on `Escape`. A tooltip that stays open after the pointer left is a defect. A native `title` alone fails keyboard and touch.
 - ❗ Touch has no hover: open the tooltip on long-press, and never put information the task needs only in a tooltip on a touch layout.
 - One icon set, inline SVG. One icon, one meaning across the app. An icon package is a dependency (Section 4.7).
 - Icon button sizes and hit areas: § Density.

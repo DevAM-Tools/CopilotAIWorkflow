@@ -38,6 +38,10 @@ Package release notes (full detail):
 
 ### Workflow kit
 
+- **Rule change** tooltips close when the pointer leaves (`tech-web.md` § Icons and tooltips): a tooltip stays open while the
+  pointer rests on the element or on the tooltip itself, and closes when the pointer leaves both, when focus leaves the element,
+  and on `Escape` (before: “stays open while pointed at” named only `Escape` as a close). `tech-playwright.md` § Specs asserts
+  each of these per tooltip implementation, and the `/review` **UI** hunt checks them.
 - **Rule change** architecture from the first slice ([decision record](docs/decisions/evolve-architecture-gate.md); `workflow-evolve.md` Stage 2, Gate A, Stage 4; `tech-docs.md` § Doc set,
   § Diagrams; `tech-docs-templates.md` § docs/architecture.md): the `/evolve` Spec delta has a new **Architecture** line with the
   planned components, their **May depend on** entries, a link to a component diagram, and each choice with its rejected options; Gate A
