@@ -17,6 +17,9 @@ of those rules in code. See the [README](../README.md).
 
 A dependency not listed in **May depend on** is a defect or needs a decision record. Build settings: [`Directory.Build.props`](../Directory.Build.props), [`Directory.Build.targets`](../Directory.Build.targets) (applies the analyzer in this repository; makes each project with a `PackageId` a package of its own, packed only by `dotnet pack -c Release` into `artifacts/release/` after emptying `bin/`: [decision record](decisions/release-pack-path.md)), [`Directory.Packages.props`](../Directory.Packages.props), [`global.json`](../global.json), [`.editorconfig`](../.editorconfig).
 
+![Components and who may depend on whom](images/components.svg)
+Mirrors: the **May depend on** column above.
+
 **Easy to miss:** a package (CSharpStyleChecker, InvariantStringHelper, ExitPointGaps, ReqTrace) → its `VersionPrefix` in its project file · its `PACKAGE_README.md` · its `CHANGELOG.md` · the root CHANGELOG package table · README § NuGet packages. Release steps: [guide](guides/release-a-package.md).
 
 ## Workflow kit

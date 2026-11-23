@@ -1,6 +1,6 @@
 # Council Workflow
 
-Load on `/council`. Apply `copilot-instructions.md` Sections 2–4. Do not implement. Do not edit code.
+Load on `/council`, and in Spec mode from `workflow-requirements.md` Stage 8 or `workflow-evolve.md` Stage 2. Apply `copilot-instructions.md` Sections 2–4. Do not implement. Do not edit code.
 
 Five named views, not job titles. Same agent writes every view, then chairs. Rule Priority §4.13.
 
@@ -8,7 +8,7 @@ Five named views, not job titles. Same agent writes every view, then chairs. Rul
 
 ## When
 
-**Run:** architecture, public API, security vs performance, irreversible choice, genuine multi-option fork. Exam when the user asks for it, after the `/implement` Closing Review is Ready.
+**Run:** architecture, public API, security vs performance, irreversible choice, genuine multi-option fork. Exam when the user asks for it, after the `/implement` Closing Review is Ready. ❗ Spec on every draft Spec delta and every Full-mode requirement set, before a person approves it.
 
 **Skip:** lookups, post-choice how-to, `/review` (Skeptic + Outsider sweep still runs inside review; Exam is not a review substitute), casual should-I, write-X. Explicit trigger on a validation-only ask: still run; do not rubber-stamp.
 
@@ -22,6 +22,7 @@ Vague question → one clarifier, then proceed.
 | **Lite** | Plan Decision Loop default; user says `quick`/`lite` | 5 views + chairman | `councils/council_<slug>[_<n>].md` |
 | **Full** | `/council` default; security, public API, irreversible | 5 views (longer) + chairman | same |
 | **Exam** | User says `exam` / `with exam` / `/council exam`; `/implement` Stage 5 runs it after the Closing Review is Ready | Full unless user says `quick`/`lite`. Skeptic uses Exam addendum. | `councils/council_<slug>-exam[_<n>].md` |
+| **Spec** | `workflow-requirements.md` Stage 8; `workflow-evolve.md` Stage 2; `/council spec` | Full, never Lite. Skeptic uses the Spec addendum. | `councils/council_<slug>-spec[_<n>].md` |
 
 No anonymous peer-review round. Chairman **Blind spots** = what all five views missed.
 
@@ -67,6 +68,52 @@ Loop status: `done` (Holds) · `exam-fail` (Does not hold) · `grill-me` · `re-
 
 Every kill shot behind **Does not hold** is written like a blocker (`tech-reporting.md`): what fails, evidence (path/symbol, command output), impact if shipped, scope, and what must change.
 
+## Spec
+
+Target is a **draft specification** before a person approves it: what is missing, contradictory, untestable, or unbuildable. Frame: "Does this specification cover the job completely, without contradiction, testably, and buildably?" Include the request or dictated input in full, `spec/index.md`, every new, changed, and retired requirement with its Done-when, the existing `active` entries of the touched areas, the test cards, the **Host effects**, **Architecture**, and **Coverage** of the draft delta, and the domain facts added. No steering toward Complete. Do not rubber-stamp.
+
+Follow the Full stages with these overlays. Do not edit `spec/`: the parent applies the verdict.
+
+**Skeptic Spec addendum** (mandatory; overrides schema length for Skeptic only, 400–700 words):
+
+- Default hypothesis: the person will hit a case nobody specified.
+- Walk every gap class per touched area. Each class ends as: covered by `{ID}`, out of scope (`spec/index.md` names it), or a gap.
+
+| Gap class | Hunt for |
+|-----------|----------|
+| Errors | Invalid, empty, malformed, and oversized input; each neighbor failing: disk full, network down, timeout, missing permission |
+| Limits | Each untrusted input without a bound (`tech-limits.md`) |
+| Security and privacy | Who may do it; which data leaves the machine; STRIDE at each trust boundary |
+| Concurrency | Two users, processes, or agents acting on the same item at once |
+| Lifecycle | Create, change, delete, undo, archive; what happens to items that depend on it |
+| States | First run, empty, one item, many items, partial failure, interrupted operation |
+| Data | Persisted format, migration of existing data, import and export |
+| People | Each user group; accessibility; language and locale |
+| Operation | Install, upgrade, configuration, logging, how a failure is diagnosed |
+| Agent access | The agent surface or its waiver (`tech-agent-access.md`) |
+| Consistency | Two entries that cannot both hold; a new entry against an `active` one; one obligation under two IDs |
+| Testability | A Done-when that names no actor, boundary action, or observable; a card that cannot fail |
+| Architecture | A requirement without an owning component; a component with two responsibilities; an arrow that creates a cycle or bypasses a layer |
+
+| View | Spec Ask |
+|------|----------|
+| Skeptic | What does the person hit that nobody specified? Apply the Skeptic Spec addendum. |
+| Problem-First | Does this set solve the job in `spec/index.md` and the request? Which entry solves a problem nobody has? |
+| Upside | Which in-scope obligation would the person expect without saying it? No new product, no gold-plating. |
+| Outsider | Would a first-time reader understand each requirement and Done-when without the conversation? |
+| Builder | Can each Done-when run through the real boundary? Can the **Architecture** line be built slice by slice? Name the first slice. |
+
+**Chairman:** **Complete** · **Gaps found**. List every gap with its class and one action:
+
+| Action | Parent does |
+|--------|-------------|
+| `add` | Writes a `proposed` requirement or card; the Spec delta marks it `Source: Council` |
+| `fix` | Rewords, merges, or retires the named entry, or corrects the **Architecture** line |
+| `ask` | Needs a fact only the person has: Grill Me, or a card under `/evolve` |
+| `out` | Proposes the exclusion with its reason in the Spec delta; the person confirms it at the gate |
+
+Never drop a gap because it is small. Loop status: `done` (Complete, or every gap has an action) · `grill-me`. An `ask` answer that changes the scope or the **Architecture** line → re-run Spec as `_<n>`. Cap 2 reruns → the remaining gaps go to the Spec delta as `ask`.
+
 ## Grill Me ↔ Council
 
 Grill Me = user facts (Section 4.16 question form). Council = pressure-test a choice. Loop until blocking ambiguity is gone. Exam is not a choice council — when requested, do not skip it because the plan already chose.
@@ -86,15 +133,15 @@ Do not council a how-to after the choice. Do not Grill Me a rubber-stamp.
 
 Same agent throughout. No subagent or delegation tool. No parallel advisors.
 
-1. **Context** — User text, attachments, plan/review/decision record, architecture and domain docs, in-scope code. Read attached docs **in full**. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan requirement IDs and test IDs, latest reviews, briefing.
-2. **Frame** — One neutral prompt: decision, user context, repo constraints/paths, stakes, Constraint Block (omit for Outsider). No steering. Save in artifact. Exam: use the Holds question in **Exam**.
-3. **Advisors** — Write views in this order: Skeptic → Problem-First → Upside → Outsider → Builder. Lean into each angle. Do not hedge. Exam: attach Skeptic Exam addendum to Skeptic only.
+1. **Context** — User text, attachments, plan/review/decision record, architecture and domain docs, in-scope code. Read attached docs **in full**. Tech Load when code is in scope; pass **constraints**, not full skill text. Reuse prior `councils/council_<slug>*` on the same fork unless new evidence. Outsider context stays thin. Exam: built files, tests, `Verify`, plan requirement IDs and test IDs, latest reviews, briefing. Spec: the inputs listed in **Spec**.
+2. **Frame** — One neutral prompt: decision, user context, repo constraints/paths, stakes, Constraint Block (omit for Outsider). No steering. Save in artifact. Exam: use the Holds question in **Exam**. Spec: use the question in **Spec**.
+3. **Advisors** — Write views in this order: Skeptic → Problem-First → Upside → Outsider → Builder. Lean into each angle. Do not hedge. Exam: attach Skeptic Exam addendum to Skeptic only. Spec: attach the Skeptic Spec addendum to Skeptic only.
    - Schema Lite: 2–5 bullets per view.
    - Schema Full: 150–250 words, no preamble: Position · Argument · Fatal risk / Extra value · Evidence (path/symbol) · Do this. Exam Skeptic: 400–700 words per Exam addendum.
 4. **Chairman** — §4.13. May dissent; explain. No "it depends" without a recorded user fact — emit Grill Me instead.
-   - Verdict: Agrees · Clashes (do not smooth) · Blind spots (what all five missed) · Recommendation (one call) · One thing to do first · Grill Me Follow-ups (`Source: Council`; omit if none) · `C{n}` mapping (omit if not in a plan loop). Exam: Holds / Does not hold per **Exam**; omit `C{n}`.
+   - Verdict: Agrees · Clashes (do not smooth) · Blind spots (what all five missed) · Recommendation (one call) · One thing to do first · Grill Me Follow-ups (`Source: Council`; omit if none) · `C{n}` mapping (omit if not in a plan loop). Exam: Holds / Does not hold per **Exam**; omit `C{n}`. Spec: Complete / Gaps found per **Spec**; omit `C{n}`.
 5. **Ambiguity loop** — Follow-ups → one Grill Me round (Section 4.16 question form). Answers change the fork → re-frame, re-run, `_<n>`. User-only facts still missing → stay in Grill Me. Clear recommendation → `C{n}`, stop. From plan Decision Loop: return to Reconcile. Exam: `exam-fail` → parent remediates and re-Exams; do not open a plan Decision Loop.
-6. **Output** — `councils/council_<slug>.md`; Exam: `councils/council_<slug>-exam.md`; reruns `_<n>` starting at 2. Slug: lowercase, punctuation/whitespace → `-`. Artifact: framed question, mode, paths/skills as Section 4.6 links, five views, verdict, loop status (`done` / `grill-me` / `re-council` / `exam-fail`). ❗ Write verdicts at full fidelity in chat and in the artifact. Advisor text stays in the artifact. Chat: verdict sections only. No advisor essays. No HTML.
+6. **Output** — `councils/council_<slug>.md`; Exam: `councils/council_<slug>-exam.md`; Spec: `councils/council_<slug>-spec.md`; reruns `_<n>` starting at 2. Slug: lowercase, punctuation/whitespace → `-`. Artifact: framed question, mode, paths/skills as Section 4.6 links, five views, verdict, loop status (`done` / `grill-me` / `re-council` / `exam-fail`). ❗ Write verdicts at full fidelity in chat and in the artifact. Advisor text stays in the artifact. Chat: verdict sections only. No advisor essays. No HTML.
 
 This is structured self-critique, not an independent jury. Compensate by writing Skeptic first and by citing path/symbol for every code claim.
 
@@ -132,6 +179,23 @@ unaffected. To unblock: make check-and-add atomic in `IExportStore.TryAdd`.
 **Loop status:** `exam-fail`.
 ```
 
+Spec (draft Spec delta "export reports"):
+
+```markdown
+## Chairman
+**Verdict:** Gaps found.
+**Agrees:** Skeptic and Builder: REQ-EXPORT-CREATE has no case for a full disk; the operator would see a
+half-written file.
+**Clashes:** Upside wants re-export of an old report; Problem-First finds no one asked. Not smoothed.
+**Blind spots:** none of the five asked what happens to exports when their source invoice is deleted.
+**Gaps:**
+1. Errors — full disk during export → `add` REQ-EXPORT-DISK-FULL: no partial file remains; the operator sees why.
+2. Lifecycle — source invoice deleted → `ask`: keep the export, or delete it with the invoice?
+3. Testability — REQ-EXPORT-FAST "is fast" → `fix`: ≤ 2 s for 10 000 rows, measured from submit to file.
+4. Upside — re-export of an old report → `out`: not requested; proposed exclusion.
+**Loop status:** `grill-me`.
+```
+
 ## Completion
 
-Status table: mode, path, loop status, `C{n}` (omit `C{n}` on Exam). Goal verdict = Recommendation one-liner (Exam: Holds / Does not hold). Every risk from Skeptic and the clashes, ordered by impact; do not cap or drop risks. The status table and the full risk list live in the artifact. Chat: verdict sections, risks, and the artifact path. Do not start `/implement` from a decision verdict. Exam `exam-fail` continues the current implement run.
+Status table: mode, path, loop status, `C{n}` (omit `C{n}` on Exam). Goal verdict = Recommendation one-liner (Exam: Holds / Does not hold; Spec: Complete / Gaps found and the gap count per action). Every risk from Skeptic and the clashes, ordered by impact; do not cap or drop risks. The status table and the full risk list live in the artifact. Chat: verdict sections, risks, and the artifact path. Do not start `/implement` from a decision verdict. Exam `exam-fail` continues the current implement run.

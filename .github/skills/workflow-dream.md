@@ -67,7 +67,8 @@ Run `reqtrace check` (call form: `tech-reqtrace.md` § Call form), then by searc
 
 1. Repair `Built in` the same way.
 2. Run the Sync check (`tech-docs.md`) on docs that name the area. Fix doc-side drift under § Authority. A large drift → recommend `/docs-repair`; do not start it.
-3. `full`: run the full test suite. Reset `Met` to `❌` for a failing requirement and write a finding.
+3. Each component that holds the area's code has its Overview row, its section, and its component-diagram edges in `docs/architecture.md`, and the flow diagram that `tech-docs-templates.md` § docs/architecture.md requires. A missing one is doc-side drift: add it. A new area no doc names is checked here too.
+4. `full`: run the full test suite. Reset `Met` to `❌` for a failing requirement and write a finding.
 
 ### 6 Close
 

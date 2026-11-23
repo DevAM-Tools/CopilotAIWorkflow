@@ -76,6 +76,7 @@ Term:     "user" means the operator in one entry and the API client in another �
 5. Grill Me
 6. Write
 7. Coverage
+8. Council
 
 ### Stage 1 — Gather
 
@@ -163,6 +164,23 @@ Form: Section 4.16, with `**Source:** Requirements`. Under `/evolve`, write card
 Re-read the conversation and attached docs in full. Map every ask, group, boundary fact, input, output, exclusion, shall, shall-not, property, and non-goal. An obligation lands on an ID; a heading is not a landing spot. Orientation may land on a prose section. The same obligation under two IDs, two IDs that cannot both hold, or an unmapped obligation is a gap: patch and re-run.
 
 The table goes into the Spec delta (`tech-reporting.md`). In Full mode without a Spec delta, write it to `reviews/delta_<slug>.md`. Never into `spec/`.
+
+### Stage 8 — Council
+
+❗ Read `workflow-council.md` now and run it in Spec mode on the draft: every new, changed, and retired entry, the touched areas, and the Coverage table. Under `/evolve`, skip this stage: `workflow-evolve.md` Stage 2 runs it on the whole delta, cards and **Architecture** included.
+
+Apply each gap of the chairman verdict:
+
+- `add` or `fix`: edit per Stage 6, run `reqtrace check`, update the Coverage table.
+- `ask`: one follow-up Grill Me round in the Stage 5 form, `**Source:** Council`.
+- `out`: the proposed exclusion goes into the Spec delta.
+
+Write the **Council** line of the Spec delta (`tech-reporting.md`). ❗ Never show a Spec delta for approval without it.
+
+```text
+Wrong: The council finds "no case for a full disk"; the agent judges it minor and shows the delta without it.
+Right: REQ-EXPORT-DISK-FULL is added as proposed, marked Source: Council, and the Council line lists it as `add`.
+```
 
 ## Completion
 

@@ -73,7 +73,7 @@ Wrong: Security: OK.
 | Concurrency | Shared mutable state, TOCTOU, async interleaving; the chosen primitive (Section 4.3) |
 | Compatibility | What breaks for existing users in persisted formats, public API, and config keys; the migration |
 | Dependencies | Each new package, vendored file, or tool: id, exact version, purpose, license, alternatives including none (Section 4.7) |
-| Architecture | The component that owns the change; its allowed dependencies (Overview **May depend on**); a break is Decision class |
+| Architecture | The component that owns the change; its allowed dependencies (Overview **May depend on**); a break is Decision class. Under `/evolve`: the approved Spec delta **Architecture** line binds (`workflow-evolve.md` Stage 4). A new component or dependency: its Overview row, section, component-diagram edges, and required flow diagram in a step `Docs` field |
 | Debug | Smallest command that reproduces, filterable tests, traces |
 | Misuse | How a caller can use the API wrongly, how an attacker can abuse it, and what makes each impossible or visible |
 | Scale | Same edit on more than ten call sites: approved script or codemod |

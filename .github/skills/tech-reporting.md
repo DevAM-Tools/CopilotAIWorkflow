@@ -93,7 +93,9 @@ The Gate A packet. File: `reviews/delta_<slug>.md`. Chat shows the same text. �
 **Tests:** {count per class; only cards a person should look at}
 **Host effects:** {per card that would open a window, change global state, or exceed the resource budget: the effect, options, recommendation (`tech-test.md` § Host safety); or `none`}
 **Public API / agent surface / limits / dependencies:** {snippet or row; or `none`}
+**Architecture:** {`unchanged` and the owning components; or the Overview rows to add or change (component · responsibility · may depend on), a link to the component diagram after the change (`reviews/delta_<slug>_components.svg`, `tech-docs-templates.md` § docs/architecture.md), each choice with its rejected options (`workflow-evolve.md` Stage 2)}
 **Builder:** {the model that builds plan steps, as the tool accepts it, or `none — {reason}`; only while `spec/state.md` has no `Builder` line}
+**Council:** {verdict and link to `councils/council_<slug>-spec.md`; each gap with its action and where it landed: added or fixed ID, card, proposed exclusion}
 **Domain facts added:** {links; or `none`}
 **Needs an answer:** {each card in full; or `none`}
 
@@ -129,6 +131,7 @@ The Gate B packet and the record of what shipped. It is the reviewer’s guide: 
 1. **Judge** [`src/Store.cs`](../src/Store.cs) `TryAdd` — are the check and the add one atomic step?
 
 **Public API:** {short snippet or `unchanged`}
+**Architecture:** {`unchanged`; or links to `docs/images/components.svg` and to each changed `docs/architecture.md` section}
 **Performance:** {hot-path notes or `not in a hot path`}
 **Docs:** {docs updated with links; Sync check result}
 

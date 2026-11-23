@@ -72,6 +72,7 @@ Sort each statement:
 | Obligation | Requirement |
 | Test idea, edge, “it must not…” | Test card |
 | Domain fact, also in passing | `docs/domain/` now (`tech-spec.md`) |
+| Structure: components, layers, who may call whom | The Spec delta **Architecture** line (Stage 2) |
 | Preference on how to build | Which model builds: the `Builder` line (§ Builder). All slices in one run: `Run: all` (§ Run all). Other lasting preference: propose a line for `custom_instructions.md` (or a skill change) in the Spec delta; never write either unasked. This work only: a plan constraint |
 | Open fork | Section 4.16: decide or card |
 
@@ -86,6 +87,7 @@ Test idea:   Submit the same name twice; one row remains.
 Domain fact: "Credit note" = a corrected invoice. Source: user, in passing → docs/domain/ now.
 Open fork:   "Fast" has no measure → propose measure and target as an Assumption in the Spec delta.
 Preference:  SQLite → a new dependency: New Dependency Protocol in the Spec delta.
+Structure:   "keep the export apart from the store" → Architecture line: component Export, may depend on Store.
 Preference:  "let {model} build it" → Builder: {model} in spec/state.md, the name exactly as said.
 Preference:  "build all of it in one go" → Run: all in spec/state.md.
 Wrong:       Keeping only the two obligations and dropping the other four lines.
@@ -95,13 +97,40 @@ Then size the work. Pick the smallest fit. A condition of S that is uncertain is
 
 | Size | Fits when | Route in Stage 4 |
 |------|-----------|------------------|
-| S | ≤ 3 production files; no public API, format, or security change | No plan file. Failing test, fix, `/review` on the change |
+| S | ≤ 3 production files; no public API, format, security, or architecture change (new component or **May depend on** entry) | No plan file. Failing test, fix, `/review` on the change |
 | M | One slice | Plan with one step, then implement. One Closing Review; no Step `{n}R` |
 | L | Several slices | Full plan per slice |
 
 ## Stage 2 — Spec delta
 
-Execute `workflow-requirements.md` in Delta mode. Then write the test cards per `tech-spec.md`: at least one per new requirement and every applicable class in `tech-test.md`. Read `tech-test.md` § Host safety now and classify each card. Each card that would be Visible, Global, or Heavy goes into the Spec delta **Host effects** line with its effect, the options of that section, and your recommendation; write the Contained alternative as the card until Gate A answers. Then write the Spec delta (`tech-reporting.md`).
+Execute `workflow-requirements.md` in Delta mode. Then write the test cards per `tech-spec.md`: at least one per new requirement and every applicable class in `tech-test.md`. Read `tech-test.md` § Host safety now and classify each card. Each card that would be Visible, Global, or Heavy goes into the Spec delta **Host effects** line with its effect, the options of that section, and your recommendation; write the Contained alternative as the card until Gate A answers.
+
+**Architecture:** read `tech-docs-templates.md` § docs/architecture.md now. Name the component that will own each new requirement. Fill the Spec delta **Architecture** line:
+
+| Situation | The line holds |
+|-----------|----------------|
+| No `docs/architecture.md` yet | The full Overview: every component, its responsibility, its **May depend on**, and the component diagram |
+| A new component or a new **May depend on** entry | Those rows and the component diagram after the change |
+| A choice between real alternatives: one process or two, a shared store or one per component | The choice and each rejected option with its reason |
+| Every new requirement fits an existing component without a new dependency | `unchanged` and the owning components |
+
+Copy the depth, not the content:
+
+```text
+Wrong: **Architecture:** unchanged. (The delta adds an XLSX export, and no component writes files yet.)
+Right: **Architecture:** new component Export (src/Export/, writes CSV and XLSX files) — may depend on Store.
+       Cli may now depend on Export. Rejected: export inside Store — Store would gain file I/O.
+       Diagram: [delta_export_components.svg](delta_export_components.svg) — arrows Cli → Export, Cli → Store,
+       Export → Store, in three rows.
+```
+
+**Council:** ❗ read `workflow-council.md` now and run it in Spec mode on the whole draft: requirements, test cards, **Host effects**, **Architecture**, and Coverage. It replaces `workflow-requirements.md` Stage 8 under `/evolve`. Apply each gap:
+
+- `add` or `fix`: edit the entry, the card, or the **Architecture** line; run `reqtrace check`.
+- `ask`: a card in `spec/open.md`; Gate A shows it under **Needs an answer**.
+- `out`: the proposed exclusion goes into the Spec delta.
+
+Then write the Spec delta (`tech-reporting.md`). ❗ No Spec delta reaches Gate A without its **Council** line.
 
 An S-size fix that changes no obligation skips this stage and Gate A.
 
@@ -110,9 +139,9 @@ An S-size fix that changes no obligation skips this stage and Gate A.
 Show the Spec delta. Set `Status: gate-spec`. Stop.
 
 - Approve → set the delta's requirements and cards `active`. Approved install request: run `tech-reqtrace.md` § Setup steps 4–8. Run `reqtrace accept --allow-gap "cards and tests follow in the slices"` (`tech-reqtrace.md` § Accept); refused for anything but L4 or L6 → fix, accept again. Cut slices. Fill **Queue** with `⬜` lines. Write **Builder** from the delta's **Builder** line. Print a progress note.
-- Change → patch and show only what changed. Stop again.
+- Change → patch. A change that adds a requirement, changes the scope, or changes the **Architecture** line runs the Spec council again (`_<n>`). Show only what changed. Stop again.
 - ❗ Only explicit words approve. A question, a comment on one entry, or silence is Change or no answer, never approval.
-- Approval covers planning and implementing these requirements, the listed public API, agent surface, limits, dependencies, and host effects. A Visible, Global, or Heavy test not on the approved **Host effects** line stays unwritten: card it at the next gate (`tech-test.md` § Host safety).
+- Approval covers planning and implementing these requirements, the listed public API, agent surface, limits, dependencies, host effects, and the **Architecture** line. A Visible, Global, or Heavy test not on the approved **Host effects** line stays unwritten: card it at the next gate (`tech-test.md` § Host safety).
 
 ## Stage 3 — Select slice
 
@@ -126,7 +155,10 @@ Show the Spec delta. Set `Status: gate-spec`. Stop.
 Load the tech skills of the slice (Section 3).
 
 1. **Size S:** write the failing test, fix, add the code tests of every member the fix changed with their ledger line (`tech-test.md` § Code tests), run the Sync check (`tech-docs.md`), run `/review` on the change (`workflow-review.md`). Fix and review again until zero Errors and zero High Performance findings. Go to step 5.
-2. **Plan:** `workflow-plan.md` in Autonomous mode. Set **Position** to `Step 1 of {total}`.
+2. **Plan:** `workflow-plan.md` in Autonomous mode. Set **Position** to `Step 1 of {total}`. ❗ The approved **Architecture** line binds the plan:
+   - The step that creates a component or a dependency lists in its `Docs` field the Overview row, the component section, the component-diagram arrows (the approved delta SVG updates `docs/images/components.svg`), and a decision record (`docs/decisions/<slug>.md`, `accepted`) per approved choice.
+   - The first slice creates `README.md` and `docs/architecture.md` when they are missing (`tech-docs.md` § Doc set).
+   - A component or dependency the approved line lacks is Decision class: card it (Gate E). Never build it unasked.
 3. **Card tests first:** the Builder writes them when one is set (§ Builder); the Lead checks each against its card. Turn the slice’s cards into tests, each with its marker (`tech-spec.md` § Trace). Run them. ❗ Each new test fails for the expected reason before the code exists: its assertion fails, or the member under test does not exist yet. A typo, a setup error, or a missing fixture is not the expected reason; fix the test first. Run `reqtrace check` → no L6 left for these cards. Print a progress note.
 4. **Implement:** `workflow-implement.md`. It makes these tests pass and never rewrites them; a card test changes only through its card. After each Edit it adds the code tests of what it wrote (Stage 2 item 3, `tech-test.md` § Code tests): the cards are the minimum, not the suite. Size M skips Step `{n}R`; size L keeps it. Its Closing Review covers the slice. With a Builder, each step goes through § Builder. ❗ After each step closes or stops: update **Position** before its progress note (§ Progress note).
 5. **Prove as a user:** run each Done-when through the real boundary: the browser for a UI, the process for a CLI, HTTP for an API, a consumer call for a library. A green unit suite is not proof. Tick `Met` only then. A Done-when that fails here is a failed `Verify` (Section 4.15). A Done-when whose run opens a window outside the integrated browser or changes global state runs only as approved on the **Host effects** line; otherwise leave `Met ⬜` and ask the person to run it at Gate B (`Proof: demo`).
@@ -168,7 +200,7 @@ Card tests first: write them, run them, and keep each failure line before writin
 Code tests after the code: walk each member you added or changed (tech-test.md § Code tests).
 Decide nothing of Decision class (Section 4.16): stop and report it.
 Report: done | blocked — {reason} · the model you ran on · files changed · the Verify command and its
-last lines · the red-run lines of the card tests · the Code tests ledger line · each difference from How ·
+last lines · the red-run lines of the card tests · the Code tests ledger line · the Sync check line · each difference from How ·
 user-visible behavior a code test showed that no requirement names · domain facts learned · open questions.
 ```
 
@@ -177,9 +209,10 @@ user-visible behavior a code test showed that no requirement names · domain fac
 1. `git diff --stat` shows only files the brief allows. Any other file: undo that edit, then treat it as a failed handoff.
 2. Each new marked test, next to its card **Content**: the setup, action, and observable are there, and the red-run line failed for the expected reason (Stage 4 step 3). A test that cannot fail fails the handoff.
 3. Each member the diff adds or changes is in the Code tests ledger line; each booked test exists and asserts an exact value, error code, or message (`tech-test.md` § Code tests). A member without a booking fails the handoff. A new test that is Visible, Global, or Heavy without an approved card, or a product branch on an environment variable, fails the handoff (`tech-test.md` § Host safety).
-4. Run `Verify` yourself.
-5. The model in the report differs from **Builder**: say so in the run report. Some tools fall back to another model without telling.
-6. Write the reported domain facts (`workflow-implement.md` Stage 2 item 5). Put each reported user-visible behavior that no requirement names into the next Spec delta as a proposed card. Then continue that Stage 2 from item 7.
+4. Each file of the step's `Docs` field is in the diff, and the Sync check line names it. A new component without its Overview row and component-diagram edges fails the handoff.
+5. Run `Verify` yourself.
+6. The model in the report differs from **Builder**: say so in the run report. Some tools fall back to another model without telling.
+7. Write the reported domain facts (`workflow-implement.md` Stage 2 item 5). Put each reported user-visible behavior that no requirement names into the next Spec delta as a proposed card. Then continue that Stage 2 from item 7.
 
 **A failed handoff:** sharpen the step's `How` with what was missing and hand it off once more. Fails again: the Lead builds the step. Two failed remedies of one root cause → card (Section 4.15).
 
@@ -223,7 +256,7 @@ Right: "Build all slices in one go." The Lead writes `Run: all`, builds create-a
 
 ## Gate B — Release
 
-Write one briefing for the batch (`tech-reporting.md` § Briefing). Show its head (**Verdict** to **Attention**) and **Concept** in chat, with the link to the file. Set `Status: gate-release`. Stop.
+Write one briefing for the batch (`tech-reporting.md` § Briefing). Show its head (**Verdict** to **Attention**), **Architecture**, and **Concept** in chat, with the link to the file. Set `Status: gate-release`. Stop.
 
 - Accept → run `reqtrace accept`; it records the batch's new markers, so C2 guards them from now on. Refused → L4 or L6 on an entry of a slice not `✅` in **Queue**: accept again with `--allow-gap "<slice> is queued"` or `"<slice> is blocked by Q-…"`. Any other finding is an Error of the batch: fix it, `check`, accept again. Remove the `✅` lines from **Queue**. Reset **Batch**. Set `Run: slice`. `Status: idle`.
 - Change → the change is new input: go to Stage 1.

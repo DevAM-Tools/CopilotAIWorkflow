@@ -38,6 +38,35 @@ Package release notes (full detail):
 
 ### Workflow kit
 
+- **Rule change** architecture from the first slice ([decision record](docs/decisions/evolve-architecture-gate.md); `workflow-evolve.md` Stage 2, Gate A, Stage 4; `tech-docs.md` § Doc set,
+  § Diagrams; `tech-docs-templates.md` § docs/architecture.md): the `/evolve` Spec delta has a new **Architecture** line with the
+  planned components, their **May depend on** entries, a link to a component diagram, and each choice with its rejected options; Gate A
+  approves it. A component or dependency the approved line lacks becomes a decision card. The plan step that builds a component
+  writes its Overview row, section, diagram edges, and decision records; the first slice creates `README.md` and
+  `docs/architecture.md` (before: a missing architecture doc only pointed to `/docs-repair`). `docs/architecture.md` now needs a
+  component diagram from 2 components on, with exactly the **May depend on** arrows in rows by dependency depth, and a flow
+  diagram for each flow of more than 3 steps or across components (before: diagrams were optional). Architecture diagrams and
+  their Spec delta draft are hand-written SVG, never Mermaid, because Mermaid's own layout grows wide and tall with crossing
+  edges. This repository's own [component diagram](docs/images/components.svg) follows the rule. The Builder handoff check, the review **Docs** hunt, and
+  `/dream` check them; a missing `README.md` or `docs/architecture.md` in a project with code is an Error. The Gate B briefing
+  shows the component diagram after the batch. An architecture change is no longer size S.
+- **Rule change** Spec council ([decision record](docs/decisions/spec-council.md); `workflow-council.md` § Spec, new Spec mode): every draft Spec delta and every Full-mode
+  requirement set gets a Full council before a person approves it. The Skeptic walks thirteen gap classes per area (errors,
+  limits, security and privacy, concurrency, lifecycle, states, data, people, operation, agent access, consistency,
+  testability, architecture); the chairman answers **Complete** or **Gaps found** and gives each gap one action: `add`,
+  `fix`, `ask`, or `out`. `/requirements` runs it as Stage 8 after Coverage; `/evolve` runs it in Stage 2 on the whole draft,
+  test cards and the **Architecture** line included, and again when a Gate A change adds a requirement, changes the scope, or
+  changes the architecture. The Spec delta has a new **Council** line; no Spec delta reaches approval without it (before: no
+  multi-view check ran before Gate A; the Sweep in `/plan` came after approval).
+- The four doc mechanisms every language skill defines (doc comment form, checked link, section marker, doc lint) move from
+  `tech-docs.md` § Language contract to `tech-instructions.md` § New language skill: only someone who writes a language skill
+  needs them, and `tech-docs.md` loads on almost every run.
+- The decision records in `docs/decisions/` are back. The commit for compact web UIs deleted all seven while README,
+  CHANGELOG, and `docs/architecture.md` still linked them; they are restored unchanged, except that
+  [evolve-builder](docs/decisions/evolve-builder.md) names the new docs check of the handoff and
+  [requirements-driven-loop](docs/decisions/requirements-driven-loop.md) records why `workflow-evolve.md` stays above the
+  20 KB workflow budget. The [compact web UI record](docs/decisions/compact-web-ui.md) that the CHANGELOG already linked is
+  written for the first time.
 - **Rule change** Section 4.7 allows .NET 10+ file-based C# apps for one-off tasks when they make the logic clearer.
   See the [runnable example with top-level statements](.github/copilot-instructions.md#47-repository).
 

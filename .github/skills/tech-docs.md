@@ -1,6 +1,6 @@
 # Documentation Standards
 
-Load whenever code, comments, or project docs are in scope: every `/plan`, `/implement`, `/review`, `/docs-repair`. The rules are in `copilot-instructions.md` Section 4.6. This skill adds the details and the checks. Language syntax: the language skill’s **Comments and docs** section (§ Language contract). Templates: `tech-docs-templates.md`.
+Load whenever code, comments, or project docs are in scope: every `/plan`, `/implement`, `/review`, `/docs-repair`. The rules are in `copilot-instructions.md` Section 4.6. This skill adds the details and the checks. Language syntax: the language skill’s **Comments and docs** section. Templates: `tech-docs-templates.md`.
 
 **Goal:** docs and code say the same thing for the whole life of the project, so the next agent decides from facts. Few docs, one job each, each kept true by every change.
 
@@ -16,7 +16,7 @@ Load whenever code, comments, or project docs are in scope: every `/plan`, `/imp
 | `docs/agents.md` | How an agent uses the product (`tech-agent-access.md`) | An agent needs it to call the software |
 | `spec/` | Requirements, test content, trace, loop state (`tech-spec.md`) | It says what the software must do |
 
-- Minimum per project: `README.md` and `docs/architecture.md`. A single-component project may keep the architecture as a `## Architecture` section in `README.md`.
+- ❗ Minimum per project: `README.md` and `docs/architecture.md`. A single-component project may keep the architecture as a `## Architecture` section in `README.md`. A change to production code creates a missing one (templates): the Overview from the build files, a section per touched component.
 - Create `concepts.md`, `docs/domain/`, and a decision record with their first fact. Never create an empty shell.
 - ❗ File references are links relative to the containing file. From `plans/` or `reviews/`: [`src/Foo.cs`](../src/Foo.cs). Bare backticks, absolute `E:\` or `/Users/` paths, and unlinked names are not enough.
 - Also allowed: `docs/guides/<slug>.md` (how to do a task) and `CHANGELOG.md` (user-visible change per release).
@@ -35,7 +35,7 @@ Pay for context only where the task is. Read a whole doc only when the task cove
 
 - Keep tier 1 short: the Overview fits on one screen. Detail belongs in component sections.
 - Record what you read in the plan Context Anchor or the review Scope: `Read: architecture Overview, § Import · domain § Credit note`.
-- A missing doc: say so there, continue from the code, name `/docs-repair` as the next step.
+- A missing doc that § Doc set does not create now: say so there, continue from the code, name `/docs-repair` as the next step.
 
 ## Architecture stays true
 
@@ -46,6 +46,7 @@ Pay for context only where the task is. Read a whole doc only when the task cove
 ## Diagrams
 
 - ❗ Never ASCII art. Before drawing a diagram, read `tech-docs-templates.md` § Diagrams.
+- ❗ `docs/architecture.md` carries its required component and flow diagrams (`tech-docs-templates.md` § docs/architecture.md).
 - Cover each diagram with the Impact search and the Sync check.
 
 ## Doc comments
@@ -122,17 +123,6 @@ Right: // Walk the report line by line. Perf: splitting a view keeps this loop a
 - ❗ No file header that describes the file. The type doc (or module doc) is that description; a second one drifts.
 - A file with two unrelated purposes is split (Section 4.9). Sections do not excuse it.
 
-## Language contract
-
-Each language skill’s **Comments and docs** section defines these four mechanisms. A new language skill defines all four before its first plan.
-
-| Need | C# · Rust · Python (examples) |
-|------|-------------------------------|
-| Doc comment form with the fields | XML docs · `///` with `# Errors`, `# Panics` · Google docstrings |
-| Checked link for Related | `<see cref>` · intra-doc link · qualified name in backticks (grep-checked) |
-| Section marker | `#region` · `// region:` · `# region` |
-| Doc lint that fails the build | CS1591, CS1574 · `missing_docs`, `rustdoc::broken_intra_doc_links` · ruff `D` |
-
 ## Impact search (before editing)
 
 Run in `/plan` Stage 1 and before the first edit in each file. It produces the affected-file list of Section 4.1.
@@ -164,6 +154,6 @@ Sync check: updated docs/architecture.md § Run (Easy to miss), docs/domain/bill
 
 ## Review severity
 
-- **Error:** missing or contract-less doc comment; Related that lists usages; body that fails the comment-only read; stale doc, comment, or diagram; ASCII art; SVG that breaks the form in `tech-docs-templates.md` § Diagrams; history comment; architecture broken without an architecture update and decision record; learned knowledge not captured in its home; file header that repeats the type doc; non-compiler coupling without `Sync:` at both ends; broken link, path, or symbol; documented command that fails; fact copied outside its home.
+- **Error:** missing or contract-less doc comment; Related that lists usages; body that fails the comment-only read; stale doc, comment, or diagram; a minimum doc (§ Doc set) missing next to production code; a required diagram missing in a touched section; component-diagram edges ≠ **May depend on**; ASCII art; SVG that breaks the form in `tech-docs-templates.md` § Diagrams; history comment; architecture broken without an architecture update and decision record; learned knowledge not captured in its home; file header that repeats the type doc; non-compiler coupling without `Sync:` at both ends; broken link, path, or symbol; documented command that fails; fact copied outside its home.
 - **Cosmetic:** comment that restates the code; a comment that should carry a tag; a section named without content (`Helpers 2`); an Overview longer than one screen.
 - A change-scoped review (Step `{n}R`, a finding fix) files gaps the change did not touch once, as one Refactoring finding that names `/docs-repair`; they do not block the change. A file-scoped `/review` files them as Errors.

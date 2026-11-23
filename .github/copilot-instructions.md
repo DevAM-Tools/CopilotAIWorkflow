@@ -295,6 +295,7 @@ Tick every status surface of an item together. Plan: Step Overview, Shared Block
 | Context Anchor | The plan’s summary block: loaded skills, Sweep, topics, coverage tables, decision count |
 | Sweep | Short multi-view pass inside `/plan` or `/review` (`tech-sweep.md`) |
 | Exam | Council teardown of a built result, on request. **Holds** or **Does not hold** |
+| Spec council | Council check of every draft Spec delta for gaps before approval. **Complete** or **Gaps found** |
 | Kill shot | A flaw that fails a requirement or a ❗ rule; forces **Does not hold** |
 | Briefing | `reviews/briefing_<slug>.md`: the human packet of what shipped |
 | Spec delta | The human packet of requirement changes (`reviews/delta_<slug>.md`) |

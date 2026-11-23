@@ -1,6 +1,6 @@
 ---
 name: council
-description: Pressure-test one decision with Skeptic, Problem-First, Upside, Outsider, and Builder. Exam mode teardowns a built result after the implement Closing Review, on request. Use on /council, "council this", "pressure-test this", or "exam". Do not edit. Not a /review substitute.
+description: Pressure-test one decision with Skeptic, Problem-First, Upside, Outsider, and Builder. Exam mode teardowns a built result after the implement Closing Review, on request. Spec mode checks every draft Spec delta for gaps before approval. Use on /council, "council this", "pressure-test this", or "exam". Do not edit. Not a /review substitute.
 argument-hint: State the decision, fork, or question to dissect
 agent: agent
 ---

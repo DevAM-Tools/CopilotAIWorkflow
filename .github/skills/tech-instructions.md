@@ -45,6 +45,17 @@ Right: | Repo | Section 4.7: OS and CPU matrix; UTF-8 console; Debug = Release; 
   and 6. New workflow and technology skills reach this entry through those sections.
 - ❗ Separate artifacts by reader (`tech-reporting.md`). A workflow never requires a person to read an agent handoff.
 
+## New language skill
+
+❗ A language skill (`tech-<language>.md`) has a **Comments and docs** section that defines the four mechanisms `tech-docs.md` relies on, before the first plan in that language:
+
+| Need | C# · Rust · Python (examples) |
+|------|-------------------------------|
+| Doc comment form with the fields of `tech-docs.md` § Doc comments | XML docs · `///` with `# Errors`, `# Panics` · Google docstrings |
+| Checked link for Related | `<see cref>` · intra-doc link · qualified name in backticks (grep-checked) |
+| Section marker for `tech-docs.md` § Large files | `#region` · `// region:` · `# region` |
+| Doc lint that fails the build | CS1591, CS1574 · `missing_docs`, `rustdoc::broken_intra_doc_links` · ruff `D` |
+
 ## Size budgets
 
 | File | Budget |

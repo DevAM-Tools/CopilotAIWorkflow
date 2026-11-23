@@ -176,7 +176,7 @@ Continue with the next unit while cards wait. A unit waits only for its own card
 
 ## 10) Phase 4 — Close
 
-1. Write or refresh `docs/architecture.md` (Overview on one screen), and `docs/concepts.md` and `docs/domain/` when they have content, from the units (templates). Each component’s entry type links its architecture section. Refresh `README.md` Documentation links.
+1. Write or refresh `docs/architecture.md` (Overview on one screen, the component and flow diagrams of `tech-docs-templates.md` § docs/architecture.md), and `docs/concepts.md` and `docs/domain/` when they have content, from the units (templates). Each component’s entry type links its architecture section. Refresh `README.md` Documentation links.
 2. Run the Sync check over the whole scope: every link, path, symbol, documented command.
 3. Run `workflow-implement.md` § Review until clean on the repair scope with `tech-docs.md` loaded. Its findings go through Phase 3.
 4. Ledger status `done` when every unit is `aligned` or `excluded` and every card is `applied` or `excluded`. Else `waiting`.

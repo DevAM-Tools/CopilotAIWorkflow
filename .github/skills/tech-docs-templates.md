@@ -49,11 +49,17 @@ The Overview is tier 1: every agent reads it before it acts. Keep it on one scre
 | [Validation](#validation) | [`src/Validation/`](../src/Validation/) · `InvoiceValidator` | Checks invoice rules | — (no I/O) |
 
 A dependency not listed in **May depend on** is a defect or needs a decision record.
-{Optional: context diagram, Mermaid TD or SVG — users, neighbor systems, trust levels.}
+
+![Components and who may depend on whom](images/components.svg)
+Mirrors: the **May depend on** column above.
+
+{Optional: context diagram as SVG — users, neighbor systems, trust levels.}
 
 ## Cli
 
 {Responsibility in two sentences. Key types, one line each.}
+
+{Flow diagram here when the flow has more than 3 steps or crosses a component: `images/cli-flow.svg` of the steps below.}
 
 **Flow:**
 1. `Program.Main` parses options with `CliParser.Parse`.
@@ -74,6 +80,23 @@ A dependency not listed in **May depend on** is a defect or needs a decision rec
 | Concurrency | {threading model; shared state; primitive} | |
 | Performance | {hot paths and budgets} | |
 ````
+
+Required diagrams:
+
+| Diagram | Required when | File · shows |
+|---------|---------------|--------------|
+| Component, below the Overview table | The Overview has 2 or more rows | `docs/images/components.svg` · one box per row; one arrow per **May depend on** entry, no other arrow |
+| Flow, in a component section | Its **Flow** has more than 3 steps or crosses a component | `docs/images/<component>-flow.svg` · the **Flow** steps, labeled with the symbols they name |
+
+- ❗ Draw architecture diagrams as SVG (§ Diagrams), never Mermaid: Mermaid picks its own layout and grows wide and tall with crossing edges.
+- Lay out the component diagram in rows by dependency depth: components nothing depends on at the top, components without dependencies at the bottom. Arrows point down; no arrow crosses a box.
+- ❗ The component diagram and the **May depend on** column state one fact in two forms. Change both in the same edit.
+- A component is one Overview row: a project, crate, package, or top-level folder with one responsibility. Never a single type.
+
+```text
+Wrong: Overview rows Cli → Import → Validation; components.svg also draws an arrow Cli → Validation.
+Right: components.svg draws exactly the arrows Cli → Import and Import → Validation, in three rows.
+```
 
 ## docs/concepts.md
 
@@ -169,6 +192,7 @@ Choose the form by content. ASCII art: never (`tech-docs.md` § Diagrams).
 
 | Content | Form |
 |---------|------|
+| Any diagram in `docs/architecture.md`, and its draft in a Spec delta | SVG file (§ docs/architecture.md) |
 | Flow, sequence, state machine, dependency graph; ≤ 12 nodes | Mermaid `TD` inline; no wide `LR` |
 | Layers, layout, annotated picture, chart, timeline, comparison; a crowded Mermaid | SVG file |
 
@@ -190,7 +214,7 @@ Right: docs/images/layers.svg with three bands; Mermaid TD for the five-step imp
 - Define colors as CSS variables in an inline `<style>` with a `prefers-color-scheme: dark` override. Never let color carry meaning alone: add a label or a pattern.
 - Take chart values from real data (a measurement, a file, a table) and repeat them in the caption or a table below. Never invent a number or round it to fit.
 - Use a raster image (PNG) only for a screenshot, with alt text and width ≤ 1200 px.
-- Outside `docs/`: store a briefing’s SVG next to it as `reviews/briefing_<slug>_<name>.svg`, an illustration as `illustrations/<slug>.svg` (`workflow-illustrate.md`).
+- Outside `docs/`: store a Spec delta's component diagram as `reviews/delta_<slug>_components.svg`, a briefing’s SVG next to it as `reviews/briefing_<slug>_<name>.svg`, an illustration as `illustrations/<slug>.svg` (`workflow-illustrate.md`).
 
 **Animation:**
 
