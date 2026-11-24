@@ -2,7 +2,9 @@
 
 namespace InvariantStringHelper.Tests;
 
-/// <summary>Tests for <see cref="InvariantInterpolatedStringHandler"/>: provider hand-over and hand-built handlers.</summary>
+/// <summary>
+/// Tests for <see cref="InvariantInterpolatedStringHandler"/>: provider hand-over and hand-built handlers.
+/// </summary>
 public sealed class InvariantInterpolatedStringHandlerTests
 {
     #region Provider hand-over
@@ -16,10 +18,12 @@ public sealed class InvariantInterpolatedStringHandlerTests
         string text = Invariant($"[{formattable}] [{formattable:custom}] [{spanFormattable}] [{spanFormattable:custom}]");
 
         await Assert.That(text).IsEqualTo("[f] [f] [s] [s]");
-        await Assert.That(formattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
+        await Assert.That(
+            formattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
             .IsTrue();
         await Assert.That(
-                spanFormattable.Providers.All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
+                spanFormattable.Providers
+                    .All(static provider => ReferenceEquals(provider, CultureInfo.InvariantCulture)))
             .IsTrue();
         await Assert.That(formattable.Formats.Count).IsEqualTo(2);
         await Assert.That(formattable.Formats[0]).IsNull();
@@ -30,7 +34,8 @@ public sealed class InvariantInterpolatedStringHandlerTests
     }
 
     /// <summary>
-    /// Records the provider and format it receives through <see cref="IFormattable.ToString(string, IFormatProvider)"/>.
+    /// Records the provider and format it receives through
+    /// <see cref="IFormattable.ToString(string, IFormatProvider)"/>.
     /// </summary>
     private sealed class FormattableProbe : IFormattable
     {
@@ -63,7 +68,11 @@ public sealed class InvariantInterpolatedStringHandlerTests
             return "s";
         }
 
-        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        public bool TryFormat(
+            Span<char> destination,
+            out int charsWritten,
+            ReadOnlySpan<char> format,
+            IFormatProvider? provider)
         {
             Providers.Add(provider);
             if (format.IsEmpty)

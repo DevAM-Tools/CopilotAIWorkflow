@@ -24,7 +24,7 @@ Load when `*.py`, `pyproject.toml`, or `*.pyi` is in scope. Python mechanisms fo
 
 ## Style
 
-- Format with `ruff format`; line length 130.
+- Set Ruff's `line-length` to 120. Run `ruff format`.
 - ❗ One callable exit per line; in a conditional expression put each calling branch on its own line.
 - Use `match` for structural branching instead of `isinstance` ladders.
 - ❗ Pass `encoding="utf-8"` explicitly; never depend on the process locale.
@@ -103,7 +103,7 @@ match parse_port(raw):
 requires-python = ">=3.13"
 
 [tool.ruff]
-line-length = 130
+line-length = 120
 target-version = "py313"
 
 [tool.ruff.lint]

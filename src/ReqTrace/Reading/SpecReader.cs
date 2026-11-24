@@ -49,7 +49,11 @@ internal static class SpecReader
     /// <param name="requirements">Receives the entries.</param>
     /// <param name="findings">Receives reading findings.</param>
     /// <exception cref="IOException">The file cannot be read.</exception>
-    public static void ReadRequirements(string path, string relativePath, List<Requirement> requirements, List<Finding> findings)
+    public static void ReadRequirements(
+        string path,
+        string relativePath,
+        List<Requirement> requirements,
+        List<Finding> findings)
     {
         using StreamReader reader = _Open(path);
 
@@ -104,7 +108,8 @@ internal static class SpecReader
                 continue;
             }
 
-            if (draft is not null && _TryReadField(span, 2, SpecForm.RequirementFields, out int field, out string value))
+            if (draft is not null
+                && _TryReadField(span, 2, SpecForm.RequirementFields, out int field, out string value))
             {
                 draft.Set(field, value);
                 continue;
@@ -145,7 +150,11 @@ internal static class SpecReader
     /// <param name="file">Repository-relative path.</param>
     /// <param name="requirements">Receives the entry.</param>
     /// <param name="findings">Receives field findings.</param>
-    private static void _FinishRequirement(_Draft? draft, string file, List<Requirement> requirements, List<Finding> findings)
+    private static void _FinishRequirement(
+        _Draft? draft,
+        string file,
+        List<Requirement> requirements,
+        List<Finding> findings)
     {
         if (draft is null)
         {
@@ -206,7 +215,9 @@ internal static class SpecReader
     /// <param name="draft">The entry.</param>
     /// <param name="file">Repository-relative path.</param>
     /// <param name="findings">Receives findings.</param>
-    /// <returns>The proof kind; <see cref="ProofKind.Test"/> when the field is unusable, so a gap is not hidden.</returns>
+    /// <returns>
+    /// The proof kind; <see cref="ProofKind.Test"/> when the field is unusable, so a gap is not hidden.
+    /// </returns>
     private static ProofKind _ReadProof(_Draft draft, string file, List<Finding> findings)
     {
         string raw = draft.Get(_Proof);
@@ -442,7 +453,9 @@ internal static class SpecReader
             return [];
         }
 
-        return raw.Split([",", SpecForm.StateSeparator], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return raw.Split(
+            [",", SpecForm.StateSeparator],
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     #endregion
@@ -579,7 +592,8 @@ internal static class SpecReader
     /// <returns>Whether it is a continuation.</returns>
     private static bool _IsContinuation(ReadOnlySpan<char> line)
     {
-        return line.StartsWith("    ", StringComparison.Ordinal) && !line.TrimStart().StartsWith("- ", StringComparison.Ordinal);
+        return line.StartsWith("    ", StringComparison.Ordinal)
+            && !line.TrimStart().StartsWith("- ", StringComparison.Ordinal);
     }
 
     /// <summary>Returns whether a line at an entry position looks like an ID that broke the form.</summary>

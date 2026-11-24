@@ -10,7 +10,7 @@ and requirement traceability.
 [![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
 [![ReqTrace](https://img.shields.io/nuget/v/ReqTrace)](https://www.nuget.org/packages/ReqTrace/)
 
-**Current packages** — **CSharpStyleChecker** 2.0.1 (CSC003 fix for top-level statements) · **ReqTrace** 0.2.0
+**Current packages** — **CSharpStyleChecker** 3.0.0 (120-character CSC001 default) · **ReqTrace** 0.2.0
 (`reqtrace syntax` prints the spec form and fixes quote it) · **ExitPointGaps** 1.1.2 (package cleanup) ·
 **InvariantStringHelper** 1.0.0.
 Each package releases on its own. See the [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md),
@@ -44,7 +44,7 @@ dotnet add package CSharpStyleChecker
 Or in `.csproj`:
 
 ```xml
-<PackageReference Include="CSharpStyleChecker" Version="2.*" />
+<PackageReference Include="CSharpStyleChecker" Version="3.*" />
 ```
 
 Rebuild. Violations surface as compiler errors (CSC001–CSC009). No `PrivateAssets`, `IncludeAssets`, or separate `ExitPoints` package — the NuGet metadata handles that.
@@ -345,7 +345,7 @@ Roslyn analyzer enforcing CopilotAIWorkflow C# style as **compiler errors**. The
 
 | ID | Rule |
 |----|------|
-| CSC001 | Line length ≤ 130 (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
+| CSC001 | Max 120 visible characters. Count comments and interpolation holes. Mask string and character contents. |
 | CSC002 | No `var` |
 | CSC003 | Private members use `_PascalCase` with [documented exemptions](.github/skills/tech-csharp.md#naming) |
 | CSC004 | No `.Result` / `.Wait()` / `GetAwaiter().GetResult()` on `Task` / `Task<T>` / `ValueTask` / `ValueTask<T>`; no `Task.WaitAll` / `Task.WaitAny` |
@@ -361,7 +361,9 @@ XML documentation on public APIs is enforced by built-in **CS1591** when `Genera
 
 | Setting | Purpose |
 |---------|---------|
-| `build_property.csc_max_line_length = N` in `.editorconfig` | Override CSC001 line length (default 130) |
+| `build_property.csc_max_line_length = N` in `.editorconfig` | Override CSC001 line length (package default 120) |
+
+To apply the shared C# width, follow the [setup and formatter commands](.github/skills/tech-solution.md#c-line-length).
 
 **Build from source**
 

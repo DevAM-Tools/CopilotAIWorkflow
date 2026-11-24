@@ -133,7 +133,8 @@ Docs and code say the same thing for the life of the project. Doc set, checks, e
 
 - Support Windows/Linux/macOS on x64/ARM64. Keep Debug and Release behavior identical.
 - ❗ Console executables set UTF-8 once at process start.
-- Line length ≤ 130. No dates in code; copyright year is allowed. Add per-file copyright from `COPYRIGHT` to new source files.
+- Limit lines to 120 characters by default. Apply any [explicit C# project width](skills/tech-csharp.md#language).
+- Add copyright from `COPYRIGHT` to new source files. Use dates in code only for the copyright year.
 - ❗ Run the language’s mandatory style or lint tool.
 - ❗ **New Dependency Protocol.** Never add a package, crate, npm module, vendored file, browser, or tool without user approval. Ask in Grill Me, or before the edit when no plan exists; under `/evolve`, in the Spec delta. Present: id and exact version, what it does, why, license (MIT, Apache-2.0, or BSD-like only), alternatives including none.
 - ❗ Use native toolchain commands. Use single commands, environment prefixes, or plain pipes into a filter.

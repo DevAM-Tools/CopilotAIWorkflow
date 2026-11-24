@@ -72,7 +72,8 @@ public sealed class MarkerScannerTests
         List<Marker> markers = _Scan(workspace);
 
         await Assert.That(markers.Count).IsEqualTo(FileCount);
-        await Assert.That(markers.Select(static marker => marker.File)).IsOrderedBy(static file => file, StringComparer.Ordinal);
+        await Assert.That(markers.Select(static marker => marker.File))
+            .IsOrderedBy(static file => file, StringComparer.Ordinal);
     }
 
     [Test, Property("Card", "TEST-TRACE-IGNORE-PATH")]

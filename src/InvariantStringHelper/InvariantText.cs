@@ -7,7 +7,8 @@ namespace InvariantStringHelper;
 /// Import once per project with <c>global using static InvariantStringHelper.InvariantText;</c>.
 /// Thread-safe: static, stateless.
 /// Architecture: docs/architecture.md § InvariantStringHelper.
-/// Sync: src/CSharpStyleChecker/Analyzers/InvariantCultureFormattingAnalyzer.cs (InvariantTextMetadataName, InvariantMethodName);
+/// Sync: src/CSharpStyleChecker/Analyzers/InvariantCultureFormattingAnalyzer.cs
+/// (InvariantTextMetadataName, InvariantMethodName);
 /// .github/skills/tech-csharp.md § Style; .github/skills/tech-solution.md § InvariantStringHelper.
 /// </remarks>
 /// <seealso cref="InvariantInterpolatedStringHandler"/>
@@ -16,7 +17,7 @@ public static class InvariantText
     #region Formatting
 
     /// <summary>Formats an interpolated string under <see cref="CultureInfo.InvariantCulture"/>.</summary>
-    /// <param name="handler">The handler the compiler builds from the interpolated string; consumed by this call.</param>
+    /// <param name="handler">The compiler-built interpolation handler consumed by this call.</param>
     /// <returns>The formatted text, independent of the current culture.</returns>
     /// <example>
     /// <code>

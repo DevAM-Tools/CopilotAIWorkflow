@@ -57,12 +57,14 @@ internal static class AggregatedGapReportWriter
 
         if (report.Projects.Count == 1)
         {
-            await writer.WriteSingleProjectFileAsync(report.Projects[0], resolvedOutput, cancellationToken).ConfigureAwait(false);
+            await writer.WriteSingleProjectFileAsync(report.Projects[0], resolvedOutput, cancellationToken)
+                .ConfigureAwait(false);
             return;
         }
 
         string summaryPayload = AggregatedGapReportSerializer.ToAgentJsonV3(accumulator, report.Projects.Count);
-        await File.WriteAllTextAsync(resolvedOutput, summaryPayload, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(resolvedOutput, summaryPayload, Encoding.UTF8, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     #endregion

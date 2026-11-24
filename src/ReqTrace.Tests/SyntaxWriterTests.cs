@@ -2,7 +2,9 @@
 
 namespace ReqTrace.Tests;
 
-/// <summary>The syntax command: printed forms read back cleanly, every accepted value is printed, kinds pick sections.</summary>
+/// <summary>
+/// The syntax command: printed forms read back cleanly, every accepted value is printed, kinds pick sections.
+/// </summary>
 public sealed class SyntaxWriterTests
 {
     [Test, Property("Card", "TEST-TRACE-SYNTAX")]
@@ -74,7 +76,9 @@ public sealed class SyntaxWriterTests
     [Test, Property("Card", "TEST-TRACE-SYNTAX-KINDS")]
     public async Task AllKindsPrintInOrderWithoutARepository()
     {
-        string directory = Path.Join(Path.GetTempPath(), "reqtrace-syntax-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture));
+        string directory = Path.Join(
+            Path.GetTempPath(),
+            "reqtrace-syntax-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture));
         Directory.CreateDirectory(directory);
         try
         {

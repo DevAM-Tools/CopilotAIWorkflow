@@ -8,13 +8,23 @@ Package release notes (full detail):
 
 | Package | Version | Changelog |
 |---------|---------|-----------|
-| CSharpStyleChecker | 2.0.1 (CSC003 fix) | [Package changelog](src/CSharpStyleChecker/CHANGELOG.md#201) |
+| CSharpStyleChecker | 3.0.0 (120-character default) | [Package changelog](src/CSharpStyleChecker/CHANGELOG.md#300) |
 | ExitPointGaps | 1.1.2 | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
 | ReqTrace | 0.2.0 | [src/ReqTrace/CHANGELOG.md](src/ReqTrace/CHANGELOG.md) |
 | InvariantStringHelper | 1.0.0 (unchanged) | [src/InvariantStringHelper/CHANGELOG.md](src/InvariantStringHelper/CHANGELOG.md) |
 
+### Workflow kit
+
+- Select multiple TUnit classes or methods with [segment alternatives](.github/skills/tech-tunit.md#commands).
+- Keep deliberate process crashes [free of OS dialogs](.github/skills/tech-test.md#host-safety) during tests.
+
+- **Rule change** The shared line limit is 120 characters, including C#, Rust and Python.
+  Apply the Roslynator fix after C# edits. Verify formatting and build in full review.
+  [Commands](.github/skills/tech-solution.md#c-line-length).
+
 ### Packages
 
+- CSharpStyleChecker 3.0.0 lowers the CSC001 default from 130 to 120 visible characters. Explicit limits still apply.
 - Each package releases on its own version line and packs alone: `dotnet pack src/{Project}/{Project}.csproj -c Release`. `Directory.Build.props` sets no shared version; each package ships its own `PACKAGE_README.md` instead of the shared one. Steps: [docs/guides/release-a-package.md](docs/guides/release-a-package.md).
 - A dotnet tool package holds exactly what its publish produced: the publish folder is emptied before each publish of a tool. ExitPointGaps 1.1.1 on nuget.org carried seven files of the pre-rename `CoverageGap.Tool`; 1.1.2 ships without them.
 - **Rule change** one release path for every package: `dotnet pack src/{Project}/{Project}.csproj -c Release` writes `artifacts/release/{PackageId}.{version}.nupkg`. A build no longer packs, so a Release build leaves released packages alone (before: libraries and the analyzer were packed into `artifacts/` on every Release build). Before the pack builds, each project, project references included, empties its `bin/` output. A Debug pack, `--no-build`, and a pack from an IDE or `dotnet msbuild -t:Pack` stop with an error that names the command. The sample's packed-package check restores from `artifacts/release/` into a private packages folder. `tech-solution.md` § Release packages; [decision record](docs/decisions/release-pack-path.md).

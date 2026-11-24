@@ -2,7 +2,9 @@
 
 namespace ReqTrace;
 
-/// <summary>Runs one command. Separate from the process entry so that tests drive the whole tool without a process.</summary>
+/// <summary>
+/// Runs one command. Separate from the process entry so that tests drive the whole tool without a process.
+/// </summary>
 internal static class TraceApp
 {
     #region Entry
@@ -158,7 +160,9 @@ internal static class TraceApp
         return CliOptions.ExitOk;
     }
 
-    /// <summary>Runs accept: refuses while anything is wrong, and records a new gap only with a stated reason.</summary>
+    /// <summary>
+    /// Runs accept: refuses while anything is wrong, and records a new gap only with a stated reason.
+    /// </summary>
     /// <param name="allowGapReason">The reason, or null.</param>
     /// <param name="root">Repository root.</param>
     /// <param name="output">Standard output.</param>
@@ -188,7 +192,14 @@ internal static class TraceApp
         {
             output.WriteLine("Not accepted. Resolve these first:");
             TraceSnapshot read = outcome.Snapshot;
-            CheckResult result = new(refused, read.Requirements.Count, read.Cards.Count, read.Markers.Count, 0, true, true);
+            CheckResult result = new(
+                refused,
+                read.Requirements.Count,
+                read.Cards.Count,
+                read.Markers.Count,
+                0,
+                true,
+                true);
             FindingWriter.WriteText(output, result);
             return CliOptions.ExitFindings;
         }
@@ -278,7 +289,16 @@ internal static class TraceApp
                 : string.Empty;
             string gap = _GapReason(accepted, card.Id, Invariant($"{card.Id} has no marked test."), reason, newGapMessages);
             int marked = markers.GetValueOrDefault(card.Id);
-            entries.Add(new(card.Id, SpecText.Fingerprint(card), _StateWord(card.State), gap, marked, stamp, note, string.Empty));
+            entries.Add(
+                new(
+                    card.Id,
+                    SpecText.Fingerprint(card),
+                    _StateWord(card.State),
+                    gap,
+                    marked,
+                    stamp,
+                    note,
+                    string.Empty));
         }
 
         return entries;

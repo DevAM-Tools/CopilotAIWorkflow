@@ -74,6 +74,9 @@ await Assert.That(async () => await sut.PairAsync(path)).Throws<IOException>();
 
 ## Fixtures and parallelism
 
+- In Windows projects with deliberate crash tests, verify dialog-free exit in the target runner before unattended runs.
+  Check each process the suite deliberately crashes in that runner.
+
 - `[Before(Test)]` / `[After(Test)]` for per-test setup.
 - `[Before(Class)]` / `[After(Class)]` for class resources.
 - `IAsyncDisposable` on test classes holding resources.
@@ -115,19 +118,33 @@ public sealed class ClipboardAdapterTests
 
 ## Commands
 
-Run tests with `dotnet test`. When the full project is not required, pass a treenode filter for the class or test that covers the change. Run the project with no filter when the change can break tests you cannot name (`tech-test.md`).
+- Run `dotnet test` with a quoted `--treenode-filter` for the classes or tests that cover the change.
+- Run the whole project when the change can break tests you cannot name ([Test runs](tech-test.md#runs)).
+- Address all four levels in `/Assembly/Namespace/Class/Test`. Use `*` to match names within one level.
+- Group alternative names with `(A|B)` inside one path segment. Never join whole paths with `|`.
+- Reserve square brackets for property filters such as `[Category=Fast]`. Never use them to list names.
 
-The tree path is `/Assembly/Namespace/Class/Test`. A filter must address every level; `*` matches within one level only.
+```text
+Wrong: "/*/*/[ClassA|ClassB]/*"
+Wrong: "(/*/*/ClassA/*)|(/*/*/ClassB/*)"
+Right: "/*/*/(ClassA|ClassB)/*"
+```
 
 ```bash
 # One class
-dotnet test path/Proj.Tests.csproj -c Release -- --treenode-filter "/*/*/ClassName/*"
+dotnet test --project path/Proj.Tests.csproj -c Release --treenode-filter "/*/*/ClassName/*"
+# Multiple classes
+dotnet test --project path/Proj.Tests.csproj -c Release --treenode-filter "/*/*/(ClassA|ClassB)/*"
 # One test
-dotnet test path/Proj.Tests.csproj -c Release -- --treenode-filter "/*/*/ClassName/TestName"
+dotnet test --project path/Proj.Tests.csproj -c Release --treenode-filter "/*/*/ClassName/TestName"
+# Multiple tests in one class
+dotnet test --project path/Proj.Tests.csproj -c Release --treenode-filter "/*/*/ClassName/(TestA|TestB)"
 # Whole project
-dotnet test path/Proj.Tests.csproj -c Release
+dotnet test --project path/Proj.Tests.csproj -c Release
 ```
 
-❗ Exit code 8 means zero tests ran: the filter is wrong. That is a failed `Verify`, not a pass.
+- ❗ For `Unhandled exception` in `TreeNodeFilter.ParseFilter`, correct the filter syntax before retrying.
+  Skip product-code debugging for this error. Never repeat the unchanged command.
+- ❗ Treat MTP exit code 8 as a failed `Verify`: zero tests ran. Check the selected project, names and skipped tests.
 
 MTP is the runner (`global.json`). Do not pass VSTest-style `--filter FullyQualifiedName~…`.

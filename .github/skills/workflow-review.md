@@ -49,6 +49,8 @@ A provided scope argument is confirmed. Otherwise ask in-scope items, exclusions
 - Read in-scope files, related tests, direct dependencies, call sites, and definitions of involved types.
 - Map composition: callers, callees, shared state, sequencing, error paths that exist only when pieces combine.
 - Name in-scope **hot paths** before Stage 4.
+- Check the [line-length settings](tech-solution.md#c-line-length) for C# changes. In full review, verify and build.
+  Record results in **Test Execution**. Report remaining width violations as Errors.
 - Full review: run build and scoped tests. Consider a collision (Section 4.14) before calling a failure a defect.
 
 ## Stage 4 — Review

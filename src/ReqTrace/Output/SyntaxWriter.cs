@@ -54,7 +54,9 @@ internal static class SyntaxWriter
         }
     }
 
-    /// <summary>Writes the requirement section: where it lives, the example, required fields, and every value.</summary>
+    /// <summary>
+    /// Writes the requirement section: where it lives, the example, required fields, and every value.
+    /// </summary>
     /// <param name="output">Standard output.</param>
     private static void _WriteRequirement(TextWriter output)
     {
@@ -109,7 +111,9 @@ internal static class SyntaxWriter
         output.WriteLine(SpecForm.IgnoreExample);
     }
 
-    /// <summary>Writes a multi-line example line by line, so every line ends with the writer's own line ending.</summary>
+    /// <summary>
+    /// Writes a multi-line example line by line, so every line ends with the writer's own line ending.
+    /// </summary>
     /// <param name="output">Standard output.</param>
     /// <param name="text">Lines joined by <c>\n</c>.</param>
     /// <remarks>Perf: enumerates spans, so no line string is allocated.</remarks>
@@ -121,7 +125,8 @@ internal static class SyntaxWriter
         }
     }
 
-    /// <summary>Writes the blank line between two sections.</summary>    /// <param name="output">Standard output.</param>
+    /// <summary>Writes the blank line between two sections.</summary>
+    /// <param name="output">Standard output.</param>
     /// <param name="written">Whether a section precedes this one.</param>
     private static void _Separate(TextWriter output, bool written)
     {

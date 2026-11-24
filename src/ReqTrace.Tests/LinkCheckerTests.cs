@@ -86,7 +86,9 @@ public sealed class LinkCheckerTests
         await Assert.That(output).Contains("0 open gaps");
         await Assert.That(report).Contains("REQ-AREA-REVIEW: review — only a person can judge it");
 
-        workspace.WriteRequirements(TraceWorkspace.Requirement("REQ-AREA-BARE", proof: "review") + TraceWorkspace.Requirement("REQ-AREA-ODD", proof: "vibes — good"));
+        workspace.WriteRequirements(
+            TraceWorkspace.Requirement("REQ-AREA-BARE", proof: "review")
+            + TraceWorkspace.Requirement("REQ-AREA-ODD", proof: "vibes — good"));
 
         (int badExit, string badOutput, _) = workspace.Run();
 

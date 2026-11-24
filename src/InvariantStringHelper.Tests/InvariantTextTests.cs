@@ -2,7 +2,9 @@
 
 namespace InvariantStringHelper.Tests;
 
-/// <summary>Tests for <see cref="InvariantText"/>: culture independence, hole formatting, allocation, and concurrency.</summary>
+/// <summary>
+/// Tests for <see cref="InvariantText"/>: culture independence, hole formatting, allocation, and concurrency.
+/// </summary>
 /// <remarks>
 /// Expected texts come from reference calls (<c>ToString(format, CultureInfo.InvariantCulture)</c>, <c>PadLeft</c>,
 /// <c>PadRight</c>), never from literals typed from memory. A <see cref="ReadOnlySpan{T}"/> local must not live across

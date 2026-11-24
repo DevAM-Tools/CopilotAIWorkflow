@@ -21,7 +21,9 @@ internal sealed record LockEntry(
     string Note,
     string Text);
 
-/// <summary>Reads and writes <c>spec/trace.lock</c>, the accepted state, as sorted text that reviews well in git.</summary>
+/// <summary>
+/// Reads and writes <c>spec/trace.lock</c>, the accepted state, as sorted text that reviews well in git.
+/// </summary>
 /// <remarks>Sync: docs/agents.md § Accepted state.</remarks>
 internal static class TraceLock
 {
@@ -100,7 +102,8 @@ internal static class TraceLock
                 string stamp = _ToField(entry.RequirementStamp);
                 string note = _ToField(entry.Note);
                 string text = _ToField(entry.Text);
-                writer.WriteLine(Invariant($"{entry.Id}\t{entry.Hash}\t{entry.State}\t{gap}\t{entry.Marked}\t{stamp}\t{note}\t{text}"));
+                writer.WriteLine(Invariant(
+                    $"{entry.Id}\t{entry.Hash}\t{entry.State}\t{gap}\t{entry.Marked}\t{stamp}\t{note}\t{text}"));
             }
         }
 

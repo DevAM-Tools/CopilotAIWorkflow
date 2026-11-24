@@ -22,14 +22,20 @@ internal static class PlanOrchestrator
             return CliConstants.ExitUsageError;
         }
 
-        if (!ProjectGraphBuilder.TryBuild(options, out IReadOnlyList<ProductionProjectRecord> projects, out string? graphError))
+        if (!ProjectGraphBuilder.TryBuild(
+            options,
+            out IReadOnlyList<ProductionProjectRecord> projects,
+            out string? graphError))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(graphError ?? "Failed to build project graph.", cancellationToken)
                 .ConfigureAwait(false);
             return CliConstants.ExitGateOrToolFailure;
         }
 
-        if (!RunIsolation.TryReserveWorkDirectory(options.WorkDirectory, out string? workDirectory, out string? workDirError)
+        if (!RunIsolation.TryReserveWorkDirectory(
+            options.WorkDirectory,
+            out string? workDirectory,
+            out string? workDirError)
             || string.IsNullOrEmpty(workDirectory))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(workDirError ?? "Failed to reserve work directory.", cancellationToken)
@@ -143,7 +149,8 @@ internal static class PlanOrchestrator
 
         string output = ExitManifestFormatter.Format(exits, options.Format);
         string? resolvedOutput = RunIsolation.ResolveOutputPath(options.OutputPath, workDirectory);
-        await OutputWriter.WriteAsync(output, resolvedOutput, appendNewLine: true, cancellationToken).ConfigureAwait(false);
+        await OutputWriter.WriteAsync(output, resolvedOutput, appendNewLine: true, cancellationToken)
+            .ConfigureAwait(false);
         return CliConstants.ExitSuccess;
     }
 

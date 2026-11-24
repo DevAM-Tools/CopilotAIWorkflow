@@ -18,7 +18,10 @@ internal static class RunIsolation
     /// <param name="workDirectory">Reserved absolute work directory path.</param>
     /// <param name="error">Error when reservation fails.</param>
     /// <returns><see langword="true"/> when the directory is reserved for this process.</returns>
-    public static bool TryReserveWorkDirectory(string? requestedWorkDirectory, out string? workDirectory, out string? error)
+    public static bool TryReserveWorkDirectory(
+        string? requestedWorkDirectory,
+        out string? workDirectory,
+        out string? error)
     {
         workDirectory = null;
         error = null;

@@ -247,7 +247,7 @@ Run the journey that covers the change. A full UI-project run is for a cross-cut
 
 ### .NET UI tests (TUnit)
 
-Tree filter levels: `/Assembly/Namespace/Class/Test` (`tech-tunit.md`). Exit code 8 = zero tests ran = wrong filter.
+Use the [TUnit filter syntax and failure checks](tech-tunit.md#commands).
 
 ```bash
 dotnet build path/App.UiTest/App.UiTest.csproj -c Release

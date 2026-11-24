@@ -47,6 +47,9 @@ Classify each test by its effect on the host:
 
 Count the agent tool’s integrated browser as Contained: it runs inside the editor (Section 4.8).
 
+- ❗ Prevent OS crash dialogs when a test deliberately crashes its own process or a child process.
+  For Windows TUnit projects, follow the [crash-test check](tech-tunit.md#fixtures-and-parallelism).
+- ❗ Never change registry keys or user or machine error-reporting settings to suppress a crash dialog (Global).
 - ❗ Design for Contained. Put each OS service (clipboard, window, dialog, file picker, registry, clock, process start) behind a narrow interface. Test the logic through a fake; keep the real adapter a pass-through with no branch.
 - ❗ A card or test that needs Visible, Global, or Heavy is Decision class (Section 4.16). Ask before writing it: in `/plan` Stage 3, under `/evolve` in the Spec delta. Never write one on your own judgment “to be safe”.
 - Offer these options. A requirement that is expensive to show needs no automated test when the person agrees:

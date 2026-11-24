@@ -27,7 +27,8 @@ internal static class LinkChecker
                 Requirement first = requirements[requirement.Id];
                 string location = Invariant($"{first.File}:{first.Line}");
                 string id = requirement.Id;
-                findings.Add(Rules.Create(Rules.Duplicate, Severity.Error, requirement.File, requirement.Line, id, location));
+                findings.Add(
+                    Rules.Create(Rules.Duplicate, Severity.Error, requirement.File, requirement.Line, id, location));
             }
         }
 
@@ -95,18 +96,22 @@ internal static class LinkChecker
         string id = marker.CardId;
         if (!cards.TryGetValue(id, out TestCard? card) || card.State == EntryState.Retired)
         {
-            findings.Add(Rules.Create(Rules.UnknownCard, Severity.Error, marker.File, marker.Line, id, Closest(id, cards.Keys)));
+            findings.Add(
+                Rules.Create(Rules.UnknownCard, Severity.Error, marker.File, marker.Line, id, Closest(id, cards.Keys)));
             return;
         }
 
         marked.Add(id);
         if (marker.Method is null)
         {
-            findings.Add(Rules.Create(Rules.MarkerWithoutMethod, Severity.Error, marker.File, marker.Line, id, string.Empty));
+            findings.Add(
+                Rules.Create(Rules.MarkerWithoutMethod, Severity.Error, marker.File, marker.Line, id, string.Empty));
         }
     }
 
-    /// <summary>Reports entries that nothing proves. Whether a gap fails the run depends on whether the entry changed.</summary>
+    /// <summary>
+    /// Reports entries that nothing proves. Whether a gap fails the run depends on whether the entry changed.
+    /// </summary>
     /// <param name="snapshot">What was read.</param>
     /// <param name="accepted">The accepted state, or null.</param>
     /// <param name="proven">Requirements with an active card.</param>
@@ -121,11 +126,13 @@ internal static class LinkChecker
     {
         foreach (Requirement requirement in snapshot.Requirements)
         {
-            if (requirement.State == EntryState.Active && requirement.Proof == ProofKind.Test && !proven.Contains(requirement.Id))
+            if (requirement.State == EntryState.Active && requirement.Proof == ProofKind.Test
+                && !proven.Contains(requirement.Id))
             {
                 string id = requirement.Id;
                 Severity severity = _GapSeverity(accepted, id, SpecText.Fingerprint(requirement));
-                findings.Add(Rules.Create(Rules.NoCard, severity, requirement.File, requirement.Line, id, string.Empty));
+                findings.Add(
+                    Rules.Create(Rules.NoCard, severity, requirement.File, requirement.Line, id, string.Empty));
             }
         }
 
@@ -151,7 +158,8 @@ internal static class LinkChecker
             return Severity.OpenGap;
         }
 
-        return accepted.TryGetValue(id, out LockEntry? entry) && string.Equals(entry.Hash, hash, StringComparison.Ordinal)
+        return accepted.TryGetValue(id, out LockEntry? entry)
+            && string.Equals(entry.Hash, hash, StringComparison.Ordinal)
             ? Severity.OpenGap
             : Severity.Error;
     }

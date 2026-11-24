@@ -57,7 +57,8 @@ internal static class BranchGapAnalyzer
             Models.CoberturaDocument document = scoped.Document;
             BranchGapScope scope = scoped.Scope;
 
-            foreach (KeyValuePair<string, IReadOnlyDictionary<int, Models.CoberturaLineInfo>> fileEntry in document.Lines)
+            foreach (KeyValuePair<string, IReadOnlyDictionary<int, Models.CoberturaLineInfo>> fileEntry in document
+                .Lines)
             {
                 string relativeFile = PathNormalizer.ToRepositoryRelative(fileEntry.Key, repositoryRoot);
                 if (!packageByFile.TryGetValue(fileEntry.Key, out string? packageName))

@@ -5,9 +5,13 @@ namespace ReqTrace;
 /// <summary>Reads test outcomes from a TRX result file, which the test runner wrote and the agent did not.</summary>
 internal static class TrxReader
 {
-    /// <summary>Reads outcomes from a file, or from every <c>.trx</c> below a folder; each test project writes its own.</summary>
+    /// <summary>
+    /// Reads outcomes from a file, or from every <c>.trx</c> below a folder; each test project writes its own.
+    /// </summary>
     /// <param name="path">A file or a folder.</param>
-    /// <returns>Per method: whether it passed and when that result was written. The newest file wins for a method.</returns>
+    /// <returns>
+    /// Per method: whether it passed and when that result was written. The newest file wins for a method.
+    /// </returns>
     /// <exception cref="FileNotFoundException">Neither the file nor a result file in the folder exists.</exception>
     /// <exception cref="InvalidDataException">A file is not valid XML.</exception>
     /// <exception cref="IOException">A file cannot be read.</exception>

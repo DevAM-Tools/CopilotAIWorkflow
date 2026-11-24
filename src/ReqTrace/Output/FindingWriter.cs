@@ -62,7 +62,13 @@ internal static class FindingWriter
             output.WriteLine("No accepted state yet. Run accept to record the starting point.");
         }
 
-        output.WriteLine(Invariant($"Result: {errors} error{(errors == 1 ? string.Empty : "s")} · {gaps} open gap{(gaps == 1 ? string.Empty : "s")}"));
+        string errorSuffix = errors == 1
+            ? string.Empty
+            : "s";
+        string gapSuffix = gaps == 1
+            ? string.Empty
+            : "s";
+        output.WriteLine(Invariant($"Result: {errors} error{errorSuffix} · {gaps} open gap{gapSuffix}"));
     }
 
     /// <summary>Writes the JSON form.</summary>

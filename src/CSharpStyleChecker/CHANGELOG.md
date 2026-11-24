@@ -3,6 +3,12 @@
 All notable changes to the **CSharpStyleChecker** NuGet analyzer are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 3.0.0
+
+- **Breaking:** CSC001 now allows 120 visible characters by default. Lines of 121–130 characters can now fail the build.
+  Wrap them or keep the previous width with `build_property.csc_max_line_length = 130` under `[*.cs]`.
+  Move floating package references from `2.*` to `3.*` to adopt the new default.
+
 ## 2.0.1
 
 - **CSC003** accepts the compiler-generated entry point for top-level statements, including .NET 10 file-based apps.

@@ -208,7 +208,10 @@ internal static class CompilationAssetsCache
         return null;
     }
 
-    private readonly record struct AssetsCacheKey(string ProjectDirectory, string TargetFramework, string Configuration);
+    private readonly record struct AssetsCacheKey(
+        string ProjectDirectory,
+        string TargetFramework,
+        string Configuration);
 
     private readonly record struct LoadState(string AssetsPath);
 

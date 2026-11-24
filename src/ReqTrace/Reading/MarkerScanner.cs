@@ -4,8 +4,8 @@ namespace ReqTrace;
 
 /// <summary>Finds test markers in C#, Python, and Rust source files.</summary>
 /// <remarks>
-/// Perf: this is the hot path, because it visits every source file of the repository on every run. Nearly all files hold
-/// no marker, so a vectorized byte search over a pooled buffer rejects them before any string or line exists.
+/// Perf: this is the hot path, because it visits every source file of the repository on every run. Nearly all files
+/// hold no marker, so a vectorized byte search over a pooled buffer rejects them before any string or line exists.
 /// Sync: .github/skills/tech-spec.md § Trace (the three marker forms).
 /// </remarks>
 internal static class MarkerScanner
@@ -51,7 +51,8 @@ internal static class MarkerScanner
             {
                 Parallel.For(0, files.Count, index => results[index] = _ScanFile(root, files[index]));
             }
-            catch (AggregateException exception) when (exception.InnerException is IOException or UnauthorizedAccessException)
+            catch (AggregateException exception)
+                when (exception.InnerException is IOException or UnauthorizedAccessException)
             {
                 // The parallel loop wraps failures; callers handle input errors as IOException.
                 throw new IOException(exception.InnerException.Message, exception.InnerException);
@@ -94,7 +95,8 @@ internal static class MarkerScanner
             ShouldRecursePredicate = (ref FileSystemEntry entry) =>
                 !_IsSkippedDirectory(entry.FileName) && !_IsIgnored(ref entry, root, ignore),
             ShouldIncludePredicate = (ref FileSystemEntry entry) =>
-                !entry.IsDirectory && _LanguageOf(entry.FileName) != _Language.None && !_IsIgnored(ref entry, root, ignore),
+                !entry.IsDirectory && _LanguageOf(entry.FileName) != _Language.None
+                    && !_IsIgnored(ref entry, root, ignore),
         };
 
         return [.. entries];

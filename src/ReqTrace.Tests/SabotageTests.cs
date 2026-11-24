@@ -102,7 +102,9 @@ public sealed class SabotageTests
                     + "Note: also handle timeouts.\n" + TraceWorkspace.Requirement("REQ-AREA-PASS", "The tool shall exit with code 0.", "✅"));
                 break;
             case "missing-field":
-                workspace.Write(_Requirements, area + _RequirementFile().Replace("  - **Proof:** test\n", string.Empty, StringComparison.Ordinal));
+                workspace.Write(
+                    _Requirements,
+                    area + _RequirementFile().Replace("  - **Proof:** test\n", string.Empty, StringComparison.Ordinal));
                 break;
             case "rewritten-as-table":
                 workspace.Write(_Requirements, "| ID | Text |\n|---|---|\n| GAP | exit 1 |\n");

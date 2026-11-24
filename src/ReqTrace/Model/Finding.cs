@@ -19,7 +19,13 @@ internal enum Severity
 /// <param name="Line">One-based line number; 0 when the finding concerns a whole entry or file.</param>
 /// <param name="Message">What is wrong, naming the concrete ID or line.</param>
 /// <param name="Fix">What to do.</param>
-internal readonly record struct Finding(string Rule, Severity Severity, string File, int Line, string Message, string Fix);
+internal readonly record struct Finding(
+    string Rule,
+    Severity Severity,
+    string File,
+    int Line,
+    string Message,
+    string Fix);
 
 /// <summary>One rule: how its message and fix are worded.</summary>
 /// <param name="Id">Rule identifier.</param>
@@ -27,7 +33,9 @@ internal readonly record struct Finding(string Rule, Severity Severity, string F
 /// <param name="Fix">Builds the fix from the subject and a detail.</param>
 internal sealed record RuleTemplate(string Id, Func<string, string, string> Message, Func<string, string, string> Fix);
 
-/// <summary>The closed table of rules. Every finding is created here, so none can lack a location, message, or fix.</summary>
+/// <summary>
+/// The closed table of rules. Every finding is created here, so none can lack a location, message, or fix.
+/// </summary>
 /// <remarks>Sync: docs/agents.md § Rules.</remarks>
 internal static class Rules
 {

@@ -152,7 +152,10 @@ internal static class ProjectCompilationLoader
     }
 
     [ExcludeFromCodeCoverage]
-    private static void _AddCompileItemsFromProject(string projectPath, string projectDirectory, HashSet<string> sourcePaths)
+    private static void _AddCompileItemsFromProject(
+        string projectPath,
+        string projectDirectory,
+        HashSet<string> sourcePaths)
     {
         if (!ProjectXmlLoader.TryLoadDocument(projectPath, out XDocument? document, out _))
         {

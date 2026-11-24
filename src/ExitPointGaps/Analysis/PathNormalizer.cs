@@ -9,7 +9,9 @@ internal static class PathNormalizer
 {
     #region Public API
 
-    /// <summary>Converts an absolute or repository-relative path to a repository-relative path with forward slashes.</summary>
+    /// <summary>
+    /// Converts an absolute or repository-relative path to a repository-relative path with forward slashes.
+    /// </summary>
     /// <param name="absolutePath">Absolute or relative input path
     /// (relative paths resolve against <paramref name="repositoryRoot"/>).</param>
     /// <param name="repositoryRoot">Repository root directory.</param>

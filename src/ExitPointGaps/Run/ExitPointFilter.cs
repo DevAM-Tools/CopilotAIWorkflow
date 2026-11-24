@@ -9,12 +9,15 @@ internal static class ExitPointFilter
 {
     #region Public API
 
-    public static IReadOnlyList<ExitPointEntry> RemoveExcluded(IReadOnlyList<ExitPointEntry> exits, Compilation compilation)
+    public static IReadOnlyList<ExitPointEntry> RemoveExcluded(
+        IReadOnlyList<ExitPointEntry> exits,
+        Compilation compilation)
     {
         ArgumentNullException.ThrowIfNull(exits);
         ArgumentNullException.ThrowIfNull(compilation);
 
-        Dictionary<string, SyntaxTree> treesByPath = new Dictionary<string, SyntaxTree>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, SyntaxTree> treesByPath = new Dictionary<string, SyntaxTree>(
+            StringComparer.OrdinalIgnoreCase);
         foreach (SyntaxTree tree in compilation.SyntaxTrees)
         {
             if (!string.IsNullOrEmpty(tree.FilePath))

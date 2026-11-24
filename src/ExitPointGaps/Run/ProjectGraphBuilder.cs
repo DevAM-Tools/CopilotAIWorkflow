@@ -12,7 +12,10 @@ internal static class ProjectGraphBuilder
     /// <param name="projects">Resolved production projects.</param>
     /// <param name="error">Error message when graph construction fails.</param>
     /// <returns><see langword="true"/> when at least one production project was resolved.</returns>
-    public static bool TryBuild(CliOptions options, out IReadOnlyList<ProductionProjectRecord> projects, out string? error)
+    public static bool TryBuild(
+        CliOptions options,
+        out IReadOnlyList<ProductionProjectRecord> projects,
+        out string? error)
     {
         ArgumentNullException.ThrowIfNull(options);
         projects = [];
@@ -84,7 +87,10 @@ internal static class ProjectGraphBuilder
 
     #region Private helpers
 
-    private static IReadOnlyList<string> _ResolveCandidatePaths(CliOptions options, string repositoryRoot, out string? error)
+    private static IReadOnlyList<string> _ResolveCandidatePaths(
+        CliOptions options,
+        string repositoryRoot,
+        out string? error)
     {
         error = null;
         if (options.TargetKind == RunTargetKind.Projects)
@@ -99,7 +105,11 @@ internal static class ProjectGraphBuilder
             return [];
         }
 
-        if (!SolutionParser.TryReadProjectPaths(solutionPath!, repositoryRoot, out IReadOnlyList<string> paths, out error))
+        if (!SolutionParser.TryReadProjectPaths(
+            solutionPath!,
+            repositoryRoot,
+            out IReadOnlyList<string> paths,
+            out error))
         {
             return [];
         }
@@ -144,7 +154,9 @@ internal static class ProjectGraphBuilder
 
             string relative = Path.GetRelativePath(repositoryRoot, candidatePath);
             if (relative.StartsWith(Invariant($"samples{Path.DirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase)
-                || relative.StartsWith(Invariant($"samples{Path.AltDirectorySeparatorChar}"), StringComparison.OrdinalIgnoreCase))
+                || relative.StartsWith(
+                    Invariant($"samples{Path.AltDirectorySeparatorChar}"),
+                    StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }

@@ -21,7 +21,9 @@ public sealed class CliTests
     [Test]
     public async Task OutsideARepositoryExitsTwoAndNamesTheFile()
     {
-        string directory = Path.Join(Path.GetTempPath(), "reqtrace-none-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture));
+        string directory = Path.Join(
+            Path.GetTempPath(),
+            "reqtrace-none-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture));
         Directory.CreateDirectory(directory);
         try
         {

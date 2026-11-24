@@ -24,7 +24,9 @@ internal sealed class IgnoreList
     /// <summary>Gets path and reason per ignored path.</summary>
     public IReadOnlyList<KeyValuePair<string, string>> Entries { get; }
 
-    /// <summary>Gets a value indicating whether nothing is ignored, so callers can skip building relative paths.</summary>
+    /// <summary>
+    /// Gets a value indicating whether nothing is ignored, so callers can skip building relative paths.
+    /// </summary>
     public bool IsEmpty => _Prefixes.Length == 0;
 
     /// <summary>Reads <c>spec/trace.ignore</c>; a missing file means nothing is ignored.</summary>

@@ -137,7 +137,9 @@ public sealed class ProjectCompilationLoaderTests
     {
         string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-build-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
-        await File.WriteAllTextAsync(Path.Combine(root, "global.json"), await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
+        await File.WriteAllTextAsync(
+            Path.Combine(root, "global.json"),
+            await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
         string projectPath = Path.Combine(root, "Sample.csproj");
         await File.WriteAllTextAsync(projectPath, _MinimalProjectXml);
         await File.WriteAllTextAsync(
@@ -207,7 +209,9 @@ public sealed class ProjectCompilationLoaderTests
     {
         string root = Path.Combine(Path.GetTempPath(), Invariant($"pcl-build-fail-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(root);
-        await File.WriteAllTextAsync(Path.Combine(root, "global.json"), await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
+        await File.WriteAllTextAsync(
+            Path.Combine(root, "global.json"),
+            await File.ReadAllTextAsync(Path.Combine(_RepositoryRoot, "global.json")));
         string projectPath = Path.Combine(root, "Broken.csproj");
         await File.WriteAllTextAsync(
             projectPath,

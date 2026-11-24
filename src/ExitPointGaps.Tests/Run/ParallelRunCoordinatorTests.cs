@@ -14,7 +14,8 @@ public sealed class ParallelRunCoordinatorTests
         int itemCount = 12;
         int maxParallelism = 4;
         TaskCompletionSource releaseGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        TaskCompletionSource allSlotsEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource allSlotsEntered = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
 
         Task<RunSummaryAccumulator> runTask = ParallelRunCoordinator.RunAllAsync(
             Enumerable.Range(0, itemCount).ToList(),

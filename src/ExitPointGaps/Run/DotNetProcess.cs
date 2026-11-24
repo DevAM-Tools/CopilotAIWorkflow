@@ -3,7 +3,8 @@
 namespace ExitPointGaps;
 
 /// <summary>
-/// Runs <c>dotnet</c> subprocesses. Reason: process I/O boundaries are covered by dedicated DotNetProcess and integration tests.
+/// Runs <c>dotnet</c> subprocesses. Reason: process I/O boundaries are covered by dedicated DotNetProcess and
+/// integration tests.
 /// </summary>
 [ExcludeFromCodeCoverage]
 internal static class DotNetProcess

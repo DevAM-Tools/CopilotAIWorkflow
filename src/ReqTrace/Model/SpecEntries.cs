@@ -59,7 +59,13 @@ internal sealed record Requirement(
 /// <param name="State">Life-cycle state.</param>
 /// <param name="File">Repository-relative path.</param>
 /// <param name="Line">One-based line of the card heading.</param>
-internal sealed record TestCard(string Id, IReadOnlyList<string> Proves, string Content, EntryState State, string File, int Line);
+internal sealed record TestCard(
+    string Id,
+    IReadOnlyList<string> Proves,
+    string Content,
+    EntryState State,
+    string File,
+    int Line);
 
 /// <summary>One marker found on a test.</summary>
 /// <param name="CardId">The ID the marker names, exactly as written.</param>
@@ -102,7 +108,9 @@ internal static class SpecText
         return Convert.ToHexStringLower(digest[..6]);
     }
 
-    /// <summary>Returns what a requirement obliges, as the one line the accepted state stores and the report compares.</summary>
+    /// <summary>
+    /// Returns what a requirement obliges, as the one line the accepted state stores and the report compares.
+    /// </summary>
     /// <param name="requirement">The requirement.</param>
     /// <returns>Obligation and Done-when.</returns>
     public static string Obligation(Requirement requirement)
@@ -136,7 +144,8 @@ internal static class SpecId
     /// <returns><see langword="true"/> when every token is uppercase letters and digits and holds a letter.</returns>
     public static bool IsValid(ReadOnlySpan<char> text, ReadOnlySpan<char> prefix)
     {
-        if (!text.StartsWith(prefix, StringComparison.Ordinal) || text.Length <= prefix.Length || text[prefix.Length] != '-')
+        if (!text.StartsWith(prefix, StringComparison.Ordinal) || text.Length <= prefix.Length
+            || text[prefix.Length] != '-')
         {
             return false;
         }
@@ -166,7 +175,9 @@ internal static class SpecId
         return tokens is >= 2 and <= 4;
     }
 
-    /// <summary>Returns whether a token is non-empty, uppercase letters and digits only, with at least one letter.</summary>
+    /// <summary>
+    /// Returns whether a token is non-empty, uppercase letters and digits only, with at least one letter.
+    /// </summary>
     /// <param name="token">The token.</param>
     /// <returns>Whether the token is valid.</returns>
     private static bool _IsToken(ReadOnlySpan<char> token)

@@ -40,7 +40,11 @@ internal static class CoberturaReader
     /// <param name="document">Parsed scoped document when successful.</param>
     /// <param name="error">Error message when unsuccessful.</param>
     /// <returns><see langword="true"/> when parsing succeeds.</returns>
-    public static bool TryReadScoped(string path, BranchGapScope scope, out Models.CoberturaDocument? document, out string? error)
+    public static bool TryReadScoped(
+        string path,
+        BranchGapScope scope,
+        out Models.CoberturaDocument? document,
+        out string? error)
     {
         ArgumentNullException.ThrowIfNull(scope);
         return _TryReadCore(path, scope, out document, out error);
@@ -174,7 +178,9 @@ internal static class CoberturaReader
                         break;
                     }
 
-                    if (!linesByFile.TryGetValue(currentClassFile, out Dictionary<int, Models.CoberturaLineInfo>? lineMap))
+                    if (!linesByFile.TryGetValue(
+                        currentClassFile,
+                        out Dictionary<int, Models.CoberturaLineInfo>? lineMap))
                     {
                         lineMap = [];
                         linesByFile[currentClassFile] = lineMap;
@@ -199,7 +205,8 @@ internal static class CoberturaReader
                         conditions = _EmptyConditions;
                     }
 
-                    if (!lineMap.TryGetValue(lineNumber, out Models.CoberturaLineInfo? existing) || hits > existing.Hits)
+                    if (!lineMap.TryGetValue(lineNumber, out Models.CoberturaLineInfo? existing)
+                        || hits > existing.Hits)
                     {
                         lineMap[lineNumber] = new Models.CoberturaLineInfo(hits, isBranch, conditions, currentMethod);
                     }

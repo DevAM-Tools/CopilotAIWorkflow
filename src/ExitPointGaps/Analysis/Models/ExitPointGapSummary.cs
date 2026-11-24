@@ -8,7 +8,9 @@ namespace ExitPointGaps.Analysis.Models;
 /// <param name="BranchGapCount">Uncovered branch conditions (informational).</param>
 /// <param name="TotalGapCount">Exit plus branch gap count.</param>
 /// <param name="GatePassed"><see langword="true"/> when <paramref name="ExitGapCount"/> is zero (release gate).</param>
-/// <param name="BranchGatePassed">Informational; <see langword="true"/> when branch rate is 100% and no branch gaps.</param>
+/// <param name="BranchGatePassed">
+/// Informational; <see langword="true"/> when branch rate is 100% and no branch gaps.
+/// </param>
 internal sealed record ExitPointGapSummary(
     double BranchRate,
     int ExitGapCount,

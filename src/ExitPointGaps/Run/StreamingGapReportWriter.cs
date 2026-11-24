@@ -45,7 +45,8 @@ internal sealed class StreamingGapReportWriter
         string reportFileName = Invariant($"{Path.GetFileNameWithoutExtension(result.ProjectPath)}.json");
         string projectPayload = GapReportFormatter.Format(result.Report, _Format);
         string projectFile = Path.Combine(outputDirectory, reportFileName);
-        await File.WriteAllTextAsync(projectFile, projectPayload, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(projectFile, projectPayload, Encoding.UTF8, cancellationToken)
+            .ConfigureAwait(false);
 
         if (_StreamToStdout)
         {

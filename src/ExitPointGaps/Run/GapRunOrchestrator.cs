@@ -22,14 +22,20 @@ internal static class GapRunOrchestrator
             return CliConstants.ExitUsageError;
         }
 
-        if (!ProjectGraphBuilder.TryBuild(options, out IReadOnlyList<ProductionProjectRecord> projects, out string? graphError))
+        if (!ProjectGraphBuilder.TryBuild(
+            options,
+            out IReadOnlyList<ProductionProjectRecord> projects,
+            out string? graphError))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(graphError ?? "Failed to build project graph.", cancellationToken)
                 .ConfigureAwait(false);
             return CliConstants.ExitGateOrToolFailure;
         }
 
-        if (!RunIsolation.TryReserveWorkDirectory(options.WorkDirectory, out string? workDirectory, out string? workDirError)
+        if (!RunIsolation.TryReserveWorkDirectory(
+            options.WorkDirectory,
+            out string? workDirectory,
+            out string? workDirError)
             || string.IsNullOrEmpty(workDirectory))
         {
             await ParallelRunCoordinator.WriteErrorLineAsync(workDirError ?? "Failed to reserve work directory.", cancellationToken)
@@ -41,7 +47,12 @@ internal static class GapRunOrchestrator
         {
             if (projects.Count == 1)
             {
-                return await _RunSingleProjectAsync(projects[0], options, workDirectory, forceSkipBuild: false, cancellationToken)
+                return await _RunSingleProjectAsync(
+                    projects[0],
+                    options,
+                    workDirectory,
+                    forceSkipBuild: false,
+                    cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -88,7 +99,10 @@ internal static class GapRunOrchestrator
                             Invariant($"Failed to run gap analysis for {project.ProjectPath}."));
                     }
 
-                    string reportFile = await writer.WriteProjectAsync(result, outputDirectory, projectCancellationToken)
+                    string reportFile = await writer.WriteProjectAsync(
+                        result,
+                        outputDirectory,
+                        projectCancellationToken)
                         .ConfigureAwait(false);
                     ProjectSummaryEntry entry = new ProjectSummaryEntry(
                         result.ProjectPath,

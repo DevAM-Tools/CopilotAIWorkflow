@@ -113,7 +113,9 @@ internal sealed class GapSampleWorkspace : IAsyncDisposable
         DotNetProcessResult result = await DotNetProcess.RunAsync(arguments, workingDirectory);
         if (result.ExitCode != 0)
         {
-            string details = string.IsNullOrWhiteSpace(result.StandardError) ? result.StandardOutput : result.StandardError;
+            string details = string.IsNullOrWhiteSpace(result.StandardError)
+                ? result.StandardOutput
+                : result.StandardError;
             throw new InvalidOperationException(Invariant($"dotnet {arguments} failed ({result.ExitCode}): {details}"));
         }
 

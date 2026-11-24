@@ -12,8 +12,7 @@ namespace CSharpStyleChecker.Analyzers;
 
 /// <summary>
 /// Reports lines exceeding the configured maximum visible length.
-/// String and character literal content is masked; comments and holes in <c>$"..."</c> / <c>@$"..."</c> / <c>$@"..."</c>
-/// count toward the limit.
+/// Masks string and character literal contents. Counts comments and interpolation holes toward the limit.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LineLengthAnalyzer : DiagnosticAnalyzer
@@ -23,7 +22,7 @@ public sealed class LineLengthAnalyzer : DiagnosticAnalyzer
     private const string MaxLineLengthKey = "build_property.csc_max_line_length";
 
     /// <summary>Default matches the repository line-length limit; editorconfig may override.</summary>
-    private const int DefaultMaxLineLength = 130;
+    private const int DefaultMaxLineLength = 120;
 
     #endregion
 

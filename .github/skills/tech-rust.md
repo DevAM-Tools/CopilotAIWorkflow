@@ -5,7 +5,7 @@ Load when `*.rs`, `Cargo.toml`, or `Cargo.lock` is in scope. Rust mechanisms for
 ## Language
 
 - Edition 2024; `rust-version = "1.85"` in `[workspace.package]`; stable features only.
-- ❗ Add `rustfmt.toml` with `max_width = 130`. Let `rustfmt` format; 4 spaces.
+- ❗ Add `rustfmt.toml` with `max_width = 120`. Let `rustfmt` format; 4 spaces.
 - Type public signatures fully. Annotate locals when inference hides a conversion or a heap type.
 
 ## Naming

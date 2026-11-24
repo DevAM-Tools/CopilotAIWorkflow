@@ -4,7 +4,7 @@ namespace ExitPointGaps;
 
 /// <summary>
 /// Parses CLI arguments into <see cref="CliOptions"/>.
-/// Reason: covered by dedicated CliParser* tests; attribute keeps the thin switch table out of analyzer coverage metrics.
+/// Dedicated CliParser* tests cover the switch table. The attribute excludes it from analyzer coverage metrics.
 /// </summary>
 [ExcludeFromCodeCoverage]
 internal static class CliParser
@@ -176,7 +176,11 @@ internal static class CliParser
                 options.KeepWorkDir = true;
                 return true;
             case "--max-parallelism" when index + 1 < args.Length:
-                if (!int.TryParse(args[index + 1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int parallelism)
+                if (!int.TryParse(
+                    args[index + 1],
+                    NumberStyles.Integer,
+                    CultureInfo.InvariantCulture,
+                    out int parallelism)
                     || parallelism < 1)
                 {
                     error = "--max-parallelism requires an integer >= 1.";

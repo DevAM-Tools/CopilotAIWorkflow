@@ -11,7 +11,8 @@ public sealed class DotNetProcessTests
         using CancellationTokenSource cancellation = new();
         await cancellation.CancelAsync();
 
-        await Assert.That(async () => await DotNetProcess.RunAsync("--version", Environment.CurrentDirectory, cancellation.Token))
+        await Assert.That(
+            async () => await DotNetProcess.RunAsync("--version", Environment.CurrentDirectory, cancellation.Token))
             .Throws<OperationCanceledException>();
     }
 

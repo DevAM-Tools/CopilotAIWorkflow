@@ -6,9 +6,11 @@ Load when `*.cs` is in scope. C# mechanisms for Section 4. Section order matches
 
 - Target `net10.0`, C# 14. Source generators: `netstandard2.0` (`tech-sourcegen.md`).
 - Apply `tech-solution.md` build settings (nullable, analyzers, warnings as errors).
-- ❗ Reference CSharpStyleChecker `2.*` in every SDK-style project (`tech-solution.md`).
+- ❗ Reference CSharpStyleChecker `3.*` in every SDK-style project (`tech-solution.md`).
 - ❗ Reference InvariantStringHelper `1.*` in every SDK-style project that targets `net6.0` or later and interpolates strings (`tech-solution.md`).
-- Line length 130 (`.cs`, `.razor`, `.razor.cs`, `.css`); 4 spaces, no tabs.
+- Indent with four spaces.
+- Limit `.cs` lines to 120 characters unless the project sets an explicit width.
+- [Format edited C# files and verify line length in full reviews](tech-solution.md#c-line-length).
 
 ## Naming
 

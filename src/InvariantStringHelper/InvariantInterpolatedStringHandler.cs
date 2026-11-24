@@ -8,8 +8,8 @@ namespace InvariantStringHelper;
 /// </summary>
 /// <remarks>
 /// Wraps <see cref="DefaultInterpolatedStringHandler"/>, so holes keep the framework's formatting, alignment, and
-/// <see cref="ISpanFormattable"/> path, and only the result string is allocated. The wrapper exists because the framework
-/// handler takes its provider from a constructor argument that a plain <see cref="string"/> parameter cannot supply.
+/// <see cref="ISpanFormattable"/> path. Only the result string is allocated.
+/// The handler constructor takes a provider that a plain <see cref="string"/> parameter cannot supply.
 /// Not thread-safe: one instance serves one interpolated string on one thread. A handler that is never passed to
 /// <see cref="InvariantText.Invariant"/> keeps its rented buffer until the garbage collector reclaims it.
 /// Architecture: docs/architecture.md § InvariantStringHelper.
@@ -61,7 +61,8 @@ public ref struct InvariantInterpolatedStringHandler
     /// <param name="value">The value to format.</param>
     /// <param name="alignment">Minimum width; negative pads on the right, positive on the left.</param>
     /// <param name="format">The format string after the colon; <see langword="null"/> for the default format.</param>
-    public void AppendFormatted<T>(T value, int alignment, string? format) => _Inner.AppendFormatted(value, alignment, format);
+    public void AppendFormatted<T>(T value, int alignment, string? format)
+        => _Inner.AppendFormatted(value, alignment, format);
 
     /// <summary>Appends a character span without formatting.</summary>
     /// <param name="value">The characters to copy.</param>
@@ -87,7 +88,7 @@ public ref struct InvariantInterpolatedStringHandler
     public void AppendFormatted(string? value, int alignment = 0, string? format = null)
         => _Inner.AppendFormatted(value, alignment, format);
 
-    /// <summary>Appends an object hole formatted with the invariant culture; <see langword="null"/> appends nothing.</summary>
+    /// <summary>Formats an object with the invariant culture. <see langword="null"/> appends nothing.</summary>
     /// <param name="value">The object to format.</param>
     /// <param name="alignment">Minimum width; negative pads on the right, positive on the left.</param>
     /// <param name="format">The format string after the colon; <see langword="null"/> for the default format.</param>

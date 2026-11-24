@@ -75,7 +75,8 @@ internal static class EvidenceChecker
             string method = marker.Method;
             if (ambiguous.Contains(method))
             {
-                findings.Add(Rules.Create(Rules.Ambiguous, Severity.Error, marker.File, marker.Line, method, string.Empty));
+                findings.Add(
+                    Rules.Create(Rules.Ambiguous, Severity.Error, marker.File, marker.Line, method, string.Empty));
             }
             else if (!outcomes.TryGetValue(method, out (bool Passed, DateTime Written) outcome))
             {

@@ -198,18 +198,51 @@ Right: dotnet pack src/ExitPointGaps/ExitPointGaps.csproj -c Release → artifac
 
 ## CSharpStyleChecker
 
-❗ Mandatory NuGet **`2.*`** on every SDK-style consumer (`netstandard2.0` or `net5.0`+), including Roslyn source generators. Active on the referencing project only — not transitive to downstream libraries.
+❗ Reference CSharpStyleChecker `3.*` in each SDK-style consumer (`netstandard2.0` or `net5.0`+),
+including Roslyn source generators. Each project needs its own reference.
 
 | Step | Action |
 |------|--------|
-| CPM | `Directory.Packages.props`: `<PackageVersion Include="CSharpStyleChecker" Version="2.*" />` |
+| CPM | `Directory.Packages.props`: `<PackageVersion Include="CSharpStyleChecker" Version="3.*" />` |
 | Project | `<PackageReference Include="CSharpStyleChecker" />` — omit `Version` when CPM enabled |
-| No CPM | `<PackageReference Include="CSharpStyleChecker" Version="2.*" />` in `.csproj` |
+| No CPM | `<PackageReference Include="CSharpStyleChecker" Version="3.*" />` in `.csproj` |
 
 - Analyzers load from `analyzers/dotnet/cs`; **`ExitPoints` bundled** — no second package, no `PrivateAssets` / `IncludeAssets`.
 - Violations = compiler errors (CSC*). Rebuild after add.
 - Set `ApplyCSharpStyleChecker=false` only to opt out.
 - ❗ Build every touched project with the checker enabled and read all checker output for the touched files. A filter on guessed line numbers misses violations.
+
+### C# line length
+
+- Set both `.editorconfig` limits to the [project width](tech-csharp.md#language). Enable `RCS0056` as shown.
+
+```ini
+[*.cs]
+build_property.csc_max_line_length = 120
+roslynator_max_line_length = 120
+dotnet_diagnostic.RCS0056.severity = warning
+```
+
+- Reference `Roslynator.Formatting.Analyzers` 5.0.1 (Apache-2.0) with `PrivateAssets="all"` under Section 4.7.
+  Pin the version in `Directory.Packages.props` with CPM, or on the `PackageReference` without CPM.
+- Restore each affected project. Substitute its path for `App.csproj`. After C# edits, apply the `RCS0056` fix.
+  For file-scoped changes, append `--include` and the file paths to both formatter commands.
+
+```sh
+dotnet restore App.csproj
+dotnet format analyzers App.csproj --no-restore --diagnostics RCS0056
+```
+
+- Run both checks after formatting and in full review. Build even if verification fails.
+
+```sh
+dotnet format analyzers App.csproj --no-restore --diagnostics RCS0056 --verify-no-changes
+dotnet build App.csproj -c Release --no-restore
+```
+
+- Fix remaining `CSC001` and `RCS0056` findings at the reported lines. Reflow long XML comments.
+  Split long literals without changing their value. CSC001 counts comments and masks literal contents.
+- Repeat both checks until they pass.
 
 ## InvariantStringHelper
 

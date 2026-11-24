@@ -20,7 +20,7 @@ dotnet build samples/CSharpStyleChecker.Demo/CSharpStyleChecker.Demo.csproj -c R
 
 | File | Rule | What it demonstrates |
 |------|------|----------------------|
-| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 130 visible characters (string/character literal and raw-string content masked; comments and `$"..."` / `@$"..."` holes count) |
+| `Violations/Csc001_LineLength.cs` | CSC001 | Line longer than 120 visible characters |
 | `Violations/Csc002_NoVar.cs` | CSC002 | `var` in a local declaration |
 | `Violations/Csc003_PrivateNaming.cs` | CSC003 | Private field without `_PascalCase` |
 | `Violations/Csc004_TaskBlocking.cs` | CSC004 | Blocking `.Result` / `.Wait()` / `GetAwaiter().GetResult()` / `WaitAll` / `WaitAny` on task types |
@@ -41,7 +41,7 @@ To test a single rule, temporarily remove the other `.cs` files from `Violations
 Add the analyzer package explicitly:
 
 ```xml
-<PackageReference Include="CSharpStyleChecker" Version="2.*" />
+<PackageReference Include="CSharpStyleChecker" Version="3.*" />
 ```
 
 Requires SDK-style `netstandard2.0` (or .NET Core App) and **.NET SDK 9.0.300+** (Roslyn 4.14). See the root [README.md](../../README.md#csharpstylechecker).

@@ -2,7 +2,9 @@
 
 namespace ReqTrace;
 
-/// <summary>Compares what is there with the state a person accepted, so nothing can disappear or change unnoticed.</summary>
+/// <summary>
+/// Compares what is there with the state a person accepted, so nothing can disappear or change unnoticed.
+/// </summary>
 internal static class ChangeChecker
 {
     /// <summary>The lock file, named in findings about entries that no longer have a file of their own.</summary>
@@ -44,7 +46,8 @@ internal static class ChangeChecker
 
             if (entry.Marked > 0 && markers.GetValueOrDefault(card.Id) == 0)
             {
-                findings.Add(Rules.Create(Rules.MarkerRemoved, Severity.Error, card.File, card.Line, card.Id, string.Empty));
+                findings.Add(
+                    Rules.Create(Rules.MarkerRemoved, Severity.Error, card.File, card.Line, card.Id, string.Empty));
             }
 
             _CheckConfirmed(card, entry, requirements, findings);

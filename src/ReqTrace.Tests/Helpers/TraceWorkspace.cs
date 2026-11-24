@@ -5,7 +5,9 @@ namespace ReqTrace.Tests.Helpers;
 /// <summary>A throw-away repository for one test. Parallel-safe: each instance has its own folder.</summary>
 public sealed class TraceWorkspace : IDisposable
 {
-    /// <summary>Quoted property name of a marker, kept apart so that the scanner does not read this file as a test.</summary>
+    /// <summary>
+    /// Quoted property name of a marker, kept apart so that the scanner does not read this file as a test.
+    /// </summary>
     public const string CardProperty = "\"Card\"";
 
     /// <summary>Creates a repository with an empty spec.</summary>

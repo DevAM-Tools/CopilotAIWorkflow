@@ -104,7 +104,9 @@ internal static class SpecForm
     /// <remarks>Invariant: <see cref="SpecReader"/> addresses them by index; append only.</remarks>
     public static readonly ImmutableArray<string> RequirementFields = ["Done when", "State", "Proof", "Built in", "Replaced by"];
 
-    /// <summary>Fields a test card may hold. Code stays readable so that older cards do not fail; it is never printed.</summary>
+    /// <summary>
+    /// Fields a test card may hold. Code stays readable so that older cards do not fail; it is never printed.
+    /// </summary>
     /// <remarks>Invariant: <see cref="SpecReader"/> addresses them by index; append only.</remarks>
     public static readonly ImmutableArray<string> CardFields = ["Proves", "Class", "Layer", "Content", "Out", "Code", "State"];
 
@@ -124,7 +126,9 @@ internal static class SpecForm
     /// <summary>Proof line of a requirement, indented two spaces.</summary>
     public const string ProofLine = "  - **Proof:** test";
 
-    /// <summary>A requirement entry the reader accepts unchanged below an area heading; lines end with <c>\n</c>.</summary>
+    /// <summary>
+    /// A requirement entry the reader accepts unchanged below an area heading; lines end with <c>\n</c>.
+    /// </summary>
     public const string RequirementExample =
         RequirementStartLine + "\n" + DoneWhenLine + "\n" + RequirementStateLine + "\n" + ProofLine;
 
@@ -181,9 +185,13 @@ internal static class SpecForm
     /// <summary>Allowed values of Layer.</summary>
     public static readonly string LayerValues = string.Join(" | ", Layers);
 
-    /// <summary>Builds <see cref="ProofValues"/> from <see cref="ReasonProofKinds"/>, so a new kind is printed at once.</summary>
+    /// <summary>
+    /// Builds <see cref="ProofValues"/> from <see cref="ReasonProofKinds"/>, so a new kind is printed at once.
+    /// </summary>
     /// <returns>For example <c>test | demo — {reason} | review — {reason} | waived — {reason}</c>.</returns>
-    /// <remarks>Runs once, in static initialization; <see cref="ReasonProofKinds"/> is declared above, so it is set.</remarks>
+    /// <remarks>
+    /// Runs once, in static initialization; <see cref="ReasonProofKinds"/> is declared above, so it is set.
+    /// </remarks>
     private static string _JoinProofValues()
     {
         StringBuilder text = new(ProofTest, 80);
@@ -199,9 +207,15 @@ internal static class SpecForm
 
     #region Fix texts
 
-    /// <summary>Builds the F3 fix: the line to add, quoted with its indent, and the syntax call for the whole form.</summary>
-    /// <param name="id">The entry ID; the prefix <c>TEST-</c> selects the card form, anything else the requirement form.</param>
-    /// <param name="field">The field name as the reader reports it (<c>Done when</c>, <c>State</c>, <c>Met</c>, …).</param>
+    /// <summary>
+    /// Builds the F3 fix: the line to add, quoted with its indent, and the syntax call for the whole form.
+    /// </summary>
+    /// <param name="id">
+    /// The entry ID; the prefix <c>TEST-</c> selects the card form, anything else the requirement form.
+    /// </param>
+    /// <param name="field">
+    /// The field name as the reader reports it (<c>Done when</c>, <c>State</c>, <c>Met</c>, …).
+    /// </param>
     /// <returns>The fix; for a field without a known line, a generic sentence with the syntax call.</returns>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     public static string FixForMissing(string id, string field)

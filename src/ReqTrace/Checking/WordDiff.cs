@@ -46,7 +46,8 @@ internal static class WordDiff
                 rightIndex++;
             }
             else if (rightIndex < right.Length
-                && (leftIndex == left.Length || lengths[leftIndex, rightIndex + 1] >= lengths[leftIndex + 1, rightIndex]))
+                && (leftIndex == left.Length
+                    || lengths[leftIndex, rightIndex + 1] >= lengths[leftIndex + 1, rightIndex]))
             {
                 added.Add(right[rightIndex]);
                 rightIndex++;

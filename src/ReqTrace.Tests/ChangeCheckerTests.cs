@@ -141,7 +141,9 @@ public sealed class ChangeCheckerTests
 
         (int exitCode, _, _) = workspace.Run();
         (_, string report, _) = workspace.Run("report");
-        string section = report[report.IndexOf("Possibly weakened:", StringComparison.Ordinal)..report.IndexOf("Vanished:", StringComparison.Ordinal)];
+        int start = report.IndexOf("Possibly weakened:", StringComparison.Ordinal);
+        int end = report.IndexOf("Vanished:", StringComparison.Ordinal);
+        string section = report[start..end];
 
         await Assert.That(exitCode).IsEqualTo(0);
         await Assert.That(section.Contains("REQ-AREA-ONE", StringComparison.Ordinal)).IsEqualTo(flagged);

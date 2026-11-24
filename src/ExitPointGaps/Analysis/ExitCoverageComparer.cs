@@ -111,7 +111,8 @@ internal static class ExitCoverageComparer
         for (int documentIndex = 0; documentIndex < documents.Count; documentIndex++)
         {
             Models.CoberturaDocument document = documents[documentIndex];
-            foreach (KeyValuePair<string, IReadOnlyDictionary<int, Models.CoberturaLineInfo>> fileEntry in document.Lines)
+            foreach (KeyValuePair<string, IReadOnlyDictionary<int, Models.CoberturaLineInfo>> fileEntry in document
+                .Lines)
             {
                 string relativeFile = PathNormalizer.ToRepositoryRelative(fileEntry.Key, repositoryRoot);
                 if (!merged.TryGetValue(relativeFile, out Dictionary<int, int>? lineHits))
@@ -122,7 +123,8 @@ internal static class ExitCoverageComparer
 
                 foreach (KeyValuePair<int, Models.CoberturaLineInfo> lineEntry in fileEntry.Value)
                 {
-                    if (!lineHits.TryGetValue(lineEntry.Key, out int existingHits) || lineEntry.Value.Hits > existingHits)
+                    if (!lineHits.TryGetValue(lineEntry.Key, out int existingHits)
+                        || lineEntry.Value.Hits > existingHits)
                     {
                         lineHits[lineEntry.Key] = lineEntry.Value.Hits;
                     }
