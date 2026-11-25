@@ -151,10 +151,9 @@ public sealed class InvariantTextTests
         int? missingNumber = null;
         int? presentNumber = 7;
 
-        // Two calls keep each line within the line-length limit; together they cover every hole kind.
-        string numeric = Invariant($"{number}|{big}|{real}|{money}|{when:O}|{id}|{flag}");
-        string textual = Invariant($"{letter}|{day}|{text}|{missingText}|{missingObject}|{missingNumber}|{presentNumber}");
-        return numeric + "|" + textual;
+        return Invariant(
+            $"{number}|{big}|{real}|{money}|{when:O}|{id}|{flag}|"
+            + $"{letter}|{day}|{text}|{missingText}|{missingObject}|{missingNumber}|{presentNumber}");
     }
 
     private static string _ExpectedScalars()

@@ -208,9 +208,13 @@ public sealed class InvariantCultureFormattingAnalyzer : DiagnosticAnalyzer
         InterpolatedStringExpressionSyntax interpolated,
         SymbolCache cache)
     {
-        // Parentheses around the interpolated string do not change the handler conversion: look through them to the argument.
+        // Roslyn binds each + in a single handler argument as an interpolated string addition.
+        // Ordinary concatenation formats its operands before the call and must still be reported.
         SyntaxNode parent = interpolated.Parent;
-        while (parent is ParenthesizedExpressionSyntax)
+        while (parent is ParenthesizedExpressionSyntax || parent.IsKind(SyntaxKind.SuppressNullableWarningExpression)
+            || (parent.IsKind(SyntaxKind.AddExpression)
+                && context.SemanticModel.GetOperation(parent, context.CancellationToken)?.Kind
+                    == OperationKind.InterpolatedStringAddition))
         {
             parent = parent.Parent;
         }

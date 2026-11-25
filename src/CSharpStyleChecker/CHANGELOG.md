@@ -3,6 +3,11 @@
 All notable changes to the **CSharpStyleChecker** NuGet analyzer are documented here.
 Repository-wide and agent-workflow notes live in the root [CHANGELOG.md](../../CHANGELOG.md).
 
+## 3.0.1
+
+- CSC009 accepts `Invariant($"…" + $"…")` when C# binds the segments to one invariant handler.
+  This also applies to invariant `string.Create` and `StringBuilder.Append` / `AppendLine` calls.
+
 ## 3.0.0
 
 - **Breaking:** CSC001 now allows 120 visible characters by default. Lines of 121–130 characters can now fail the build.

@@ -8,7 +8,7 @@ Package release notes (full detail):
 
 | Package | Version | Changelog |
 |---------|---------|-----------|
-| CSharpStyleChecker | 3.0.0 (120-character default) | [Package changelog](src/CSharpStyleChecker/CHANGELOG.md#300) |
+| CSharpStyleChecker | 3.0.1 | [Package changelog](src/CSharpStyleChecker/CHANGELOG.md#301) |
 | ExitPointGaps | 1.1.2 | [src/ExitPointGaps/CHANGELOG.md](src/ExitPointGaps/CHANGELOG.md) |
 | ReqTrace | 0.2.0 | [src/ReqTrace/CHANGELOG.md](src/ReqTrace/CHANGELOG.md) |
 | InvariantStringHelper | 1.0.0 (unchanged) | [src/InvariantStringHelper/CHANGELOG.md](src/InvariantStringHelper/CHANGELOG.md) |
@@ -17,6 +17,13 @@ Package release notes (full detail):
 
 - Select multiple TUnit classes or methods with [segment alternatives](.github/skills/tech-tunit.md#commands).
 - Keep deliberate process crashes [free of OS dialogs](.github/skills/tech-test.md#host-safety) during tests.
+- **Rule change** Diagrams are SVG by default. Mermaid stays for a straight chain or simple tree of at most 6 nodes.
+  Before: Mermaid for any flow, sequence, or state machine up to 12 nodes.
+  [Form by content](.github/skills/tech-docs-templates.md#diagrams).
+- **Rule change** Plans and reviews may carry a picture, animated where motion carries the point,
+  for structure, data flow, state, timing, or layout. A code snippet stays the default; at most one picture per step
+  or finding and 3 per file. Before: plans and reviews drew Mermaid only.
+  [When a picture earns its place](.github/skills/tech-docs-templates.md#diagrams).
 
 - **Rule change** The shared line limit is 120 characters, including C#, Rust and Python.
   Apply the Roslynator fix after C# edits. Verify formatting and build in full review.
@@ -24,6 +31,7 @@ Package release notes (full detail):
 
 ### Packages
 
+- CSharpStyleChecker 3.0.1 fixes CSC009 false positives when `+` joins interpolated segments in one invariant handler call.
 - CSharpStyleChecker 3.0.0 lowers the CSC001 default from 130 to 120 visible characters. Explicit limits still apply.
 - Each package releases on its own version line and packs alone: `dotnet pack src/{Project}/{Project}.csproj -c Release`. `Directory.Build.props` sets no shared version; each package ships its own `PACKAGE_README.md` instead of the shared one. Steps: [docs/guides/release-a-package.md](docs/guides/release-a-package.md).
 - A dotnet tool package holds exactly what its publish produced: the publish folder is emptied before each publish of a tool. ExitPointGaps 1.1.1 on nuget.org carried seven files of the pre-rename `CoverageGap.Tool`; 1.1.2 ships without them.

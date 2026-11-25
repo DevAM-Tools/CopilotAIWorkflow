@@ -179,6 +179,7 @@ Field order: `What` → `Why` → `How` → `Experience` → `Acceptance` → `T
 - ❗ Every `How` has fenced **Before** and **After**: current code, then the Target Solution shape (real signatures and key bodies), anchored by path and symbol. Not stubs or an intermediate shape. New file: After only. Requirements fit: skip unless a gap needs a code fix; then stop and file the gap as a blocker.
 - ❗ Cite a concrete source in `Context` when an external reference exists.
 - Extra illustrative snippets are welcome. They never replace Before/After or card **Content**.
+- A picture goes in the Target Solution or a step’s `How`, only where `tech-docs-templates.md` § Diagrams (In plans and reviews) calls for one. Read that section now, before drawing. It never replaces Before/After.
 - `Where`: link, approximate lines, symbol; mark `primary`, `call-site`, or `additive`.
 - `Docs`: every doc from the Impact search, as link plus section (Overview row, architecture section, concept or domain entry, README section, guide, decision record), and the comment work in code: contract doc comments with Related on new and changed members, block comments, tags, sections, `Sync:` pairs. Or `none — {why no doc states what this step changes}`. `After` shows doc comments of new members.
 - `Verify`: exact Release command per the tech skill, plus expected result.

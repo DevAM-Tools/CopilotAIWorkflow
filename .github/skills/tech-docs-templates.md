@@ -188,22 +188,43 @@ No dates in the body; git records them. A superseded record keeps its text and n
 
 ## Diagrams
 
-Choose the form by content. ASCII art: never (`tech-docs.md` § Diagrams).
+Draw SVG by default. Mermaid picks its own layout and grows wide and tall; a hand-written SVG stays compact and lets position, grouping, and color carry meaning. ASCII art: never (`tech-docs.md` § Diagrams).
 
 | Content | Form |
 |---------|------|
-| Any diagram in `docs/architecture.md`, and its draft in a Spec delta | SVG file (§ docs/architecture.md) |
-| Flow, sequence, state machine, dependency graph; ≤ 12 nodes | Mermaid `TD` inline; no wide `LR` |
-| Layers, layout, annotated picture, chart, timeline, comparison; a crowded Mermaid | SVG file |
+| Any diagram | SVG file |
+| Any diagram in `docs/architecture.md`, and its draft in a Spec delta | SVG file, never Mermaid (§ docs/architecture.md) |
+| A straight chain or a simple tree: ≤ 6 nodes, one direction, no crossing edge; position, grouping, and color carry nothing | Mermaid `TD` inline allowed; never `LR` |
 
-- In `README.md` and `docs/**`, draw SVG when the picture needs more than boxes and arrows. In plans and reviews, draw Mermaid. Briefings: `tech-reporting.md` § Briefing. Illustrations: `workflow-illustrate.md`.
+- The Mermaid row is an exception, never a shortcut: a state machine, a cycle, a branch that joins again, layers, a timeline, or a comparison is an SVG.
+- Plans and reviews: § In plans and reviews below. Briefings: `tech-reporting.md` § Briefing. Illustrations: `workflow-illustrate.md`.
 
 ```text
 Wrong: an 18-node Mermaid of the layer stack with crossing edges.
-Right: docs/images/layers.svg with three bands; Mermaid TD for the five-step import.
+Wrong: a 7-state Mermaid state machine; Mermaid places the back edges and they cross.
+Right: docs/images/layers.svg with three bands; docs/images/export-states.svg with the states in one column.
+Right: Mermaid TD for the four-step chain Read → Parse → Validate → Store.
 ```
 
-**Mermaid:** write a fenced `mermaid` block with `flowchart TD`. Label nodes with names from the code or the domain glossary.
+**In plans and reviews:** a picture (SVG by default) serves the person who approves a plan or a finding. Most steps and findings need none.
+
+- Draw one only when its point is a relation the code spreads over several places: structure (components, layers, ownership, who may call whom), data flow across 3 or more parties or a trust boundary, a state machine or lifecycle with 3 or more states, an order in time (race, interleaving, TOCTOU, lock order), a memory or buffer layout, or a Before/After of one of these.
+- Use a code snippet when the point lives in one or two places: a signature, a check, a condition, a call, a value. A picture that restates a snippet is noise: cut it.
+- Draw at most one picture per plan step or finding, and at most 3 per plan or review file, unless the person asks for more. Spend them first on the Target Solution, an architecture change, and Error findings on races or data flow.
+- ❗ The text stays complete without the picture. An agent builds from `How`, Before/After, and Problem/Fix, never from a picture. A fact only the picture states is missing from the text.
+- Label every node and arrow with a symbol from the code or the Target Solution. The caption names what the picture mirrors (§ SVG).
+- Form: an SVG file; Mermaid only under the exception row of the table above. Animate the SVG when motion carries the point: a value crossing a boundary, two threads interleaving (§ Animation).
+
+```text
+Wrong: E1 "Export accepts a duplicate name" gets an SVG with a box Export.Create and an arrow to Store.Add.
+       The Problem/Fix snippet already says it.
+Right: E4 "Two parallel creates both pass Contains" gets an animated two-lane timeline: A Contains → false,
+       B Contains → false, A Add, B Add, two rows. The code reads as sequential; the picture shows the interleaving.
+Right: a plan that moves validation from Cli into Import gets one Before/After component SVG in its Target Solution.
+       Its steps get none.
+```
+
+**Mermaid** (exception row only): write a fenced `mermaid` block with `flowchart TD`. Label nodes with names from the code or the domain glossary.
 
 **SVG:**
 
@@ -214,7 +235,7 @@ Right: docs/images/layers.svg with three bands; Mermaid TD for the five-step imp
 - Define colors as CSS variables in an inline `<style>` with a `prefers-color-scheme: dark` override. Never let color carry meaning alone: add a label or a pattern.
 - Take chart values from real data (a measurement, a file, a table) and repeat them in the caption or a table below. Never invent a number or round it to fit.
 - Use a raster image (PNG) only for a screenshot, with alt text and width ≤ 1200 px.
-- Outside `docs/`: store a Spec delta's component diagram as `reviews/delta_<slug>_components.svg`, a briefing’s SVG next to it as `reviews/briefing_<slug>_<name>.svg`, an illustration as `illustrations/<slug>.svg` (`workflow-illustrate.md`).
+- Outside `docs/`: store a plan’s SVG as `plans/plans_<slug>_<name>.svg`, a review’s as `reviews/review_<slug>_<name>.svg`, a Spec delta's component diagram as `reviews/delta_<slug>_components.svg`, a briefing’s SVG next to it as `reviews/briefing_<slug>_<name>.svg`, an illustration as `illustrations/<slug>.svg` (`workflow-illustrate.md`).
 
 **Animation:**
 

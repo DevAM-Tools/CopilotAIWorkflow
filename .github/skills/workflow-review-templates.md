@@ -10,6 +10,7 @@ Field order: `What` → `Why` → `Evaluate` → `How` → `[Context]` → `[Whe
 - ❗ A person who did not write the code can accept or reject the finding **and the fix** from `What`, `Why`, `Evaluate`.
 - ❗ `How` names the concrete fix so another agent invents nothing: types, items, visibility, signatures, parameters, returns, call-site edits, validation, error paths, control flow, data flow, thread-safety, performance and security constraints, prerequisite state, rationale, edge cases.
 - ❗ Every `How` has fenced **Problem** and **Fix** code: real signatures and key bodies, anchored by path and symbol. Not stubs, not comments-as-code, not an intermediate shape.
+- A picture goes in `Why` or `How`, only where `tech-docs-templates.md` § Diagrams (In plans and reviews) calls for one. Read that section now, before drawing. It never replaces Problem/Fix.
 - Reject a `How` that allows more than one implementation, **except** when Consistency recorded two Fix options.
 - ❗ Cite a concrete source in `Context` when an external reference exists. File cites are clickable relative links (Section 4.6).
 - `Where`: link, approximate lines, symbol.

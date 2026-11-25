@@ -10,7 +10,7 @@ and requirement traceability.
 [![InvariantStringHelper](https://img.shields.io/nuget/v/InvariantStringHelper)](https://www.nuget.org/packages/InvariantStringHelper/)
 [![ReqTrace](https://img.shields.io/nuget/v/ReqTrace)](https://www.nuget.org/packages/ReqTrace/)
 
-**Current packages** — **CSharpStyleChecker** 3.0.0 (120-character CSC001 default) · **ReqTrace** 0.2.0
+**Current packages** — **CSharpStyleChecker** 3.0.1 (CSC009 accepts joined invariant interpolations) · **ReqTrace** 0.2.0
 (`reqtrace syntax` prints the spec form and fixes quote it) · **ExitPointGaps** 1.1.2 (package cleanup) ·
 **InvariantStringHelper** 1.0.0.
 Each package releases on its own. See the [CSharpStyleChecker](src/CSharpStyleChecker/CHANGELOG.md),
@@ -190,7 +190,7 @@ Cursor: [`.cursor/rules/copilot-ai-workflow.mdc`](.cursor/rules/copilot-ai-workf
 | `tech-solution.md` | Build files, `.csproj`, `.editorconfig`, `GlobalUsings.cs`, packing or releasing a package, NuGet restore failures from vulnerable packages |
 | `tech-dotnet-rust.md` | .NET → Rust port, `port/**` — Idiom Map, ownership, `Text`, optimizations |
 | `tech-docs.md` | Code, comments, or docs in scope (every plan, implement, review) — doc set with README and architecture required, reading tiers, architecture as contract, required architecture diagrams, no ASCII diagrams, doc-comment contract, Related and `Sync:` references, comment tags, large-file sections, Impact search, Sync check |
-| `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture with its required component and flow diagrams, concepts, domain, decision record, guide; before drawing a diagram — Mermaid or SVG by content, SVG form, animation |
+| `tech-docs-templates.md` | Creating or restructuring a project doc; `/docs-repair` — README, architecture with its required component and flow diagrams, concepts, domain, decision record, guide; before drawing a diagram — SVG by default, Mermaid only for a small straight chain, when a plan or review earns a picture, SVG form, animation |
 | `tech-spec.md` | Requirements, plan, implement, review, evolve, dream; `spec/**`, `docs/domain/**` — living spec format, stable IDs, trace, integrity checks, domain knowledge |
 | `tech-reqtrace.md` | Requirements, plan, implement, review, evolve, dream; `spec/trace.lock`, `.config/dotnet-tools.json` — setting up and calling `reqtrace`: which command at which moment, what to do per finding |
 | `tech-reporting.md` | Before a blocker, decision card, Spec delta, briefing, progress note, or run report — reader-first forms and length budgets |
@@ -384,7 +384,9 @@ A build writes no package. `dotnet pack src/{Project}/{Project}.csproj -c Releas
 ```csharp
 global using static InvariantStringHelper.InvariantText;
 
-string message = Invariant($"Rejection rate: {rate:P1}, count={count}");
+string message = Invariant(
+    $"Rejection rate: {rate:P1}, "
+    + $"count={count}");
 ```
 
 Formats under the invariant culture and allocates only the result string. Requires `net6.0` or later; `netstandard2.0` projects keep `FormattableString.Invariant`. Together with **CSharpStyleChecker** use 1.2.0 or later: 1.1.0 reports the call as CSC009. Why this form and not the alternatives: [decision record](docs/decisions/invariant-interpolation.md). Package history: [InvariantStringHelper CHANGELOG](src/InvariantStringHelper/CHANGELOG.md).

@@ -10,6 +10,15 @@ Rebuild. Violations surface as compiler errors. The analyzers load from `analyze
 
 **2.0.1** supports top-level statements under CSC003, including .NET 10 file-based apps.
 
+With **3.0.1**, CSC009 accepts long messages split across lines inside a single `InvariantStringHelper` call.
+Prefix each segment with `$` so the compiler formats them with one invariant handler.
+
+```csharp
+string message = Invariant(
+    $"Order {orderId}. "
+    + $"Total {total:F2}.");
+```
+
 CSC001 allows 120 visible characters by default. To keep the 2.x limit, set the width in `.editorconfig`.
 
 ```ini

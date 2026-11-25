@@ -507,6 +507,48 @@ public sealed class InvariantCultureFormattingAnalyzerTests
     }
 
     [Test]
+    public async Task Interpolation_JoinedSegments_RequireAnInvariantHandler()
+    {
+        const string source = PackageUsings + """
+            namespace N;
+            public class C
+            {
+                public string Joined(int value) => Invariant(
+                    $"value={value} " + ($"units" + $" count={value}")!);
+
+                public string Bare(int value) => {|#0:$"value={value}"|} + {|#1:$" units"|};
+
+                public string Nested(int value) => Invariant($"value=" + $"{ {|#2:$"{value}"|} }");
+
+                public string Lookalike(int value) => Other.OtherText.Invariant(
+                    {|#3:$"value="|} + {|#4:$"{value}"|});
+
+                public string Create(int value) =>
+                    string.Create(CultureInfo.InvariantCulture, $"value=" + $"{value}");
+
+                public void Append(StringBuilder builder, int value)
+                {
+                    builder.AppendLine(CultureInfo.InvariantCulture, $"value=" + $"{value}");
+                    builder.Append(CultureInfo.CurrentCulture, {|#5:$"value="|} + {|#6:$"{value}"|});
+                }
+            }
+            """;
+
+        DiagnosticResult bare = new DiagnosticResult(DiagnosticDescriptors.InvariantCultureFormatting)
+            .WithArguments(PackageBareMessage);
+        await AnalyzerVerifier.VerifyAsync<InvariantCultureFormattingAnalyzer>(
+            source,
+            _PackageSources,
+            bare.WithLocation(0),
+            bare.WithLocation(1),
+            bare.WithLocation(2),
+            bare.WithLocation(3),
+            bare.WithLocation(4),
+            bare.WithLocation(5),
+            bare.WithLocation(6));
+    }
+
+    [Test]
     public async Task Interpolation_PackageInvariantWrittenInOtherForms_NoDiagnostic()
     {
         // Every spelling of the call that the compiler accepts must pass: the analyzer keys on the bound method,

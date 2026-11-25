@@ -126,7 +126,7 @@ Docs and code say the same thing for the life of the project. Doc set, checks, e
 - ❗ Related references link only items bound in meaning or dependency, never usages. A coupling the compiler cannot check gets `Sync:` at both ends.
 - ❗ Comments state why and the flow: intent, design decisions, optimizations, invariants, security trade-offs. Split non-trivial bodies into blocks led by a comment. Never restate syntax.
 - ❗ Comments and docs describe the present: no history, no commented-out code, no file header that describes the file.
-- Markdown tables: 3–4 narrow columns. Diagrams: Mermaid `TD` (no wide `LR`) or SVG, chosen by content; SVG may animate where the motion carries meaning (`tech-docs-templates.md` § Diagrams). Never ASCII art.
+- Markdown tables: 3–4 narrow columns. Diagrams: SVG by default; Mermaid `TD` only for a small straight chain; SVG may animate where the motion carries meaning (`tech-docs-templates.md` § Diagrams). Never ASCII art.
 - ❗ File references are clickable Markdown links relative to the containing file, with forward slashes. Fenced commands may keep raw paths. In chat, link from the repo root.
 
 ### 4.7 Repository

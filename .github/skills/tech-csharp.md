@@ -32,12 +32,16 @@ Load when `*.cs` is in scope. C# mechanisms for Section 4. Section order matches
 
 - ❗ Pass `CultureInfo.InvariantCulture` to every parse and format call unless another locale is required.
 - ❗ Interpolate with `Invariant($"…")` from the InvariantStringHelper package (`global using static InvariantStringHelper.InvariantText;`).
+- To wrap a long message, join `$"…"` segments with `+` inside one helper call. Prefix even literal-only segments with `$`
+  so the compiler formats the whole message with one invariant handler.
 - ❗ Interpolate into a `StringBuilder` with `Append(CultureInfo.InvariantCulture, $"…")`.
 - ❗ Never write a bare `$"…"` or `FormattableString.Invariant` in a `net6.0` or later project (CSC009).
 - In a `netstandard2.0` project (analyzer, generator) write `Invariant($"…")` with `global using static System.FormattableString;`.
 
 ```csharp
-string message = Invariant($"Rejection rate: {rate:P1}, count={count}");
+string message = Invariant(
+    $"Rejection rate: {rate:P1}, "
+    + $"count={count}");
 string text = value.ToString(CultureInfo.InvariantCulture);
 if (!int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed))
 {

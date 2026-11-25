@@ -139,12 +139,8 @@ The Gate B packet and the record of what shipped. It is the reviewer’s guide: 
 
 {3–5 sentences in the problem’s terms: the idea of the solution, and why it splits into these types.}
 
-```mermaid
-flowchart TD
-    C[ExportCommand] -->|name| E[Export.Create]
-    E -->|TryAdd name| S[IExportStore]
-    S -.implemented by.-> F[FileExportStore]
-```
+![ExportCommand passes the name to Export.Create, which calls TryAdd on IExportStore](briefing_export_concept.svg)
+Mirrors: [`Export.Create`](../src/Export.cs) · [`FileExportStore`](../src/Store.cs)
 
 | Type | Role | Why it exists | Not to be confused with |
 |------|------|---------------|-------------------------|
@@ -176,7 +172,7 @@ public bool TryAdd(string name, out ExportId id)
 `````
 
 - ❗ **Concept:** required when the change adds or changes more than one type. One table row per new or changed type. `Role` states the job, never the name reworded. `Why it exists` states what fails without the type or why it is not merged into a neighbor. `Not to be confused with` names each type in the repository with a similar name or role and the difference; `—` when none exists.
-- Diagram: Mermaid `TD` or SVG (`tech-docs-templates.md` § Diagrams) of the types and the data passing between them, at most 10 nodes. Omit it for a single type.
+- Diagram: an SVG (`tech-docs-templates.md` § Diagrams; Mermaid only under its exception row) of the types and the data passing between them, at most 10 nodes. Omit it for a single type.
 - List every created, edited, or deleted path, docs included, in **Files**. Deleted: `(deleted)` in Change.
 - ❗ Write a card per Judge and Sample file. Routine files: the **Files** row is enough. Sibling files that serve one idea share one card.
 - Cards are fields, never paragraphs: each field at most 2 sentences. Ban slogans, ID-only reasons, and “as planned”.
